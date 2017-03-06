@@ -1,2 +1,2 @@
 # MightAndMagic-SaveEditor
-A save game editor for the classic DOS game Might and Magic 1 from 1986. 
+A save game editor for the DOS version of the classic game Might and Magic 1 from 1986.
