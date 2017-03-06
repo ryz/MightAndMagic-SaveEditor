@@ -18,168 +18,177 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine("Might and Magic 1 Save Game Editor (v0.02)\n");
          Console.WriteLine("Opening " + FILE_NAME + "...");
 
-         using (var stream = File.Open(FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
+         if (File.Exists(FILE_NAME))
          {
-            // Initialize all the chunks as byte arrays
-            var nameChunk = new byte[15]; // Offset 0=0x0
-
-            var offsetOfNameChunkInFile = stream.Position;
-            byte[] newName = new byte[nameChunk.Length];
-            bool isNewNameValid = false;
-
-            var unknownChunk1 = new byte[1]; // Offset 15=0xF
-
-            var sexChunk = new byte[1]; // Offset 16=0x10
-            var alignmentChunk = new byte[1]; // Offset 17=0x11
-            var raceChunk = new byte[1]; // Offset 18=0x12
-
-            var unknownChunk2 = new byte[1]; // Offset 19=0x13
-
-            var classChunk = new byte[1]; // Offset 20=0x14
-            var offsetClassChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length;
-
-            // Stats, there are seven statistics for each character, two bytes each.
-            var statsChunk = new byte[14]; // Offset 21=0x15
-
-            var levelChunk1 = new byte[1]; // Offset 35=0x23
-            var levelChunk2 = new byte[1]; // Offset 36=0x24
-
-            var ageChunk = new byte[1]; // Offset 37=0x25
-
-            var unknownChunk3 = new byte[1];  // Offset 38=0x26
-
-            // XP, stored as ushort/UInt16
-            var xpChunk = new byte[2]; // Offset 39=0x27
-            var offsetXpChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length + classChunk.Length + statsChunk.Length + levelChunk1.Length + levelChunk2.Length + ageChunk.Length + unknownChunk3.Length;
-
-            var unknownChunk4 = new byte[4]; // Offset 41=0x29
-
-            var spellPointsChunk = new byte[2]; // Offset 45=0x2D
-
-            var unknownChunk5 = new byte[2]; // Offset 47=0x2F
-
-            var gemsChunk = new byte[1]; // Offset 49=0x31
-
-            var unknownChunk6 = new byte[1]; // Offset 50=0x32
-
-            var healthChunk = new byte[6]; // Offset 51=0x33
-
-            var goldChunk = new byte[1];  // Offset 57=0x39
-
-            var unknownChunk7 = new byte[3]; // Offset 58=0x3A
-
-            var armorClassChunk = new byte[1]; // Offset 62=0x3D
-
-            var foodChunk = new byte[1]; // Offset 62=0x3E
-
-            var conditionChunk = new byte[1]; // Offset 63=0x3F
-
-            var equippedWeaponChunk = new byte[1]; // Offset 64=0x40
-
-            var equippedGearChunk = new byte[5]; // Offset 65=0x41
-
-            var inventoryChunk = new byte[6]; // Offset 70=0x46
-
-            var unknownChunk8 = new byte[50]; // Offset 76=0x4C - biggest chunk, probably contains various progress/quest-related data
-
-            var characterSlotChunk = new byte[1]; // Offset 126=0x7E
-
-
-
-            ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, xpChunk);
-
-            byte statsIntellect1 = statsChunk[0];
-            byte statsIntellect2 = statsChunk[1];
-            byte statsMight1 = statsChunk[2];
-            byte statsMight2 = statsChunk[3];
-            byte statsPersonality1 = statsChunk[4];
-            byte statsPersonality2 = statsChunk[5];
-            byte statsEndurance1 = statsChunk[6];
-            byte statsEndurance2 = statsChunk[7];
-            byte statsSpeed1 = statsChunk[8];
-            byte statsSpeed2 = statsChunk[9];
-            byte statsAccuracy1 = statsChunk[10];
-            byte statsAccuracy2 = statsChunk[11];
-            byte statsLuck1 = statsChunk[12];
-            byte statsLuck2 = statsChunk[13];
-
-
-            //ask and get new name from input and save it into a byte array
-            Console.Write("\nEnter a new Name: ");
-            string nameInput = Console.ReadLine().ToUpper();
-
-            // Truncate input above 15 characters
-            nameInput = nameInput.Substring(0, Math.Min(15, nameInput.Length));
-
-            // Check that the name contains only uppercase latin characters and numerals from 0-9
-            Regex rx = new Regex("^[A-Z0-9]*$");
-
-            if(rx.IsMatch(nameInput))
+            using (var stream = File.Open(FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
             {
-               Console.Write("Name '" + nameInput + "' accepted.\n");
-               newName = Encoding.ASCII.GetBytes(nameInput);
-               isNewNameValid = true;
-            }
-            else
-            {
-               Console.Write("Name contains invalid characters! Name has not been changed.\n");
-               isNewNameValid = false;
-            }
+               // Initialize all the chunks as byte arrays
+               var nameChunk = new byte[15]; // Offset 0=0x0
+
+               var offsetOfNameChunkInFile = stream.Position;
+               byte[] newName = new byte[nameChunk.Length];
+               bool isNewNameValid = false;
+
+               var unknownChunk1 = new byte[1]; // Offset 15=0xF
+
+               var sexChunk = new byte[1]; // Offset 16=0x10
+               var alignmentChunk = new byte[1]; // Offset 17=0x11
+               var raceChunk = new byte[1]; // Offset 18=0x12
+
+               var unknownChunk2 = new byte[1]; // Offset 19=0x13
+
+               var classChunk = new byte[1]; // Offset 20=0x14
+               var offsetClassChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length;
+
+               // Stats, there are seven statistics for each character, two bytes each.
+               var statsChunk = new byte[14]; // Offset 21=0x15
+
+               var levelChunk1 = new byte[1]; // Offset 35=0x23
+               var levelChunk2 = new byte[1]; // Offset 36=0x24
+
+               var ageChunk = new byte[1]; // Offset 37=0x25
+
+               var unknownChunk3 = new byte[1];  // Offset 38=0x26
+
+               // XP, stored as ushort/UInt16
+               var xpChunk = new byte[2]; // Offset 39=0x27
+               var offsetXpChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length + classChunk.Length + statsChunk.Length + levelChunk1.Length + levelChunk2.Length + ageChunk.Length + unknownChunk3.Length;
+
+               var unknownChunk4 = new byte[4]; // Offset 41=0x29
+
+               var spellPointsChunk = new byte[2]; // Offset 45=0x2D
+
+               var unknownChunk5 = new byte[2]; // Offset 47=0x2F
+
+               var gemsChunk = new byte[1]; // Offset 49=0x31
+
+               var unknownChunk6 = new byte[1]; // Offset 50=0x32
+
+               var healthChunk = new byte[6]; // Offset 51=0x33
+
+               var goldChunk = new byte[1];  // Offset 57=0x39
+
+               var unknownChunk7 = new byte[3]; // Offset 58=0x3A
+
+               var armorClassChunk = new byte[1]; // Offset 62=0x3D
+
+               var foodChunk = new byte[1]; // Offset 62=0x3E
+
+               var conditionChunk = new byte[1]; // Offset 63=0x3F
+
+               var equippedWeaponChunk = new byte[1]; // Offset 64=0x40
+
+               var equippedGearChunk = new byte[5]; // Offset 65=0x41
+
+               var inventoryChunk = new byte[6]; // Offset 70=0x46
+
+               var unknownChunk8 = new byte[50]; // Offset 76=0x4C - biggest chunk, probably contains various progress/quest-related data
+
+               var characterSlotChunk = new byte[1]; // Offset 126=0x7E
 
 
-            /*
-            // debug
-            var newNameString = Encoding.Default.GetString(newName);
-            Console.WriteLine("\nIntermediate Name: " + newNameString + " (Length: " + newNameString.Length + ")");
-            Console.WriteLine("Intermediate Name Array As Hex: " + BitConverter.ToString(newName).Replace("-", " ") + " (Length: " + newName.Length + ")");
-            */
 
-            // do work on the chunk
-            // we clear old array first so we can just copy the new one in it - keeps array size the same
-            Array.Clear(nameChunk, 0, nameChunk.Length);
-            Array.Copy(newName, nameChunk, newName.Length);
+               ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, xpChunk);
 
-            /*
-            // debug - print new name
-            nameString = Encoding.Default.GetString(nameChunk);
-            Console.WriteLine("\nNew Name: " + nameString + " (Length: " + nameString.Length + ")");
-            Console.WriteLine("New Name Array As Hex: " + BitConverter.ToString(nameChunk).Replace("-", " ") + " (Length: " + nameString.Length + ")");
-            */
+               byte statsIntellect1 = statsChunk[0];
+               byte statsIntellect2 = statsChunk[1];
+               byte statsMight1 = statsChunk[2];
+               byte statsMight2 = statsChunk[3];
+               byte statsPersonality1 = statsChunk[4];
+               byte statsPersonality2 = statsChunk[5];
+               byte statsEndurance1 = statsChunk[6];
+               byte statsEndurance2 = statsChunk[7];
+               byte statsSpeed1 = statsChunk[8];
+               byte statsSpeed2 = statsChunk[9];
+               byte statsAccuracy1 = statsChunk[10];
+               byte statsAccuracy2 = statsChunk[11];
+               byte statsLuck1 = statsChunk[12];
+               byte statsLuck2 = statsChunk[13];
 
-            Console.Write("\nEnter a new class (1-5): ");
-            byte classInput = Byte.Parse(Console.ReadLine());
 
-            Console.Write("\nEnter new XP value (0-9999): ");
-            ushort newXP = UInt16.Parse(Console.ReadLine());
-            xpChunk = BitConverter.GetBytes(newXP);
+               //ask and get new name from input and save it into a byte array
+               Console.Write("\nEnter a new Name: ");
+               string nameInput = Console.ReadLine().ToUpper();
 
-            //write it back to the file
+               // Truncate input above 15 characters
+               nameInput = nameInput.Substring(0, Math.Min(15, nameInput.Length));
 
-            //name
-            if (isNewNameValid)
-            {
-               Console.WriteLine("\nWriting new name back to " + FILE_NAME + ". Are you sure?");
+               // Check that the name contains only uppercase latin characters and numerals from 0-9
+               Regex rx = new Regex("^[A-Z0-9]*$");
+
+               if (rx.IsMatch(nameInput))
+               {
+                  Console.Write("Name '" + nameInput + "' accepted.\n");
+                  newName = Encoding.ASCII.GetBytes(nameInput);
+                  isNewNameValid = true;
+               }
+               else
+               {
+                  Console.Write("Name contains invalid characters! Name has not been changed.\n");
+                  isNewNameValid = false;
+               }
+
+
+               /*
+               // debug
+               var newNameString = Encoding.Default.GetString(newName);
+               Console.WriteLine("\nIntermediate Name: " + newNameString + " (Length: " + newNameString.Length + ")");
+               Console.WriteLine("Intermediate Name Array As Hex: " + BitConverter.ToString(newName).Replace("-", " ") + " (Length: " + newName.Length + ")");
+               */
+
+               // do work on the chunk
+               // we clear old array first so we can just copy the new one in it - keeps array size the same
+               Array.Clear(nameChunk, 0, nameChunk.Length);
+               Array.Copy(newName, nameChunk, newName.Length);
+
+               /*
+               // debug - print new name
+               nameString = Encoding.Default.GetString(nameChunk);
+               Console.WriteLine("\nNew Name: " + nameString + " (Length: " + nameString.Length + ")");
+               Console.WriteLine("New Name Array As Hex: " + BitConverter.ToString(nameChunk).Replace("-", " ") + " (Length: " + nameString.Length + ")");
+               */
+
+               Console.Write("\nEnter a new class (1-5): ");
+               byte classInput = Byte.Parse(Console.ReadLine());
+
+               Console.Write("\nEnter new XP value (0-9999): ");
+               ushort newXP = UInt16.Parse(Console.ReadLine());
+               xpChunk = BitConverter.GetBytes(newXP);
+
+               //write it back to the file
+
+               //name
+               if (isNewNameValid)
+               {
+                  Console.WriteLine("\nWriting new name back to " + FILE_NAME + ". Are you sure?");
+                  Console.ReadLine();
+                  stream.Seek(offsetOfNameChunkInFile, SeekOrigin.Begin);
+                  stream.Write(nameChunk, 0, nameChunk.Length);
+               }
+
+               //class
+               Console.WriteLine("\nWriting new Class back to " + FILE_NAME + ". Are you sure?");
                Console.ReadLine();
-               stream.Seek(offsetOfNameChunkInFile, SeekOrigin.Begin);
-               stream.Write(nameChunk, 0, nameChunk.Length);
+               stream.Seek(offsetClassChunkInFile, SeekOrigin.Begin);
+               stream.WriteByte(classInput);
+
+               //exp
+               Console.WriteLine("\nWriting new XP value back to " + FILE_NAME + ". Are you sure?");
+               Console.ReadLine();
+               stream.Seek(offsetXpChunkInFile, SeekOrigin.Begin);
+               stream.Write(xpChunk, 0, xpChunk.Length);
+
+
+
+               Console.ReadLine();
             }
-
-            //class
-            Console.WriteLine("\nWriting new Class back to " + FILE_NAME + ". Are you sure?");
-            Console.ReadLine();
-            stream.Seek(offsetClassChunkInFile, SeekOrigin.Begin);
-            stream.WriteByte(classInput);
-
-            //exp
-            Console.WriteLine("\nWriting new XP value back to " + FILE_NAME + ". Are you sure?");
-            Console.ReadLine();
-            stream.Seek(offsetXpChunkInFile, SeekOrigin.Begin);
-            stream.Write(xpChunk, 0, xpChunk.Length);
-
-
-
+         } else
+         {
+            Console.WriteLine("\nFile " + FILE_NAME + " not found! Aborting.");
             Console.ReadLine();
          }
+
+         
       }
       public static void ParseCharacter(FileStream _stream, byte[] _name, byte[] _sex, byte[] _alignment, byte[] _race, byte[] _characterClassNum, byte[] _statsChunk, byte[] _level, byte[] _exp)
       {
