@@ -20,55 +20,88 @@ namespace MightAndMagicSaveEditor
 
          using (var stream = File.Open(FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
          {
-            var nameChunk = new byte[15];
-            var offsetOfNameChunkInFile = stream.Position;
+            // Initialize all the chunks as byte arrays
+            var nameChunk = new byte[15]; // Offset 0=0x0
 
-            byte[] newName = new byte[15];
+            var offsetOfNameChunkInFile = stream.Position;
+            byte[] newName = new byte[nameChunk.Length];
             bool isNewNameValid = false;
 
-            var magicByte = new byte[1];
+            var unknownChunk1 = new byte[1]; // Offset 15=0xF
 
-            var sex = new byte[1];
-            var alignment = new byte[1];
-            var race = new byte[1];
+            var sexChunk = new byte[1]; // Offset 16=0x10
+            var alignmentChunk = new byte[1]; // Offset 17=0x11
+            var raceChunk = new byte[1]; // Offset 18=0x12
 
-            var unknownSection1 = new byte[1];
+            var unknownChunk2 = new byte[1]; // Offset 19=0x13
 
-            var characterClassNum = new byte[1];
-            var offsetOfCharacterClassChunkInFile = nameChunk.Length + magicByte.Length + sex.Length + alignment.Length + race.Length + unknownSection1.Length;
+            var classChunk = new byte[1]; // Offset 20=0x14
+            var offsetClassChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length;
 
+            // Stats, there are seven statistics for each character, two bytes each.
+            var statsChunk = new byte[14]; // Offset 21=0x15
 
-            // Stats Chunk
-            var statsAll = new byte[14]; 
+            var levelChunk1 = new byte[1]; // Offset 35=0x23
+            var levelChunk2 = new byte[1]; // Offset 36=0x24
 
-            var characterLevel1 = new byte[1];
-            var characterLevel2 = new byte[1];
+            var ageChunk = new byte[1]; // Offset 37=0x25
 
-            var age = new byte[1]; // Offset 37=0x25
-
-            var unknownByte2 = new byte[1];  // Offset 38=0x26
+            var unknownChunk3 = new byte[1];  // Offset 38=0x26
 
             // XP, stored as ushort/UInt16
-            var experience = new byte[2]; // Offset 39=0x27
-            var offsetExperienceChunkInFile = nameChunk.Length + magicByte.Length + sex.Length + alignment.Length + race.Length + unknownSection1.Length + characterClassNum.Length + statsAll.Length + characterLevel1.Length + characterLevel2.Length + age.Length + unknownByte2.Length;
+            var xpChunk = new byte[2]; // Offset 39=0x27
+            var offsetXpChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length + classChunk.Length + statsChunk.Length + levelChunk1.Length + levelChunk2.Length + ageChunk.Length + unknownChunk3.Length;
+
+            var unknownChunk4 = new byte[4]; // Offset 41=0x29
+
+            var spellPointsChunk = new byte[2]; // Offset 45=0x2D
+
+            var unknownChunk5 = new byte[2]; // Offset 47=0x2F
+
+            var gemsChunk = new byte[1]; // Offset 49=0x31
+
+            var unknownChunk6 = new byte[1]; // Offset 50=0x32
+
+            var healthChunk = new byte[6]; // Offset 51=0x33
+
+            var goldChunk = new byte[1];  // Offset 57=0x39
+
+            var unknownChunk7 = new byte[3]; // Offset 58=0x3A
+
+            var armorClassChunk = new byte[1]; // Offset 62=0x3D
+
+            var foodChunk = new byte[1]; // Offset 62=0x3E
+
+            var conditionChunk = new byte[1]; // Offset 63=0x3F
+
+            var equippedWeaponChunk = new byte[1]; // Offset 64=0x40
+
+            var equippedGearChunk = new byte[5]; // Offset 65=0x41
+
+            var inventoryChunk = new byte[6]; // Offset 70=0x46
+
+            var unknownChunk8 = new byte[50]; // Offset 76=0x4C - biggest chunk, probably contains various progress/quest-related data
+
+            var characterSlotChunk = new byte[1]; // Offset 126=0x7E
 
 
-            ParseCharacter(stream, nameChunk, sex, alignment, race, characterClassNum, statsAll, characterLevel1, experience);
 
-            byte statsIntellect1 = statsAll[0];
-            byte statsIntellect2 = statsAll[1];
-            byte statsMight1 = statsAll[2];
-            byte statsMight2 = statsAll[3];
-            byte statsPersonality1 = statsAll[4];
-            byte statsPersonality2 = statsAll[5];
-            byte statsEndurance1 = statsAll[6];
-            byte statsEndurance2 = statsAll[7];
-            byte statsSpeed1 = statsAll[8];
-            byte statsSpeed2 = statsAll[9];
-            byte statsAccuracy1 = statsAll[10];
-            byte statsAccuracy2 = statsAll[11];
-            byte statsLuck1 = statsAll[12];
-            byte statsLuck2 = statsAll[13];
+            ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, xpChunk);
+
+            byte statsIntellect1 = statsChunk[0];
+            byte statsIntellect2 = statsChunk[1];
+            byte statsMight1 = statsChunk[2];
+            byte statsMight2 = statsChunk[3];
+            byte statsPersonality1 = statsChunk[4];
+            byte statsPersonality2 = statsChunk[5];
+            byte statsEndurance1 = statsChunk[6];
+            byte statsEndurance2 = statsChunk[7];
+            byte statsSpeed1 = statsChunk[8];
+            byte statsSpeed2 = statsChunk[9];
+            byte statsAccuracy1 = statsChunk[10];
+            byte statsAccuracy2 = statsChunk[11];
+            byte statsLuck1 = statsChunk[12];
+            byte statsLuck2 = statsChunk[13];
 
 
             //ask and get new name from input and save it into a byte array
@@ -118,7 +151,7 @@ namespace MightAndMagicSaveEditor
 
             Console.Write("\nEnter new XP value (0-9999): ");
             ushort newXP = UInt16.Parse(Console.ReadLine());
-            experience = BitConverter.GetBytes(newXP);
+            xpChunk = BitConverter.GetBytes(newXP);
 
             //write it back to the file
 
@@ -134,21 +167,21 @@ namespace MightAndMagicSaveEditor
             //class
             Console.WriteLine("\nWriting new Class back to " + FILE_NAME + ". Are you sure?");
             Console.ReadLine();
-            stream.Seek(offsetOfCharacterClassChunkInFile, SeekOrigin.Begin);
+            stream.Seek(offsetClassChunkInFile, SeekOrigin.Begin);
             stream.WriteByte(classInput);
 
             //exp
             Console.WriteLine("\nWriting new XP value back to " + FILE_NAME + ". Are you sure?");
             Console.ReadLine();
-            stream.Seek(offsetExperienceChunkInFile, SeekOrigin.Begin);
-            stream.Write(experience, 0, experience.Length);
+            stream.Seek(offsetXpChunkInFile, SeekOrigin.Begin);
+            stream.Write(xpChunk, 0, xpChunk.Length);
 
 
 
             Console.ReadLine();
          }
       }
-      public static void ParseCharacter(FileStream _stream, byte[] _name, byte[] _sex, byte[] _alignment, byte[] _race, byte[] _characterClassNum, byte[] _statsAll, byte[] _level, byte[] _exp)
+      public static void ParseCharacter(FileStream _stream, byte[] _name, byte[] _sex, byte[] _alignment, byte[] _race, byte[] _characterClassNum, byte[] _statsChunk, byte[] _level, byte[] _exp)
       {
          Console.WriteLine("Reading first Character...\n");
 
@@ -260,9 +293,9 @@ namespace MightAndMagicSaveEditor
          }
 
          // Stats - 0x15 - 0x22
-         _stream.Read(_statsAll, 0, _statsAll.Length);
+         _stream.Read(_statsChunk, 0, _statsChunk.Length);
 
-         Console.WriteLine("Stats (I/M/P/E/S/A/L): " + BitConverter.ToString(_statsAll).Replace("-", " ") + " (Length: " + _statsAll.Length + ")");
+         Console.WriteLine("Stats (I/M/P/E/S/A/L): " + BitConverter.ToString(_statsChunk).Replace("-", " ") + " (Length: " + _statsChunk.Length + ")");
 
          // Intellect
 
