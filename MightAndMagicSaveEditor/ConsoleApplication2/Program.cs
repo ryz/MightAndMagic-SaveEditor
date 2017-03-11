@@ -109,6 +109,7 @@ namespace MightAndMagicSaveEditor
                var characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
                var characterSlotsOffset = 2286;
 
+               string[] characterSlotTowns = {"DELETED", "Sorpigal", "Portmith", "Algary", "Dusk", "Erliquin"};
 
                // We need to read this chunk first, because we need to check if a given character exists before reading his data.
                stream.Position = characterSlotsOffset;
@@ -131,6 +132,9 @@ namespace MightAndMagicSaveEditor
                   {
                      Console.WriteLine($"Character found!\n");
                      Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
+
+                     var town = characterSlotTowns[characterSlotsChunk[i]];
+                     Console.WriteLine($"This character is located at the Inn of {town}");
 
                      stream.Position = characterOffset[i];
 
