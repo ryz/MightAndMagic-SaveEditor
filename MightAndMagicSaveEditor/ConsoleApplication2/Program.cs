@@ -15,7 +15,7 @@ namespace MightAndMagicSaveEditor
       {
          string FILE_NAME = "ROSTER.DTA";
 
-         Console.WriteLine("Might and Magic 1 Save Game Editor (v0.1) by ryz\n");
+         Console.WriteLine("Might and Magic 1 Save Game Editor (v0.2) by ryz\n");
          Console.WriteLine($"Opening {FILE_NAME}...");
 
          if (File.Exists(FILE_NAME))
