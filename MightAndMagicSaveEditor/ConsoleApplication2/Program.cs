@@ -102,8 +102,9 @@ namespace MightAndMagicSaveEditor
 
                var unknownChunk8 = new byte[22]; // Offset 104=0x68 - biggest chunk, probably contains various progress/quest-related data
 
-               var characterSlotChunk = new byte[1]; // Offset 126=0x7E
+               var characterIndexChunk = new byte[1]; // Offset 126=0x7E
 
+               var characterSlotsChunk = new byte[18];
 
                // We parse, modify and write back parameters for each character
                for (int i = 0; i < characterOffset.Length; i++)
@@ -112,7 +113,7 @@ namespace MightAndMagicSaveEditor
 
                   Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
 
-                  ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterSlotChunk);
+                  ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterIndexChunk);
 
                   // do work on the chunks
 
@@ -273,7 +274,7 @@ namespace MightAndMagicSaveEditor
          byte[] _inventory,
          byte[] _charges,
          byte[] _resistances,
-         byte[] _characterSlot
+         byte[] _characterIndex
          )
 
       {
@@ -539,9 +540,9 @@ namespace MightAndMagicSaveEditor
          // Unknown 0x68 - 0x7D
          _stream.Position += 22;
 
-         // Character slot number - 0x7E
-         _stream.Read(_characterSlot, 0, _characterSlot.Length);
-         Console.WriteLine($"Character Slot: {BitConverter.ToString(_characterSlot)}");
+         // Character Index number - 0x7E
+         _stream.Read(_characterIndex, 0, _characterIndex.Length);
+         Console.WriteLine($"\nCharacter Index: {BitConverter.ToString(_characterIndex)}");
       }
 
 
