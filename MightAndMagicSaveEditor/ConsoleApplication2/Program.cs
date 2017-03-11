@@ -534,7 +534,7 @@ namespace MightAndMagicSaveEditor
          int resSleep1 = _resistances[14];
          int resSleep2 = _resistances[15];
 
-         Console.WriteLine($"Resistances\n Magic  {resMagic1}/{resMagic2}  Fire   {resFire1}/{resFire2}  Cold   {resCold1}/{resCold2}  Elec   {resElec1}/{resElec2}\n Acid   {resAcid1}/{resAcid2} Fear   {resFear1}/{resFear2} Poison {resPoison1}/{resPoison2} Sleep  {resSleep1}/{resSleep2}");
+         Console.WriteLine($"Resistances\n Magic  {resMagic1}%/{resMagic2}%  Fire   {resFire1}%/{resFire2}%  Cold   {resCold1}%/{resCold2}%  Elec   {resElec1}%/{resElec2}%\n Acid   {resAcid1}%/{resAcid2}% Fear   {resFear1}%/{resFear2}% Poison {resPoison1}%/{resPoison2}% Sleep  {resSleep1}%/{resSleep2}%");
 
          // Unknown 0x68 - 0x7D
          _stream.Position += 22;
