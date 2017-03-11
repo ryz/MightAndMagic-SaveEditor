@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
+using GSF;
 
 namespace MightAndMagicSaveEditor
 {
@@ -15,7 +16,7 @@ namespace MightAndMagicSaveEditor
       {
          string FILE_NAME = "ROSTER.DTA";
 
-         Console.WriteLine("Might and Magic 1 Save Game Editor (v0.1)\n");
+         Console.WriteLine("Might and Magic 1 Save Game Editor (v0.1) by ryz\n");
          Console.WriteLine("Opening " + FILE_NAME + "...");
 
          if (File.Exists(FILE_NAME))
@@ -23,18 +24,17 @@ namespace MightAndMagicSaveEditor
             using (var stream = File.Open(FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
             {
 
-               bool isNewNameValid = false;
-               // 18 characters, each one 127 byte
+               // There are 18 characters in the file, each one 127 bytes long
                uint[] characterOffset = { 0, 127, 254, 381, 508, 635, 762, 889, 1016, 1143, 1270, 1397, 1524, 1651, 1778, 1905, 2032, 2159 };
 
                stream.Position = characterOffset[0];
 
-               // Initialize all the chunks as byte arrays
+               // Initialize stuff, mostly all the "chunks" as byte arrays
+
+               // Character Name
                var nameChunk = new byte[15]; // Offset 0=0x0
-
-               var offsetOfNameChunkInFile = stream.Position;
-               byte[] newName = new byte[nameChunk.Length];
-
+               var offsetName = 0;
+               bool isNewNameValid = false;
 
                var unknownChunk1 = new byte[1]; // Offset 15=0xF
 
@@ -45,7 +45,7 @@ namespace MightAndMagicSaveEditor
                var unknownChunk2 = new byte[1]; // Offset 19=0x13
 
                var classChunk = new byte[1]; // Offset 20=0x14
-               var offsetClassChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length;
+               var offsetClass = 20;
 
                // Stats, there are seven statistics for each character, two bytes each.
                var statsChunk = new byte[14]; // Offset 21=0x15
@@ -72,25 +72,26 @@ namespace MightAndMagicSaveEditor
 
                var unknownChunk3 = new byte[1];  // Offset 38=0x26
 
-               // XP, stored as ushort/UInt16
-               var xpChunk = new byte[2]; // Offset 39=0x27
-               var offsetXpChunkInFile = nameChunk.Length + unknownChunk1.Length + sexChunk.Length + alignmentChunk.Length + raceChunk.Length + unknownChunk2.Length + classChunk.Length + statsChunk.Length + levelChunk1.Length + levelChunk2.Length + ageChunk.Length + unknownChunk3.Length;
+               // XP, stored as UInt24
+               var xpChunk = new byte[3]; // Offset 39=0x27
+               var offsetXp = 39;
 
-               var unknownChunk4 = new byte[4]; // Offset 41=0x29
+               var unknownChunk4 = new byte[3]; // Offset 41=0x29
 
                var spellPointsChunk = new byte[2]; // Offset 45=0x2D
 
                var unknownChunk5 = new byte[2]; // Offset 47=0x2F
 
-               var gemsChunk = new byte[1]; // Offset 49=0x31
+               var gemsChunk = new byte[2]; // Offset 49=0x31
 
-               var unknownChunk6 = new byte[1]; // Offset 50=0x32
+               var healthCurrentChunk = new byte[2]; // Offset 51=0x33
+               var healthMaxChunk = new byte[2]; // Offset 53
 
-               var healthChunk = new byte[6]; // Offset 51=0x33
+               var unknownChunkA = new byte[2]; // Offset 55
 
-               var goldChunk = new byte[1];  // Offset 57=0x39
+               var goldChunk = new byte[3];  // Offset 57=0x39
 
-               var unknownChunk7 = new byte[3]; // Offset 58=0x3A
+               var unknownChunk7 = new byte[1]; // Offset 58=0x3A
 
                var armorClassChunk = new byte[1]; // Offset 62=0x3D
 
@@ -99,9 +100,7 @@ namespace MightAndMagicSaveEditor
                var conditionChunk = new byte[1]; // Offset 63=0x3F
 
                var equippedWeaponChunk = new byte[1]; // Offset 64=0x40
-
                var equippedGearChunk = new byte[5]; // Offset 65=0x41
-
                var inventoryChunk = new byte[6]; // Offset 70=0x46
 
                var unknownChunk8 = new byte[50]; // Offset 76=0x4C - biggest chunk, probably contains various progress/quest-related data
@@ -109,50 +108,37 @@ namespace MightAndMagicSaveEditor
                var characterSlotChunk = new byte[1]; // Offset 126=0x7E
 
 
+               // We parse, modify and write back parameters for each character
                for (int i = 0; i < characterOffset.Length; i++)
                {
                   stream.Position = characterOffset[i];
 
                   Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
 
-                  ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, xpChunk, gemsChunk, healthChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, characterSlotChunk);
-
-                  GetName(nameChunk, newName, ref isNewNameValid);
+                  ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, characterSlotChunk);
 
                   // do work on the chunks
 
-                  Console.Write("\nEnter a new class (1-5): ");
-                  byte classInput = Byte.Parse(Console.ReadLine());
+                  ModifyNameChunk(nameChunk, ref isNewNameValid);
 
-                  Console.Write("\nEnter new XP value (0-9999): ");
-                  ushort newXP = UInt16.Parse(Console.ReadLine());
-                  xpChunk = BitConverter.GetBytes(newXP);
+                  ModifyChunkUInt8(sexChunk, "Sex", 1, 2);
+                  ModifyChunkUInt8(classChunk, "Class", 1, 5);
+                  ModifyChunkUInt24(xpChunk, "XP");
+                  ModifyChunkUInt16(gemsChunk, "Gems");
+                  ModifyChunkUInt24(goldChunk, "Gold");
 
-                  //write it back to the file
+                  // Write chunks back to the file
 
-                  //name
                   if (isNewNameValid)
                   {
-                     Console.WriteLine($"\nWriting new name back to {FILE_NAME}. Are you sure?");
-                     Console.ReadLine();
-                     stream.Seek(offsetOfNameChunkInFile, SeekOrigin.Begin);
-                     stream.Write(nameChunk, 0, nameChunk.Length);
+                     WriteChunk(stream, "Name", nameChunk, offsetName, FILE_NAME);
                   }
 
-                  //class
-                  Console.WriteLine($"\nWriting new Class back to {FILE_NAME}. Are you sure?");
-                  Console.ReadLine();
-                  stream.Seek(offsetClassChunkInFile, SeekOrigin.Begin);
-                  stream.WriteByte(classInput);
-
-                  //exp
-                  Console.WriteLine($"\nWriting new XP value back to {FILE_NAME} . Are you sure?");
-                  Console.ReadLine();
-                  stream.Seek(offsetXpChunkInFile, SeekOrigin.Begin);
-                  stream.Write(xpChunk, 0, xpChunk.Length);
-
-
-
+                  WriteChunk(stream, "Sex", sexChunk, 16, FILE_NAME);
+                  WriteChunk(stream, "Class", classChunk, offsetClass, FILE_NAME);
+                  WriteChunk(stream, "XP", xpChunk, offsetXp, FILE_NAME);
+                  WriteChunk(stream, "Gems", gemsChunk, 49, FILE_NAME);
+                  WriteChunk(stream, "Gold", goldChunk, 57, FILE_NAME);
 
                   Console.WriteLine($"\nCharacter #{i + 1} done!\n");
                }
@@ -162,13 +148,74 @@ namespace MightAndMagicSaveEditor
             }
          } else
          {
-            Console.WriteLine($"\nFile {FILE_NAME} not found! Aborting.");
+            Console.WriteLine($"\nFile {FILE_NAME} not found! Make sure it's in the same folder as this program. Aborting.");
             Console.ReadLine();
          }
       }
 
-      public static void GetName(byte[] _name, byte[] _newName, ref bool _nameValid)
+      public static void ModifyChunkUInt8(byte[] _chunk, string _chunkName, uint _min, uint _max)
       {
+         Console.Write($"\nEnter new {_chunkName} value ({_min}-{_max}): ");
+         byte newVal = Byte.Parse(Console.ReadLine());
+
+         byte[] newArray = new byte[1];
+
+         newArray[0] = newVal;
+
+         Array.Clear(_chunk, 0, _chunk.Length);
+         Array.Copy(newArray, _chunk, newArray.Length);
+      }
+
+      public static void ModifyChunkUInt16(byte[] _chunk, string _chunkName)
+      {
+         Console.Write($"\nEnter new {_chunkName} value (UInt16): ");
+         ushort newVal = UInt16.Parse(Console.ReadLine());
+
+         byte[] newArray = BitConverter.GetBytes(newVal);
+
+         Array.Clear(_chunk, 0, _chunk.Length);
+         Array.Copy(newArray, _chunk, 2);
+
+
+      }
+
+      public static void ModifyChunkUInt24(byte[] _chunk, string _chunkName)
+      {
+         Console.Write($"\nEnter new {_chunkName} value (UInt24): ");
+         uint newVal = UInt24.Parse(Console.ReadLine());
+
+         // We have to create an intermediate byte array here where we copy to and from
+         // This is because BitConverter.GetBytes() can't return UInt24
+         // which would result in a too long chunk (byte array). 
+
+         byte[] newArray = BitConverter.GetBytes(newVal);
+
+         Array.Clear(_chunk, 0, _chunk.Length);
+         Array.Copy(newArray, _chunk, 3);
+      }
+
+      // Write chunk back from byte array
+      public static void WriteChunk(Stream _stream, string _chunkName, byte[] _chunk, int _offset, string _filename)
+      {
+         Console.WriteLine($"Writing new {_chunkName} value back to {_filename}. Are you sure?");
+         Console.ReadLine();
+         _stream.Seek(_offset, SeekOrigin.Begin);
+         _stream.Write(_chunk, 0, _chunk.Length);
+      }
+
+      // Write chunk back from single byte
+      public static void WriteChunk(Stream _stream, string _chunkName, byte _byte, int _offset, string _filename)
+      {
+         Console.WriteLine($"Writing new {_chunkName} value back to {_filename}. Are you sure?");
+         Console.ReadLine();
+         _stream.Seek(_offset, SeekOrigin.Begin);
+         _stream.WriteByte(_byte);
+      }
+
+
+      public static void ModifyNameChunk(byte[] _name, ref bool _nameValid)
+      {
+         byte[] newName = new byte[_name.Length];
 
          //ask for and get new name from input and save it into a byte array
          Console.Write("\nEnter a new Name: ");
@@ -183,7 +230,8 @@ namespace MightAndMagicSaveEditor
          if (rx.IsMatch(nameInput))
          {
             Console.Write($"Name '{nameInput}' accepted.\n");
-            _newName = Encoding.ASCII.GetBytes(nameInput);
+            newName = Encoding.ASCII.GetBytes(nameInput);
+
             _nameValid = true;
          }
          else
@@ -194,7 +242,7 @@ namespace MightAndMagicSaveEditor
 
          // we clear the old array first so we can just copy the new one in it - keeps array size the same
          Array.Clear(_name, 0, _name.Length);
-         Array.Copy(_newName, _name, _newName.Length);
+         Array.Copy(newName, _name, newName.Length);
       }
 
       public static void ParseCharacter(
@@ -209,6 +257,7 @@ namespace MightAndMagicSaveEditor
          byte[] _exp, 
          byte[] _gems, 
          byte[] _health, 
+         byte[] _healthMax,
          byte[] _gold, 
          byte[] _armorClass, 
          byte[] _food, 
@@ -278,19 +327,19 @@ namespace MightAndMagicSaveEditor
          switch (raceS)
          {
             case "01":
-               Console.WriteLine($"Race: Human? ({raceS})");
+               Console.WriteLine($"Race: Human ({raceS})");
                break;
             case "02":
-               Console.WriteLine($"Race: 02 ({raceS})");
+               Console.WriteLine($"Race: Elf ({raceS})");
                break;
             case "03":
-               Console.WriteLine($"Race: 03 ({raceS})");
+               Console.WriteLine($"Race: Dwarf ({raceS})");
                break;
             case "04":
-               Console.WriteLine($"Race: 04 ({raceS})");
+               Console.WriteLine($"Race: Gnome ({raceS})");
                break;
             case "05":
-               Console.WriteLine($"Race: 05 ({raceS})");
+               Console.WriteLine($"Race: Half-Orc ({raceS})");
                break;
             default:
                throw new Exception($"\nUnknown race: {raceS}");
@@ -358,12 +407,14 @@ namespace MightAndMagicSaveEditor
          // Advance the stream - 0x25 - 0x26
          _stream.Position += 2;
 
-         // Experience - Stored as a little-endian ushort 0x27 - 0x28
+         // Experience - Stored as a little-endian UInt24 0x27 - 0x29
          _stream.Read(_exp, 0, _exp.Length);
-         Console.WriteLine("Experience : " + BitConverter.ToInt16(_exp, 0) + " [" + BitConverter.ToString(_exp).Replace("-", " ") + "]" + " (ushort, Length: " + _exp.Length + ")");
+         int expNum = (_exp[2] << 16) | (_exp[1] << 8) | _exp[0];
+         Console.WriteLine("Experience : " + expNum + " [" + BitConverter.ToString(_exp).Replace("-", " ") + "]" + " (UInt24, Length: " + _exp.Length + ")");
 
-         // Advance the stream - 0x29 - 0x2C
-         _stream.Position += 4;
+
+         // Advance the stream - 0x2A - 0x2C
+         _stream.Position += 3;
 
          // Spell Points - 0x2D - 0x2E
          _stream.Position += 2;
@@ -371,25 +422,30 @@ namespace MightAndMagicSaveEditor
          // Advance the stream - 0x2F - 0x30
          _stream.Position += 2;
 
-         // Gems - 0x31
+         // Gems - Stored as a little-endian ushort  0x31 - 0x32
          _stream.Read(_gems, 0, _gems.Length);
-         Console.WriteLine("Gems: " + BitConverter.ToString(_gems));
-
-         // Advance the stream - 0x32
-         _stream.Position += 1;
+         Console.WriteLine("Gems: " + BitConverter.ToInt16(_gems, 0) + " [" + BitConverter.ToString(_gems) + "]" + " (ushort, Length: " + _gems.Length + ")");
 
          // Health Points - 0x33 - 0x34
-         // Max HP - 0x35 - 0x36 & 0x37 - 0x38
+
          _stream.Read(_health, 0, _health.Length);
-         Console.WriteLine("Health: " + BitConverter.ToString(_health));
+         Console.WriteLine("Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_health) + "]" + " (ushort, Length: " + _gems.Length + ")");
 
+         // Max HP - 0x35 - 0x36
+         _stream.Read(_healthMax, 0, _healthMax.Length);
+         Console.WriteLine("Max Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_healthMax) + "]" + " (ushort, Length: " + _gems.Length + ")");
 
-         // Gold - 0x39
+         // ?? 0x37 - 0x38
+         _stream.Position += 2;
+
+         // Gold - 0x39 - 0x3B
          _stream.Read(_gold, 0, _gold.Length);
-         Console.WriteLine("Gold: " + BitConverter.ToString(_gold));
+         int goldNum = (_gold[2] << 16) | (_gold[1] << 8) | _gold[0];
+         Console.WriteLine("Gold : " + goldNum + " [" + BitConverter.ToString(_gold).Replace("-", " ") + "]" + " (UInt24, Length: " + _gold.Length + ")");
 
-         // Advance the stream 0x3A - 0x3C
-         _stream.Position += 3;
+
+         // Advance the stream 0x3C
+         _stream.Position += 1;
 
          // Armor Class - 0x3D
          _stream.Read(_armorClass, 0, _armorClass.Length);
@@ -422,6 +478,8 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_characterSlot, 0, _characterSlot.Length);
          Console.WriteLine("Character Slot: " + BitConverter.ToString(_characterSlot));
       }
-         
+
+
+
    }
 }
