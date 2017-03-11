@@ -67,18 +67,18 @@ namespace MightAndMagicSaveEditor
                var xpChunk = new byte[3]; // Offset 39=0x27
                var xpOffset = 39;
 
-               var unknownChunk4 = new byte[3]; // Offset 41=0x29
+               var unknownChunk4 = new byte[1]; // Offset 42=0x2A
 
-               var spellPointsChunk = new byte[2]; // Offset 45=0x2D
+               var magicPointsCurrentChunk = new byte[2]; // Offset 43=0x2B
+               var magicPointsMaxChunk = new byte[2]; // Offset 45=0x2D
 
-               var unknownChunk5 = new byte[2]; // Offset 47=0x2F
+               var spellLevelChunk = new byte[2]; // Offset 47=0x2F
 
                var gemsChunk = new byte[2]; // Offset 49=0x31
                var gemsOffset = 49;
 
                var healthCurrentChunk = new byte[2]; // Offset 51=0x33
                var unknownChunkA = new byte[2]; // Offset 53
-
                var healthMaxChunk = new byte[2]; // Offset 55
 
                var goldChunk = new byte[3];  // Offset 57=0x39
@@ -120,7 +120,7 @@ namespace MightAndMagicSaveEditor
                {
 
                   // First we read the character slot-byte at the end of the file to see if the character exists in the first place.
-                  // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero.
+                  // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero in this case.
                   Console.WriteLine($"\nReading Slot #{i + 1}...");
 
                   if (characterSlotsChunk[i] == 0)
@@ -129,12 +129,12 @@ namespace MightAndMagicSaveEditor
                   }
                   else
                   {
-                     Console.WriteLine($"Character found! Proceeding...\n");
+                     Console.WriteLine($"Character found!\n");
                      Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
 
                      stream.Position = characterOffset[i];
 
-                     ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterIndexChunk);
+                     ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, magicPointsCurrentChunk, magicPointsMaxChunk, spellLevelChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterIndexChunk);
 
                      // do work on the chunks
 
@@ -286,6 +286,9 @@ namespace MightAndMagicSaveEditor
          byte[] _level,
          byte[] _age,
          byte[] _exp,
+         byte[] _magicPoints,
+         byte[] _magicPointsMax,
+         byte[] _spellLevel,
          byte[] _gems,
          byte[] _health,
          byte[] _healthMax,
@@ -309,7 +312,7 @@ namespace MightAndMagicSaveEditor
          //encode and print the byte array to a string so that we can debug it
          Console.WriteLine($"Name: {Encoding.Default.GetString(_name)} (Length: {_name.Length})");
 
-         // Magic Byte 0xF, 
+         // UNKNOWN 0xF, 
          _stream.Position += 1;
 
          // Sex 0x10
@@ -329,7 +332,7 @@ namespace MightAndMagicSaveEditor
                throw new Exception($"\nUnknown Sex: {sexS}");
          }
 
-         // Unknown 0x11
+         // UNKNOWN 0x11
          _stream.Position += 1;
 
          // Alignment 0x12
@@ -442,23 +445,29 @@ namespace MightAndMagicSaveEditor
          int ageNum = _age[0];
          Console.WriteLine($"Age: {ageNum} [{BitConverter.ToString(_age)}]");
 
-         // Advance the stream - 0x26
+         // UNKNOWN - 0x26
          _stream.Position += 1;
 
          // Experience - Stored as a little-endian UInt24 0x27 - 0x29
          _stream.Read(_exp, 0, _exp.Length);
          int expNum = (_exp[2] << 16) | (_exp[1] << 8) | _exp[0];
-         Console.WriteLine($"Experience : {expNum} [{BitConverter.ToString(_exp).Replace("-", " ")}] (UInt24, Length: {_exp.Length})");
+         Console.WriteLine($"Experience: {expNum} [{BitConverter.ToString(_exp).Replace("-", " ")}] (UInt24, Length: {_exp.Length})");
 
+         // UNKNOWN - 0x2A
+         _stream.Position += 1;
 
-         // Advance the stream - 0x2A - 0x2C
-         _stream.Position += 3;
+         // Magic Points - 0x2B - 0x2C
+         _stream.Read(_magicPoints, 0, _magicPoints.Length);
+         Console.WriteLine($"Magic Points: {BitConverter.ToUInt16(_magicPoints, 0)} [{BitConverter.ToString(_magicPoints).Replace("-", " ")}]");
 
-         // Spell Points - 0x2D - 0x2E
-         _stream.Position += 2;
+         // Magic Points Max - 0x2D - 0x2E
+         _stream.Read(_magicPointsMax, 0, _magicPointsMax.Length);
+         Console.WriteLine($"Magic Points Max: {BitConverter.ToUInt16(_magicPointsMax, 0)} [{BitConverter.ToString(_magicPointsMax).Replace("-", " ")}]");
 
-         // Advance the stream - 0x2F - 0x30
-         _stream.Position += 2;
+         // Spell Level - 0x2F - 0x30
+         _stream.Read(_spellLevel, 0, _spellLevel.Length);
+         int spellLvlNum = _spellLevel[0];
+         Console.WriteLine($"Spell Level: {spellLvlNum} [{BitConverter.ToString(_spellLevel).Replace("-", " ")}]");
 
          // Gems - Stored as a little-endian ushort  0x31 - 0x32
          _stream.Read(_gems, 0, _gems.Length);
@@ -468,7 +477,7 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_health, 0, _health.Length);
          Console.WriteLine($"Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_health) + "]" + " (ushort, Length: " + _health.Length + ")");
 
-         // ?? 0x35 - 0x36
+         // UNKNOWN 0x35 - 0x36
          _stream.Position += 2;
 
          // Max HP - 0x37 - 0x38
@@ -481,7 +490,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Gold: {goldNum} [{BitConverter.ToString(_gold).Replace("-", " ")}] (UInt24, Length: {_gold.Length})");
 
 
-         // Advance the stream 0x3C
+         // UNKNOWN 0x3C
          _stream.Position += 1;
 
          // Armor Class - 0x3D
@@ -561,7 +570,7 @@ namespace MightAndMagicSaveEditor
 
          Console.WriteLine($"Resistances\n Magic  {resMagic1}%/{resMagic2}%  Fire   {resFire1}%/{resFire2}%  Cold   {resCold1}%/{resCold2}%  Elec   {resElec1}%/{resElec2}%\n Acid   {resAcid1}%/{resAcid2}% Fear   {resFear1}%/{resFear2}% Poison {resPoison1}%/{resPoison2}% Sleep  {resSleep1}%/{resSleep2}%");
 
-         // Unknown 0x68 - 0x7D
+         // UNKNOWN 0x68 - 0x7D
          _stream.Position += 22;
 
          // Character Index number - 0x7E
