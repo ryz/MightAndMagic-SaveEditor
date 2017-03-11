@@ -96,7 +96,11 @@ namespace MightAndMagicSaveEditor
                var equippedGearChunk = new byte[5]; // Offset 65=0x41
                var inventoryChunk = new byte[6]; // Offset 70=0x46
 
-               var unknownChunk8 = new byte[50]; // Offset 76=0x4C - biggest chunk, probably contains various progress/quest-related data
+               var equipmentChargesChunk = new byte[12];// Offset 76=0x4C 
+
+               var resistancesChunk = new byte[16]; // Offset 88=0x58
+
+               var unknownChunk8 = new byte[22]; // Offset 104=0x68 - biggest chunk, probably contains various progress/quest-related data
 
                var characterSlotChunk = new byte[1]; // Offset 126=0x7E
 
@@ -108,7 +112,7 @@ namespace MightAndMagicSaveEditor
 
                   Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
 
-                  ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, characterSlotChunk);
+                  ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterSlotChunk);
 
                   // do work on the chunks
 
@@ -267,6 +271,8 @@ namespace MightAndMagicSaveEditor
          byte[] _equippedWeapon,
          byte[] _equipment,
          byte[] _inventory,
+         byte[] _charges,
+         byte[] _resistances,
          byte[] _characterSlot
          )
 
@@ -504,8 +510,34 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_inventory, 0, _inventory.Length);
          Console.WriteLine($"Inventory: {BitConverter.ToString(_inventory)}");
 
-         // Advance the stream - 0x4C - 0x7D
-         _stream.Position += 50;
+         // Equipment Charges - 0x4C - 0x57
+         _stream.Read(_charges, 0, _charges.Length);
+         Console.WriteLine($"Equipment Charges: {BitConverter.ToString(_charges)}");
+
+         // Resistances 0x58 - 0x67
+         _stream.Read(_resistances, 0, _resistances.Length);
+
+         int resMagic1 = _resistances[0];
+         int resMagic2 = _resistances[1];
+         int resFire1 = _resistances[2];
+         int resFire2 = _resistances[3];
+         int resCold1 = _resistances[4];
+         int resCold2 = _resistances[5];
+         int resElec1 = _resistances[6];
+         int resElec2 = _resistances[7];
+         int resAcid1 = _resistances[8];
+         int resAcid2 = _resistances[9];
+         int resFear1 = _resistances[10];
+         int resFear2 = _resistances[11];
+         int resPoison1 = _resistances[12];
+         int resPoison2 = _resistances[13];
+         int resSleep1 = _resistances[14];
+         int resSleep2 = _resistances[15];
+
+         Console.WriteLine($"Resistances\n Magic  {resMagic1}/{resMagic2}  Fire   {resFire1}/{resFire2}  Cold   {resCold1}/{resCold2}  Elec   {resElec1}/{resElec2}\n Acid   {resAcid1}/{resAcid2} Fear   {resFear1}/{resFear2} Poison {resPoison1}/{resPoison2} Sleep  {resSleep1}/{resSleep2}");
+
+         // Unknown 0x68 - 0x7D
+         _stream.Position += 22;
 
          // Character slot number - 0x7E
          _stream.Read(_characterSlot, 0, _characterSlot.Length);
