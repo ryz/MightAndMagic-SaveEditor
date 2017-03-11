@@ -104,45 +104,69 @@ namespace MightAndMagicSaveEditor
 
                var characterIndexChunk = new byte[1]; // Offset 126=0x7E
 
-               var characterSlotsChunk = new byte[18];
+               //-----------------------------------
+               // These are the 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1) or not (value is 0).
+               var characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
+               var characterSlotsOffset = 2286;
+
+
+               // We need to read this chunk first, because we need to check if a given character exists before reading his data.
+               stream.Position = characterSlotsOffset;
+               stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
+               //-----------------------------------
 
                // We parse, modify and write back parameters for each character
                for (int i = 0; i < characterOffset.Length; i++)
                {
-                  stream.Position = characterOffset[i];
 
-                  Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
+                  // First we read the character slot-byte at the end of the file to see if the character exists in the first place.
+                  // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero.
+                  Console.WriteLine($"\nReading Slot #{i + 1}...");
 
-                  ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterIndexChunk);
-
-                  // do work on the chunks
-
-                  ModifyNameChunk(nameChunk, ref isNewNameValid);
-
-                  ModifyChunkUInt8(sexChunk, "Sex", 1, 2);
-                  ModifyChunkUInt8(alignmentChunk, "Alignment", 1, 3);
-                  ModifyChunkUInt8(raceChunk, "Race", 1, 5);
-                  ModifyChunkUInt8(classChunk, "Class", 1, 5);
-                  ModifyChunkUInt24(xpChunk, "XP");
-                  ModifyChunkUInt16(gemsChunk, "Gems");
-                  ModifyChunkUInt24(goldChunk, "Gold");
-
-                  // Write chunks back to the file
-
-                  if (isNewNameValid)
+                  if (characterSlotsChunk[i] == 0)
                   {
-                     WriteChunk(stream, "Name", nameChunk, nameOffset, FILE_NAME);
+                     Console.WriteLine($"No character found! Skipping to next slot...\n");
+                  }
+                  else
+                  {
+                     Console.WriteLine($"Character found! Proceeding...\n");
+                     Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
+
+                     stream.Position = characterOffset[i];
+
+                     ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterIndexChunk);
+
+                     // do work on the chunks
+
+                     ModifyNameChunk(nameChunk, ref isNewNameValid);
+
+                     ModifyChunkUInt8(sexChunk, "Sex", 1, 2);
+                     ModifyChunkUInt8(alignmentChunk, "Alignment", 1, 3);
+                     ModifyChunkUInt8(raceChunk, "Race", 1, 5);
+                     ModifyChunkUInt8(classChunk, "Class", 1, 5);
+                     ModifyChunkUInt24(xpChunk, "XP");
+                     ModifyChunkUInt16(gemsChunk, "Gems");
+                     ModifyChunkUInt24(goldChunk, "Gold");
+
+                     // Write chunks back to the file
+
+                     if (isNewNameValid)
+                     {
+                        WriteChunk(stream, "Name", nameChunk, nameOffset, FILE_NAME);
+                     }
+
+                     WriteChunk(stream, "Sex", sexChunk, sexOffset, FILE_NAME);
+                     WriteChunk(stream, "Alignment", alignmentChunk, alignmentOffset, FILE_NAME);
+                     WriteChunk(stream, "Race", raceChunk, raceOffset, FILE_NAME);
+                     WriteChunk(stream, "Class", classChunk, classOffset, FILE_NAME);
+                     WriteChunk(stream, "XP", xpChunk, xpOffset, FILE_NAME);
+                     WriteChunk(stream, "Gems", gemsChunk, gemsOffset, FILE_NAME);
+                     WriteChunk(stream, "Gold", goldChunk, goldOffset, FILE_NAME);
+
+                     Console.WriteLine($"\nCharacter #{i + 1} done!\n");
                   }
 
-                  WriteChunk(stream, "Sex", sexChunk, sexOffset, FILE_NAME);
-                  WriteChunk(stream, "Alignment", alignmentChunk, alignmentOffset, FILE_NAME);
-                  WriteChunk(stream, "Race", raceChunk, raceOffset, FILE_NAME);
-                  WriteChunk(stream, "Class", classChunk, classOffset, FILE_NAME);
-                  WriteChunk(stream, "XP", xpChunk, xpOffset, FILE_NAME);
-                  WriteChunk(stream, "Gems", gemsChunk, gemsOffset, FILE_NAME);
-                  WriteChunk(stream, "Gold", goldChunk, goldOffset, FILE_NAME);
-
-                  Console.WriteLine($"\nCharacter #{i + 1} done!\n");
+                  
                }
 
                Console.WriteLine("\nAll done!");
