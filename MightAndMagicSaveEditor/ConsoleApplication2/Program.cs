@@ -54,20 +54,7 @@ namespace MightAndMagicSaveEditor
                // Stats, there are seven statistics for each character, two bytes each.
                var statsChunk = new byte[14]; // Offset 21=0x15
 
-               byte statsIntellect1 = statsChunk[0];
-               byte statsIntellect2 = statsChunk[1];
-               byte statsMight1 = statsChunk[2];
-               byte statsMight2 = statsChunk[3];
-               byte statsPersonality1 = statsChunk[4];
-               byte statsPersonality2 = statsChunk[5];
-               byte statsEndurance1 = statsChunk[6];
-               byte statsEndurance2 = statsChunk[7];
-               byte statsSpeed1 = statsChunk[8];
-               byte statsSpeed2 = statsChunk[9];
-               byte statsAccuracy1 = statsChunk[10];
-               byte statsAccuracy2 = statsChunk[11];
-               byte statsLuck1 = statsChunk[12];
-               byte statsLuck2 = statsChunk[13];
+
 
                var levelChunk1 = new byte[1]; // Offset 35=0x23
                var levelChunk2 = new byte[1]; // Offset 36=0x24
@@ -371,22 +358,22 @@ namespace MightAndMagicSaveEditor
          switch (classS)
          {
             case "01":
-               Console.WriteLine($"Class: KNIGHT ({classS})");
+               Console.WriteLine($"Class: Knight ({classS})");
                break;
             case "02":
-               Console.WriteLine($"Class: PALADIN ({classS})");
+               Console.WriteLine($"Class: Paladin ({classS})");
                break;
             case "03":
-               Console.WriteLine($"Class: ARCHER ({classS})");
+               Console.WriteLine($"Class: Archer ({classS})");
                break;
             case "04":
-               Console.WriteLine($"Class: CLERIC ({classS})");
+               Console.WriteLine($"Class: Cleric ({classS})");
                break;
             case "05":
-               Console.WriteLine($"Class: SORCERER ({classS})");
+               Console.WriteLine($"Class: Sorcerer ({classS})");
                break;
             case "06":
-               Console.WriteLine($"Class: ROBBER ({classS})");
+               Console.WriteLine($"Class: Robber ({classS})");
                break;
             default:
                throw new Exception($"Unknown class: {classS}");
@@ -395,15 +382,22 @@ namespace MightAndMagicSaveEditor
          // Stats - 0x15 - 0x22
          _stream.Read(_statsChunk, 0, _statsChunk.Length);
 
-         Console.WriteLine($"Stats (I/M/P/E/S/A/L): {BitConverter.ToString(_statsChunk).Replace("-", " ")} (Length: {_statsChunk.Length})");
+         int statsIntellect1 = _statsChunk[0];
+         int statsIntellect2 = _statsChunk[1];
+         int statsMight1 = _statsChunk[2];
+         int statsMight2 = _statsChunk[3];
+         int statsPersonality1 = _statsChunk[4];
+         int statsPersonality2 = _statsChunk[5];
+         int statsEndurance1 = _statsChunk[6];
+         int statsEndurance2 = _statsChunk[7];
+         int statsSpeed1 = _statsChunk[8];
+         int statsSpeed2 = _statsChunk[9];
+         int statsAccuracy1 = _statsChunk[10];
+         int statsAccuracy2 = _statsChunk[11];
+         int statsLuck1 = _statsChunk[12];
+         int statsLuck2 = _statsChunk[13];
 
-         // Intellect
-         // Might
-         // Perception
-         // Endurance
-         // Speed
-         // Accuracy
-         // Luck
+         Console.WriteLine($"Stats\n INT: {statsIntellect1}/{statsIntellect2}  MGT: {statsMight1}/{statsMight2}  PER: {statsPersonality1}/{statsPersonality2}\n END: {statsEndurance1}/{statsEndurance2}  SPD: {statsSpeed1}/{statsSpeed2}  ACC: {statsAccuracy1}/{statsAccuracy2}  LCK: {statsLuck1}/{statsLuck2}");
 
          // Level - 0x23 - 0x24
          _stream.Read(_level, 0, _level.Length);
@@ -443,14 +437,12 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_health, 0, _health.Length);
          Console.WriteLine($"Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_health) + "]" + " (ushort, Length: " + _health.Length + ")");
 
-         // ?? 0x37 - 0x38
+         // ?? 0x35 - 0x36
          _stream.Position += 2;
 
-         // Max HP - 0x35 - 0x36
+         // Max HP - 0x37 - 0x38
          _stream.Read(_healthMax, 0, _healthMax.Length);
          Console.WriteLine($"Max Health: {BitConverter.ToUInt16(_healthMax, 0)} [{BitConverter.ToString(_healthMax)}] (ushort, Length: {_healthMax.Length})");
-
-
 
          // Gold - 0x39 - 0x3B
          _stream.Read(_gold, 0, _gold.Length);
