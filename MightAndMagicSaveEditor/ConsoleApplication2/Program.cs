@@ -78,7 +78,7 @@ namespace MightAndMagicSaveEditor
                var gemsOffset = 49;
 
                var healthCurrentChunk = new byte[2]; // Offset 51=0x33
-               var unknownChunkA = new byte[2]; // Offset 53
+               var healthModifiedChunk = new byte[2]; // Offset 53
                var healthMaxChunk = new byte[2]; // Offset 55
 
                var goldChunk = new byte[3];  // Offset 57=0x39
@@ -134,7 +134,7 @@ namespace MightAndMagicSaveEditor
 
                      stream.Position = characterOffset[i];
 
-                     ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, magicPointsCurrentChunk, magicPointsMaxChunk, spellLevelChunk, gemsChunk, healthCurrentChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterIndexChunk);
+                     ParseCharacter(stream, nameChunk, sexChunk, alignmentChunk, raceChunk, classChunk, statsChunk, levelChunk1, ageChunk, xpChunk, magicPointsCurrentChunk, magicPointsMaxChunk, spellLevelChunk, gemsChunk, healthCurrentChunk, healthModifiedChunk, healthMaxChunk, goldChunk, armorClassChunk, foodChunk, conditionChunk, equippedWeaponChunk, equippedGearChunk, inventoryChunk, equipmentChargesChunk, resistancesChunk, characterIndexChunk);
 
                      // do work on the chunks
 
@@ -291,6 +291,7 @@ namespace MightAndMagicSaveEditor
          byte[] _spellLevel,
          byte[] _gems,
          byte[] _health,
+         byte[] _healthMod,
          byte[] _healthMax,
          byte[] _gold,
          byte[] _armorClass,
@@ -456,6 +457,7 @@ namespace MightAndMagicSaveEditor
          // UNKNOWN - 0x2A
          _stream.Position += 1;
 
+         // ---- MAGIC ----------------------------------- //
          // Magic Points - 0x2B - 0x2C
          _stream.Read(_magicPoints, 0, _magicPoints.Length);
          Console.WriteLine($"Magic Points: {BitConverter.ToUInt16(_magicPoints, 0)} [{BitConverter.ToString(_magicPoints).Replace("-", " ")}]");
@@ -468,21 +470,28 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_spellLevel, 0, _spellLevel.Length);
          int spellLvlNum = _spellLevel[0];
          Console.WriteLine($"Spell Level: {spellLvlNum} [{BitConverter.ToString(_spellLevel).Replace("-", " ")}]");
+         // ---------------------------------------------- //
+
 
          // Gems - Stored as a little-endian ushort  0x31 - 0x32
          _stream.Read(_gems, 0, _gems.Length);
          Console.WriteLine($"Gems: {BitConverter.ToInt16(_gems, 0)} [{BitConverter.ToString(_gems)}] (ushort, Length: {_gems.Length})");
 
-         // Health Points - 0x33 - 0x34
+
+         // ---- HEALTH ----------------------------------- //
+         // Health Points Current - 0x33 - 0x34
          _stream.Read(_health, 0, _health.Length);
          Console.WriteLine($"Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_health) + "]" + " (ushort, Length: " + _health.Length + ")");
 
-         // UNKNOWN 0x35 - 0x36
-         _stream.Position += 2;
+         // Health Points Modified 0x35 - 0x36
+         _stream.Read(_healthMod, 0, _healthMod.Length);
+         Console.WriteLine($"Health Mod: " + BitConverter.ToUInt16(_healthMod, 0) + " [" + BitConverter.ToString(_healthMod) + "]" + " (ushort, Length: " + _healthMod.Length + ")");
 
-         // Max HP - 0x37 - 0x38
+         // Health Points Max - 0x37 - 0x38
          _stream.Read(_healthMax, 0, _healthMax.Length);
          Console.WriteLine($"Max Health: {BitConverter.ToUInt16(_healthMax, 0)} [{BitConverter.ToString(_healthMax)}] (ushort, Length: {_healthMax.Length})");
+         // ----------------------------------------------- //
+
 
          // Gold - 0x39 - 0x3B
          _stream.Read(_gold, 0, _gold.Length);
