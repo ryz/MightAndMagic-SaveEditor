@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConsoleApplication2")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Might and Magic Save Game Editor")]
+[assembly: AssemblyDescription("A save game editor for the DOS version of Might and Magic 1 from 1986.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ConsoleApplication2")]
+[assembly: AssemblyCompany("Steve 'ryz' Haßenpflug")]
+[assembly: AssemblyProduct("Might and Magic Save Game Editor")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
