@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
-using GSF;
 
 namespace MightAndMagicSaveEditor
 {
@@ -193,7 +192,9 @@ namespace MightAndMagicSaveEditor
       public static void ModifyChunkUInt24(byte[] _chunk, string _chunkName)
       {
          Console.Write($"\nEnter new {_chunkName} value (UInt24): ");
-         uint newVal = UInt24.Parse(Console.ReadLine());
+         
+         // Although this should be a UInt24, we read this as a UInt32 and later just copy three bytes
+         uint newVal = UInt32.Parse(Console.ReadLine());
 
          // We have to create an intermediate byte array here where we copy to and from
          // This is because BitConverter.GetBytes() can't return UInt24
@@ -202,6 +203,8 @@ namespace MightAndMagicSaveEditor
          byte[] newArray = BitConverter.GetBytes(newVal);
 
          Array.Clear(_chunk, 0, _chunk.Length);
+
+         // Remember to copy just three bytes > UInt24
          Array.Copy(newArray, _chunk, 3);
       }
 
