@@ -85,9 +85,9 @@ namespace MightAndMagicSaveEditor
                var gemsChunk = new byte[2]; // Offset 49=0x31
 
                var healthCurrentChunk = new byte[2]; // Offset 51=0x33
-               var healthMaxChunk = new byte[2]; // Offset 53
+               var unknownChunkA = new byte[2]; // Offset 53
 
-               var unknownChunkA = new byte[2]; // Offset 55
+               var healthMaxChunk = new byte[2]; // Offset 55
 
                var goldChunk = new byte[3];  // Offset 57=0x39
 
@@ -280,7 +280,6 @@ namespace MightAndMagicSaveEditor
 
          // Magic Byte 0xF, 
          _stream.Position += 1;
-         //_stream.Read(_magicByte, 0, _magicByte.Length);
 
          // Sex 0x10
          _stream.Read(_sex, 0, _sex.Length);
@@ -427,16 +426,17 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine("Gems: " + BitConverter.ToInt16(_gems, 0) + " [" + BitConverter.ToString(_gems) + "]" + " (ushort, Length: " + _gems.Length + ")");
 
          // Health Points - 0x33 - 0x34
-
          _stream.Read(_health, 0, _health.Length);
-         Console.WriteLine("Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_health) + "]" + " (ushort, Length: " + _gems.Length + ")");
-
-         // Max HP - 0x35 - 0x36
-         _stream.Read(_healthMax, 0, _healthMax.Length);
-         Console.WriteLine("Max Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_healthMax) + "]" + " (ushort, Length: " + _gems.Length + ")");
+         Console.WriteLine("Health: " + BitConverter.ToUInt16(_health, 0) + " [" + BitConverter.ToString(_health) + "]" + " (ushort, Length: " + _health.Length + ")");
 
          // ?? 0x37 - 0x38
          _stream.Position += 2;
+
+         // Max HP - 0x35 - 0x36
+         _stream.Read(_healthMax, 0, _healthMax.Length);
+         Console.WriteLine("Max Health: " + BitConverter.ToUInt16(_healthMax, 0) + " [" + BitConverter.ToString(_healthMax) + "]" + " (ushort, Length: " + _healthMax.Length + ")");
+
+
 
          // Gold - 0x39 - 0x3B
          _stream.Read(_gold, 0, _gold.Length);
