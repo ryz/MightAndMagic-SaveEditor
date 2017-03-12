@@ -96,7 +96,7 @@ namespace MightAndMagicSaveEditor
       static byte[] characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
       static int characterSlotsOffset = 2286;
 
-      static string[] characterSlotTowns = { "DELETED", "Sorpigal", "Portmith", "Algary", "Dusk", "Erliquin" };
+      static string[] characterSlotTowns = { "DELETED", "Sorpigal", "Portsmith", "Algary", "Dusk", "Erliquin" };
 
       static void Main(string[] args)
       {
@@ -175,7 +175,7 @@ namespace MightAndMagicSaveEditor
                _stream.Position = characterOffset[i];
 
                ParseCharacter(_stream);
-               PrintCharacter(_stream);
+               PrintCharacter();
 
 
                // do work on the chunks
@@ -359,7 +359,7 @@ namespace MightAndMagicSaveEditor
          _stream.Read(characterIndexChunk, 0, characterIndexChunk.Length);   // Character Index number - 0x7E
       }
 
-      public static void PrintCharacter(FileStream _stream)
+      public static void PrintCharacter()
       {
          // Character Name 0x0 - 0xE
          //encode and print the byte array to a string so that we can debug it
