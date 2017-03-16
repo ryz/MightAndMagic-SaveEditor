@@ -631,14 +631,7 @@ namespace MightAndMagicSaveEditor
 
       public int nameOffset
       {
-         get
-         {
-            return offset;
-         }
-         set
-         {
-            offset = value;
-         }
+         get { return offset; }
       }
 
 
@@ -648,14 +641,7 @@ namespace MightAndMagicSaveEditor
 
       public int sexOffset
       {
-         get
-         {
-            return offset + 16;
-         }
-         set
-         {
-            offset = value - 16;
-         }
+         get { return offset + 16; }
       }
 
       public byte[] unknownChunk2 { get; set; } = new byte[1]; // Offset 17=0x11
@@ -663,39 +649,19 @@ namespace MightAndMagicSaveEditor
       public byte[] alignmentChunk { get; set; } = new byte[1]; // Offset 18=0x12
       public int alignmentOffset
       {
-         get
-         {
-            return offset + 18;
-         }
-         set
-         {
-            offset = value - 18;
-         }
+         get { return offset + 18; }
       }
 
       public byte[] raceChunk { get; set; } = new byte[1]; // Offset 19=0x13
       public int raceOffset
       {
-         get
-         {
-            return offset + 19;
-         }
-         set
-         {
-            offset = value - 19;
-         }
+         get { return offset + 19; }
       }
 
       public byte[] classChunk { get; set; } = new byte[1]; // Offset 20=0x14
       public int classOffset
-      { get
-         {
-            return offset + 20;
-         }
-         set
-         {
-            offset = value - 20;
-         }
+      {
+         get { return offset + 20; }
       }
 
       // Stats, there are seven statistics for each character, two bytes each.
@@ -712,14 +678,7 @@ namespace MightAndMagicSaveEditor
       public byte[] xpChunk { get; set; } = new byte[3]; // Offset 39=0x27
       public int xpOffset
       {
-         get
-         {
-            return offset + 39;
-         }
-         set
-         {
-            offset = value - 39;
-         }
+         get { return offset + 39; }
       }
 
       public byte[] unknownChunk4 { get; set; } = new byte[1]; // Offset 42=0x2A
@@ -732,14 +691,7 @@ namespace MightAndMagicSaveEditor
       public byte[] gemsChunk { get; set; } = new byte[2]; // Offset 49=0x31
       public int gemsOffset
       {
-         get
-         {
-            return offset + 49;
-         }
-         set
-         {
-            offset = value - 49;
-         }
+         get { return offset + 49; }
       }
 
       public byte[] healthCurrentChunk { get; set; } = new byte[2]; // Offset 51=0x33
@@ -749,14 +701,7 @@ namespace MightAndMagicSaveEditor
       public byte[] goldChunk { get; set; } = new byte[3];  // Offset 57=0x39
       public int goldOffset
       {
-         get
-         {
-            return offset + 57;
-         }
-         set
-         {
-            offset = value - 57;
-         }
+         get { return offset + 57; }
       }
 
 
