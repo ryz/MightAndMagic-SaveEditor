@@ -17,7 +17,6 @@ namespace MightAndMagicSaveEditor
       static string VERSION_NUMBER = "v0.4";
 
       // Initialize stuff, mostly all the "chunks" as byte arrays
-
       // There are 18 characters in the file, each one 127 bytes long
       static int[] characterOffset = { 0, 127, 254, 381, 508, 635, 762, 889, 1016, 1143, 1270, 1397, 1524, 1651, 1778, 1905, 2032, 2159 };
 
@@ -30,8 +29,6 @@ namespace MightAndMagicSaveEditor
       static bool isNewNameValid = false;
 
       static Character[] characters = new Character[18];
-
-
 
    static void Main(string[] args)
       {
@@ -65,6 +62,8 @@ namespace MightAndMagicSaveEditor
                         QuickStartPackage(stream, characters[0]);
                         break;
                      case "3":
+                        ShortList(stream);
+                        break;
                      default:
                         break;
                   }
@@ -86,10 +85,39 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine();
          Console.WriteLine("1. Edit all characters");
          Console.WriteLine("2. Quick Start Package - Give each character XP, Gold and Gems");
+         Console.WriteLine("3. Short list of characters");
          Console.WriteLine();
          Console.WriteLine("Press ESC to exit.");
       }
 
+      public static void ShortList(FileStream _stream)
+      {
+         Console.Clear();
+         _stream.Position = characterSlotsOffset;
+         _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
+
+         Console.WriteLine("Character List");
+         Console.WriteLine();
+         Console.WriteLine("Name            Sex    Alignm. Race     Class   ");
+         Console.WriteLine("--------------- ------ ------- -------- --------");
+
+         for (int i = 0; i < characterOffset.Length; i++)
+         {
+            if (characterSlotsChunk[i] == 0)
+            {
+               Console.WriteLine($"---EMPTY-SLOT--");
+            }
+            else
+            {
+               _stream.Position = characterOffset[i];
+
+               ParseCharacter(_stream, characters[i]);
+
+               PrintCharacterShort(characters[i]);
+            }
+         }
+         Console.ReadLine();
+      }
 
       // gives each character 5000 XP, 200 Gems and 5000 Gold
       public static void QuickStartPackage(FileStream _stream, Character _char)
@@ -300,7 +328,6 @@ namespace MightAndMagicSaveEditor
          _stream.WriteByte(_byte);
       }
 
-
       public static void ModifyNameChunk(byte[] _name, ref bool _nameValid)
       {
          byte[] newName = new byte[_name.Length];
@@ -381,6 +408,88 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_char.characterIndexChunk, 0, _char.characterIndexChunk.Length);   // Character Index number - 0x7E
       }
 
+      public static string GetSexFromChunk(Character _char)
+      {
+         var s = BitConverter.ToString(_char.sexChunk);
+
+         switch (s)
+         {
+            case "01": return "Male";
+            case "02": return "Female";
+            default:
+               throw new Exception($"\nUnknown Sex: {s}");
+         }
+      }
+
+      public static string GetAlignmentFromChunk(Character _char)
+      {
+         var s = BitConverter.ToString(_char.alignmentChunk);
+
+         switch (s)
+         {
+            case "01": return "Good";
+            case "02": return "Neutral";
+            case "03": return "Evil";
+            default:
+               throw new Exception($"Unknown alignment: {s}");
+         }
+      }
+
+      public static string GetRaceFromChunk(Character _char)
+      {
+         var s = BitConverter.ToString(_char.raceChunk);
+
+         switch (s)
+         {
+            case "01": return "Human";
+            case "02": return "Elf";
+            case "03": return "Dwarf";
+            case "04": return "Gnome";
+            case "05": return "Half-Orc";
+            default:
+               throw new Exception($"Unknown race: {s}");
+         }
+      }
+
+      public static string GetClassFromChunk(Character _char)
+      {
+         var s = BitConverter.ToString(_char.classChunk);
+
+         switch (s)
+         {
+            case "01": return "Knight";
+            case "02": return "Paladin";
+            case "03": return "Archer";
+            case "04": return "Cleric";
+            case "05": return "Sorcerer";
+            case "06": return "Robber";
+            default:
+               throw new Exception($"Unknown class: {s}");
+         }
+      }
+
+      public static string GetConditionFromChunk(Character _char)
+      {
+         var s = BitConverter.ToString(_char.conditionChunk);
+
+         switch (s)
+         {
+            case "00": return "Good";
+            case "01": return "01";
+            case "02": return "02";
+            case "03": return "03";
+            case "04": return "04";
+            case "05": return "05";
+            default:
+               throw new Exception($"Unknown condition: {s}");
+         }
+      }
+
+      public static void PrintCharacterShort(Character _char)
+      {
+         Console.WriteLine($"{Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(6)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char)}");
+      }
+
       public static void PrintCharacter(Character _char)
       {
          // Character Name 0x0 - 0xE
@@ -390,97 +499,22 @@ namespace MightAndMagicSaveEditor
          // UNKNOWN 0xF, 
 
          // Sex 0x10
-
-         var sexS = BitConverter.ToString(_char.sexChunk);
-
-         switch (sexS)
-         {
-            case "01":
-               Console.WriteLine($"\nSex: Male ({sexS})");
-               break;
-            case "02":
-               Console.WriteLine($"\nSex: Female ({sexS})");
-               break;
-            default:
-               throw new Exception($"\nUnknown Sex: {sexS}");
-         }
+         var sex = GetSexFromChunk(_char);
+         Console.WriteLine($"\nSex: {sex}");
 
          // UNKNOWN 0x11
 
          // Alignment 0x12
+         var alignment = GetAlignmentFromChunk(_char);
+         Console.WriteLine($"Alignment: {alignment}");
 
-         var alignmentS = BitConverter.ToString(_char.alignmentChunk);
-
-         switch (alignmentS)
-         {
-            case "01":
-               Console.WriteLine($"Alignment: Good ({alignmentS})");
-               break;
-            case "02":
-               Console.WriteLine($"Alignment: Neutral ({alignmentS})");
-               break;
-            case "03":
-               Console.WriteLine($"Alignment: Evil ({alignmentS})");
-               break;
-            default:
-               //throw new Exception($"Unknown alignment: {alignmentS}");
-               Console.WriteLine($"Unknown alignment: {alignmentS}");
-               break;
-
-         }
          // Race 0x13
-
-         var raceS = BitConverter.ToString(_char.raceChunk);
-
-         switch (raceS)
-         {
-            case "01":
-               Console.WriteLine($"Race: Human ({raceS})");
-               break;
-            case "02":
-               Console.WriteLine($"Race: Elf ({raceS})");
-               break;
-            case "03":
-               Console.WriteLine($"Race: Dwarf ({raceS})");
-               break;
-            case "04":
-               Console.WriteLine($"Race: Gnome ({raceS})");
-               break;
-            case "05":
-               Console.WriteLine($"Race: Half-Orc ({raceS})");
-               break;
-            default:
-               throw new Exception($"\nUnknown race: {raceS}");
-
-         }
+         var race = GetRaceFromChunk(_char);
+         Console.WriteLine($"Race: {race}");
 
          // Character Class - 0x14
-
-         var classS = BitConverter.ToString(_char.classChunk);
-
-         switch (classS)
-         {
-            case "01":
-               Console.WriteLine($"Class: Knight ({classS})");
-               break;
-            case "02":
-               Console.WriteLine($"Class: Paladin ({classS})");
-               break;
-            case "03":
-               Console.WriteLine($"Class: Archer ({classS})");
-               break;
-            case "04":
-               Console.WriteLine($"Class: Cleric ({classS})");
-               break;
-            case "05":
-               Console.WriteLine($"Class: Sorcerer ({classS})");
-               break;
-            case "06":
-               Console.WriteLine($"Class: Robber ({classS})");
-               break;
-            default:
-               throw new Exception($"Unknown class: {classS}");
-         }
+         var charClass = GetClassFromChunk(_char);
+         Console.WriteLine($"Class: {charClass}");
 
          // Stats - 0x15 - 0x22
 
@@ -512,8 +546,8 @@ namespace MightAndMagicSaveEditor
          // UNKNOWN - 0x26
 
          // Experience - Stored as a little-endian UInt24 0x27 - 0x29
-         int expNum = (_char.xpChunk[2] << 16) | (_char.xpChunk[1] << 8) | _char.xpChunk[0];
-         Console.WriteLine($"Experience: {expNum} [{BitConverter.ToString(_char.xpChunk).Replace("-", " ")}] (UInt24, Length: {_char.xpChunk.Length})");
+         int xpNum = (_char.xpChunk[2] << 16) | (_char.xpChunk[1] << 8) | _char.xpChunk[0];
+         Console.WriteLine($"Experience: {xpNum} [{BitConverter.ToString(_char.xpChunk).Replace("-", " ")}] (UInt24, Length: {_char.xpChunk.Length})");
 
          // UNKNOWN - 0x2A
 
@@ -559,31 +593,8 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Food: {foodNum} [{BitConverter.ToString(_char.foodChunk)}]");
 
          // Condition - 0x3F
-         var conditionS = BitConverter.ToString(_char.conditionChunk);
-
-         switch (conditionS)
-         {
-            case "00":
-               Console.WriteLine($"Condition: Good ({conditionS})");
-               break;
-            case "01":
-               Console.WriteLine($"Condition: 01 ({conditionS})");
-               break;
-            case "02":
-               Console.WriteLine($"Condition: 02 ({conditionS})");
-               break;
-            case "03":
-               Console.WriteLine($"Condition: 03 ({conditionS})");
-               break;
-            case "04":
-               Console.WriteLine($"Condition: 04 ({conditionS})");
-               break;
-            case "05":
-               Console.WriteLine($"Condition: 05 ({conditionS})");
-               break;
-            default:
-               throw new Exception($"Unknown condition: {conditionS}");
-         }
+         var condition = GetConditionFromChunk(_char);
+         Console.WriteLine($"Condition: {condition}");
 
          // Equipped Weapon - 0x40
          Console.WriteLine($"Equipped Weapon: {BitConverter.ToString(_char.equippedWeaponChunk)}");
@@ -624,6 +635,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"\nCharacter Index: {BitConverter.ToString(_char.characterIndexChunk)}");
       }
    }
+
    class Character
    {
       public int offset { get; set; } = 0;
