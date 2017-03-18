@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MightAndMagicSaveEditor
 {
@@ -52,8 +48,10 @@ namespace MightAndMagicSaveEditor
 
       public byte[] levelChunk1 { get; set; } = new byte[1]; // Offset 35=0x23
       public byte[] levelChunk2 { get; set; } = new byte[1]; // Offset 36=0x24
+      public int levelNum { get { return levelChunk1[0]; } }
 
       public byte[] ageChunk { get; set; } = new byte[1]; // Offset 37=0x25
+      public int ageNum { get { return ageChunk[0]; } }
 
       public byte[] unknownChunk3 { get; set; } = new byte[1];  // Offset 38=0x26
 
@@ -61,12 +59,21 @@ namespace MightAndMagicSaveEditor
       public byte[] xpChunk { get; set; } = new byte[3]; // Offset 39=0x27
       public int xpOffset { get { return offset + 39; } }
 
+      public int xpNum
+      {
+         get
+         {
+            return (xpChunk[2] << 16) | (xpChunk[1] << 8) | xpChunk[0];
+         }
+      }
+
       public byte[] unknownChunk4 { get; set; } = new byte[1]; // Offset 42=0x2A
 
       public byte[] magicPointsCurrentChunk { get; set; } = new byte[2]; // Offset 43=0x2B
       public byte[] magicPointsMaxChunk { get; set; } = new byte[2]; // Offset 45=0x2D
 
       public byte[] spellLevelChunk { get; set; } = new byte[2]; // Offset 47=0x2F
+      public int spellLvlNum { get { return spellLevelChunk[0]; } }
 
       public byte[] gemsChunk { get; set; } = new byte[2]; // Offset 49=0x31
       public int gemsOffset { get { return offset + 49; } }
@@ -78,12 +85,21 @@ namespace MightAndMagicSaveEditor
       public byte[] goldChunk { get; set; } = new byte[3];  // Offset 57=0x39
       public int goldOffset { get { return offset + 57; } }
 
+      public int goldNum
+      {
+         get
+         {
+            return (goldChunk[2] << 16) | (goldChunk[1] << 8) | goldChunk[0];
+         }
+      }
 
       public byte[] unknownChunk7 { get; set; } = new byte[1]; // Offset 58=0x3A
 
       public byte[] armorClassChunk { get; set; } = new byte[1]; // Offset 62=0x3D
+      public int acNum { get { return armorClassChunk[0]; } }
 
       public byte[] foodChunk { get; set; } = new byte[1]; // Offset 62=0x3E
+      public int foodNum { get { return foodChunk[0]; } }
 
       public byte[] conditionChunk { get; set; } = new byte[1]; // Offset 63=0x3F
 

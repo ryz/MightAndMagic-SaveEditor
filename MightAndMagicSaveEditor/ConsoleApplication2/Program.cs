@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 
@@ -18,27 +15,18 @@ namespace MightAndMagicSaveEditor
 
       // Initialize stuff, mostly all the "chunks" as byte arrays
       // There are 18 characters in the file, each one 127 bytes long
-      static int[] characterOffset = { 0, 127, 254, 381, 508, 635, 762, 889, 1016, 1143, 1270, 1397, 1524, 1651, 1778, 1905, 2032, 2159 };
+      static int[] characterOffsets = { 0, 127, 254, 381, 508, 635, 762, 889, 1016, 1143, 1270, 1397, 1524, 1651, 1778, 1905, 2032, 2159 };
 
       // These are the 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1) or not (value is 0).
       static byte[] characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
-      static int characterSlotsOffset = 2286;
-
-      static string[] characterSlotTowns = { "DELETED", "Sorpigal", "Portsmith", "Algary", "Dusk", "Erliquin" };
-
-      static bool isNewNameValid = false;
 
       static Character[] characters = new Character[18];
 
-   static void Main(string[] args)
-      {
+      static bool isNewNameValid = false;
 
-         // create all the character constructors 
-         for (int i = 0; i < characters.Length; i++)
-         {
-            characters[i] = new Character();
-            characters[i].offset = characterOffset[i];
-         }
+      static void Main(string[] args)
+      {
+         CreateCharacters();
 
          Console.Write($"Opening {FILE_NAME}... ");
 
@@ -48,28 +36,8 @@ namespace MightAndMagicSaveEditor
             {
                Console.WriteLine("Success!\n");
 
-               do
-               {
-                  DisplayMenu();
-                  userInput = Console.ReadKey(false);
+               MainMenu(stream);
 
-                  switch (userInput.KeyChar.ToString())
-                  {
-                     case "1":
-                        EditAllCharacters(stream);
-                        break;
-                     case "2":
-                        QuickStartPackage(stream, characters[0]);
-                        break;
-                     case "3":
-                        ShortList(stream);
-                        break;
-                     default:
-                        break;
-                  }
-                  Console.Clear();
-               }
-               while (userInput.Key != ConsoleKey.Escape);
             }
          }
          else
@@ -77,6 +45,52 @@ namespace MightAndMagicSaveEditor
             Console.WriteLine($"\nFile {FILE_NAME} not found! Make sure it's in the same folder as this program.\nAborting.");
             Console.ReadLine();
          }
+      }
+
+      public static void CreateCharacters()
+      {
+         // create all the character constructors 
+         for (int i = 0; i < characters.Length; i++)
+         {
+            characters[i] = new Character();
+            characters[i].offset = characterOffsets[i];
+         }
+      }
+
+      public static void ReadCharacterSlots(FileStream _stream)
+      {
+         // Check if a given character exists before reading his data
+         // We read the character slot-byte at the end of the file to see if the character exists in the first place.
+         // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero in this case.
+         int characterSlotsOffset = 2286;
+         _stream.Position = characterSlotsOffset;
+         _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
+      }
+
+      public static void MainMenu(FileStream _stream)
+      {
+         do
+         {
+            DisplayMenu();
+            userInput = Console.ReadKey(false);
+
+            switch (userInput.KeyChar.ToString())
+            {
+               case "1":
+                  EditAllCharacters(_stream);
+                  break;
+               case "2":
+                  QuickStartPackage(_stream, characters[0]);
+                  break;
+               case "3":
+                  ShortList(_stream);
+                  break;
+               default:
+                  break;
+            }
+            Console.Clear();
+         }
+         while (userInput.Key != ConsoleKey.Escape);
       }
 
       public static void DisplayMenu()
@@ -93,26 +107,25 @@ namespace MightAndMagicSaveEditor
       public static void ShortList(FileStream _stream)
       {
          Console.Clear();
-         _stream.Position = characterSlotsOffset;
-         _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
+
+         ReadCharacterSlots(_stream);
 
          Console.WriteLine("Character List");
          Console.WriteLine();
-         Console.WriteLine("Name            Sex    Alignm. Race     Class   ");
-         Console.WriteLine("--------------- ------ ------- -------- --------");
+         Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
+         Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -------- --------");
 
-         for (int i = 0; i < characterOffset.Length; i++)
+         for (int i = 0; i < characterOffsets.Length; i++)
          {
             if (characterSlotsChunk[i] == 0)
             {
-               Console.WriteLine($"---EMPTY-SLOT--");
+               Console.WriteLine($"-- ---EMPTY-SLOT-- --- ------- -------- -------- --- ----- -------- --------");
             }
             else
             {
-               _stream.Position = characterOffset[i];
+               _stream.Position = characterOffsets[i];
 
                ParseCharacter(_stream, characters[i]);
-
                PrintCharacterShort(characters[i]);
             }
          }
@@ -122,14 +135,10 @@ namespace MightAndMagicSaveEditor
       // gives each character 5000 XP, 200 Gems and 5000 Gold
       public static void QuickStartPackage(FileStream _stream, Character _char)
       {
-         _stream.Position = characterOffset[0];
-
-         // We need to read this chunk first, because we need to check if a given character exists before reading his data.
-         _stream.Position = characterSlotsOffset;
-         _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
+         ReadCharacterSlots(_stream);
 
          // We parse, modify and write back parameters for each character
-         for (int i = 0; i < characterOffset.Length; i++)
+         for (int i = 0; i < characterOffsets.Length; i++)
          {
             Console.WriteLine($"\nReading Slot #{i + 1}...");
 
@@ -140,9 +149,9 @@ namespace MightAndMagicSaveEditor
             else
             {
                Console.WriteLine($"Character found!\n");
-               Console.WriteLine($"Supercharging Character #{i + 1} at Offset {characterOffset[i]}...\n");
+               Console.WriteLine($"Supercharging Character #{i + 1} at Offset {characterOffsets[i]}...\n");
 
-               _stream.Position = characterOffset[i];
+               _stream.Position = characterOffsets[i];
 
                ParseCharacter(_stream, characters[i]);
                PrintCharacter(characters[i]);
@@ -169,17 +178,12 @@ namespace MightAndMagicSaveEditor
 
       public static void EditAllCharacters(FileStream _stream)
       {
-
-         // We need to read this chunk first, because we need to check if a given character exists before reading his data.
-         _stream.Position = characterSlotsOffset;
-         _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
+         ReadCharacterSlots(_stream);
 
          // We parse, modify and write back parameters for each character
-         for (int i = 0; i < characterOffset.Length; i++)
+         for (int i = 0; i < characterOffsets.Length; i++)
          {
 
-            // First we read the character slot-byte at the end of the file to see if the character exists in the first place.
-            // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero in this case.
             Console.WriteLine($"\nReading Slot #{i + 1}...");
 
             if (characterSlotsChunk[i] == 0)
@@ -189,28 +193,24 @@ namespace MightAndMagicSaveEditor
             else
             {
                Console.WriteLine($"Character found!\n");
-               Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffset[i]}...\n");
+               Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffsets[i]}...\n");
 
-               var town = characterSlotTowns[characterSlotsChunk[i]];
-               Console.WriteLine($"This character is located at the Inn of {town}");
+               _stream.Position = characterOffsets[i];
 
-               _stream.Position = characterOffset[i];
-
-               ParseCharacter(_stream, characters[0]);
-               PrintCharacter(characters[0]);
-
+               ParseCharacter(_stream, characters[i]);
+               PrintCharacter(characters[i]);
 
                // do work on the chunks
 
-               ModifyNameChunk(characters[0].nameChunk, ref isNewNameValid);
+               ModifyNameChunk(characters[i].nameChunk, ref isNewNameValid);
 
-               ModifyChunkUInt8(characters[0].sexChunk, "Sex", 1, 2);
-               ModifyChunkUInt8(characters[0].alignmentChunk, "Alignment", 1, 3);
-               ModifyChunkUInt8(characters[0].raceChunk, "Race", 1, 5);
-               ModifyChunkUInt8(characters[0].classChunk, "Class", 1, 5);
-               ModifyChunkUInt24(characters[0].xpChunk, "XP");
-               ModifyChunkUInt16(characters[0].gemsChunk, "Gems");
-               ModifyChunkUInt24(characters[0].goldChunk, "Gold");
+               ModifyChunkUInt8(characters[i].sexChunk, "Sex", 1, 2);
+               ModifyChunkUInt8(characters[i].alignmentChunk, "Alignment", 1, 3);
+               ModifyChunkUInt8(characters[i].raceChunk, "Race", 1, 5);
+               ModifyChunkUInt8(characters[i].classChunk, "Class", 1, 5);
+               ModifyChunkUInt24(characters[i].xpChunk, "XP");
+               ModifyChunkUInt16(characters[i].gemsChunk, "Gems");
+               ModifyChunkUInt24(characters[i].goldChunk, "Gold");
 
                // Write chunks back to the file
 
@@ -232,8 +232,6 @@ namespace MightAndMagicSaveEditor
 
                Console.WriteLine($"\nCharacter #{i + 1} done!\n");
             }
-
-
          }
 
          Console.WriteLine("\nAll done!");
@@ -414,8 +412,8 @@ namespace MightAndMagicSaveEditor
 
          switch (s)
          {
-            case "01": return "Male";
-            case "02": return "Female";
+            case "01": return "M";
+            case "02": return "F";
             default:
                throw new Exception($"\nUnknown Sex: {s}");
          }
@@ -485,53 +483,95 @@ namespace MightAndMagicSaveEditor
          }
       }
 
+      public static string GetTownName(Character _char)
+      {
+         string[] townNames = { "DELETED", "Sorpigal", "Portsmith", "Algary", "Dusk", "Erliquin" };
+
+         int charIndex = _char.characterIndexChunk[0];
+
+         var town = townNames[characterSlotsChunk[charIndex]];
+
+         return town;
+      }
+
       public static void PrintCharacterShort(Character _char)
       {
-         Console.WriteLine($"{Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(6)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char)}");
+         Console.WriteLine($"{BitConverter.ToString(_char.characterIndexChunk)} {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
       }
 
       public static void PrintCharacter(Character _char)
       {
-         // Character Name 0x0 - 0xE
-         //encode and print the byte array to a string so that we can debug it
-         Console.WriteLine($"Name: {Encoding.Default.GetString(_char.nameChunk)} (Length: {_char.nameChunk.Length})");
+         Console.Clear();
 
-         // UNKNOWN 0xF, 
+         Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
+         Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -------- --------");
+         PrintCharacterShort(_char);
+         Console.WriteLine();
+
+         // HP Current (Modified) / Max
+         Console.WriteLine($"Health: {BitConverter.ToUInt16(_char.healthCurrentChunk, 0)} ({BitConverter.ToUInt16(_char.healthModifiedChunk, 0)}) / {BitConverter.ToUInt16(_char.healthMaxChunk, 0)} (AC: {_char.acNum})");
+
+         // MP Current / Max (Spell Level)
+         Console.WriteLine($"Magic Points: {BitConverter.ToUInt16(_char.magicPointsCurrentChunk, 0)}/{BitConverter.ToUInt16(_char.magicPointsMaxChunk, 0)} (Spell Level: {_char.spellLvlNum})");
+
+         // Stats 
+         Console.WriteLine($"Stats: INT {_char.statsIntellect1}/{_char.statsIntellect2}  MGT {_char.statsMight1}/{_char.statsMight2}  PER {_char.statsPersonality1}/{_char.statsPersonality2}\n       END {_char.statsEndurance1}/{_char.statsEndurance2}  SPD {_char.statsSpeed1}/{_char.statsSpeed2}  ACC {_char.statsAccuracy1}/{_char.statsAccuracy2}  LCK {_char.statsLuck1}/{_char.statsLuck2}");
+         Console.WriteLine();
+
+         // Gold Gems Food
+         Console.WriteLine($"Gold: {_char.goldNum} / Gems: {BitConverter.ToInt16(_char.gemsChunk, 0)} / Food: {_char.foodNum}");
+         Console.WriteLine();
+
+         // Equipped Weapon
+         Console.WriteLine($"Equipped Weapon: {BitConverter.ToString(_char.equippedWeaponChunk)}");
+
+         // Other equipment
+         Console.WriteLine($"Equipment: {BitConverter.ToString(_char.equippedGearChunk)}");
+
+         // Backpack
+         Console.WriteLine($"Backpack: {BitConverter.ToString(_char.inventoryChunk)}");
+
+         // Equipment Charges 
+         Console.WriteLine($"Equipment Charges: {BitConverter.ToString(_char.equipmentChargesChunk)}");
+         Console.WriteLine();
+
+         // Resistances 0x58 - 0x67
+         Console.WriteLine($"Resistances: Magic  {_char.resMagic1}%/{_char.resMagic2}%  Fire   {_char.resFire1}%/{_char.resFire2}%  Cold   {_char.resCold1}%/{_char.resCold2}%  Elec   {_char.resElec1}%/{_char.resElec2}%\n             Acid   {_char.resAcid1}%/{_char.resAcid2}% Fear   {_char.resFear1}%/{_char.resFear2}% Poison {_char.resPoison1}%/{_char.resPoison2}% Sleep  {_char.resSleep1}%/{_char.resSleep2}%");
+      }
+
+      public static void PrintCharacterDebug(Character _char)
+      {
+         
+         // Character Name 0x0 - 0xE
+         Console.WriteLine($"Name: {Encoding.Default.GetString(_char.nameChunk)}");
 
          // Sex 0x10
-         var sex = GetSexFromChunk(_char);
-         Console.WriteLine($"\nSex: {sex}");
+         Console.WriteLine($"\nSex: {GetSexFromChunk(_char)}");
 
          // UNKNOWN 0x11
 
          // Alignment 0x12
-         var alignment = GetAlignmentFromChunk(_char);
-         Console.WriteLine($"Alignment: {alignment}");
+         Console.WriteLine($"Alignment: {GetAlignmentFromChunk(_char)}");
 
          // Race 0x13
-         var race = GetRaceFromChunk(_char);
-         Console.WriteLine($"Race: {race}");
+         Console.WriteLine($"Race: {GetRaceFromChunk(_char)}");
 
          // Character Class - 0x14
-         var charClass = GetClassFromChunk(_char);
-         Console.WriteLine($"Class: {charClass}");
+         Console.WriteLine($"Class: {GetClassFromChunk(_char)}");
 
          // Stats - 0x15 - 0x22
          Console.WriteLine($"Stats\n INT: {_char.statsIntellect1}/{_char.statsIntellect2}  MGT: {_char.statsMight1}/{_char.statsMight2}  PER: {_char.statsPersonality1}/{_char.statsPersonality2}\n END: {_char.statsEndurance1}/{_char.statsEndurance2}  SPD: {_char.statsSpeed1}/{_char.statsSpeed2}  ACC: {_char.statsAccuracy1}/{_char.statsAccuracy2}  LCK: {_char.statsLuck1}/{_char.statsLuck2}");
 
          // Level - 0x23 - 0x24
-         int levelNum = _char.levelChunk1[0];
-         Console.WriteLine($"Level: {levelNum} [{BitConverter.ToString(_char.levelChunk1)}]");
+         Console.WriteLine($"Level: {_char.levelNum} [{BitConverter.ToString(_char.levelChunk1)}]");
 
          // Age Offset 37=0x25
-         int ageNum = _char.ageChunk[0];
-         Console.WriteLine($"Age: {ageNum} [{BitConverter.ToString(_char.ageChunk)}]");
+         Console.WriteLine($"Age: {_char.ageNum} [{BitConverter.ToString(_char.ageChunk)}]");
 
          // UNKNOWN - 0x26
 
          // Experience - Stored as a little-endian UInt24 0x27 - 0x29
-         int xpNum = (_char.xpChunk[2] << 16) | (_char.xpChunk[1] << 8) | _char.xpChunk[0];
-         Console.WriteLine($"Experience: {xpNum} [{BitConverter.ToString(_char.xpChunk).Replace("-", " ")}] (UInt24, Length: {_char.xpChunk.Length})");
+         Console.WriteLine($"Experience: {_char.xpNum} [{BitConverter.ToString(_char.xpChunk).Replace("-", " ")}] (UInt24, Length: {_char.xpChunk.Length})");
 
          // UNKNOWN - 0x2A
 
@@ -543,8 +583,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Magic Points Max: {BitConverter.ToUInt16(_char.magicPointsMaxChunk, 0)} [{BitConverter.ToString(_char.magicPointsMaxChunk).Replace("-", " ")}]");
 
          // Spell Level - 0x2F - 0x30
-         int spellLvlNum = _char.spellLevelChunk[0];
-         Console.WriteLine($"Spell Level: {spellLvlNum} [{BitConverter.ToString(_char.spellLevelChunk).Replace("-", " ")}]");
+         Console.WriteLine($"Spell Level: {_char.spellLvlNum} [{BitConverter.ToString(_char.spellLevelChunk).Replace("-", " ")}]");
          // ---------------------------------------------- //
 
          // Gems - Stored as a little-endian ushort  0x31 - 0x32
@@ -561,24 +600,19 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Max Health: {BitConverter.ToUInt16(_char.healthMaxChunk, 0)} [{BitConverter.ToString(_char.healthMaxChunk)}] (ushort, Length: {_char.healthMaxChunk.Length})");
          // ----------------------------------------------- //
 
-
          // Gold - 0x39 - 0x3B
-         int goldNum = (_char.goldChunk[2] << 16) | (_char.goldChunk[1] << 8) | _char.goldChunk[0];
-         Console.WriteLine($"Gold: {goldNum} [{BitConverter.ToString(_char.goldChunk).Replace("-", " ")}] (UInt24, Length: {_char.goldChunk.Length})");
+         Console.WriteLine($"Gold: {_char.goldNum} [{BitConverter.ToString(_char.goldChunk).Replace("-", " ")}] (UInt24, Length: {_char.goldChunk.Length})");
 
          // UNKNOWN 0x3C
 
          // Armor Class - 0x3D
-         int acNum = _char.armorClassChunk[0];
-         Console.WriteLine($"AC: {acNum} [{BitConverter.ToString(_char.armorClassChunk)}]");
+         Console.WriteLine($"AC: {_char.acNum} [{BitConverter.ToString(_char.armorClassChunk)}]");
 
          // Food - 0x3E
-         int foodNum = _char.foodChunk[0];
-         Console.WriteLine($"Food: {foodNum} [{BitConverter.ToString(_char.foodChunk)}]");
+         Console.WriteLine($"Food: {_char.foodNum} [{BitConverter.ToString(_char.foodChunk)}]");
 
          // Condition - 0x3F
-         var condition = GetConditionFromChunk(_char);
-         Console.WriteLine($"Condition: {condition}");
+         Console.WriteLine($"Condition: {GetConditionFromChunk(_char)}");
 
          // Equipped Weapon - 0x40
          Console.WriteLine($"Equipped Weapon: {BitConverter.ToString(_char.equippedWeaponChunk)}");
