@@ -16,33 +16,31 @@ namespace MightAndMagicSaveEditor
       static Character[] characters = new Character[18];
       static int[] characterOffsets = new int[18];
 
-      // There are 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1) or not (value is 0).
+      // There are 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1-5) or not (value is 0).
       static byte[] characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
 
       static void Main(string[] args)
       {
-         CreateCharacters();
-
-         Console.Write($"Opening {FILE_NAME}... ");
-
          if (File.Exists(FILE_NAME))
          {
+            Console.Write($"Opening {FILE_NAME}... ");
+
             using (var stream = File.Open(FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
             {
                Console.WriteLine("Success!\n");
 
+               InitializeCharacters();
                MainMenu(stream);
-
             }
          }
          else
          {
-            Console.WriteLine($"\nFile {FILE_NAME} not found! Make sure it's in the same folder as this program.\nAborting.");
+            Console.WriteLine($"File {FILE_NAME} not found! Make sure it's in the same folder as this program.\nAborting.");
             Console.ReadLine();
          }
       }
 
-      public static void CreateCharacters()
+      public static void InitializeCharacters()
       {
          // create all the character constructors 
          for (int i = 0; i < characters.Length; i++)
@@ -327,11 +325,8 @@ namespace MightAndMagicSaveEditor
          bool isNameValid = false;
          byte[] newName = new byte[_name.Length];
 
-
          // Check that the name contains only uppercase latin characters and numerals from 0-9
          Regex rx = new Regex("^[A-Z0-9]*$");
-
-
 
          do
          {
