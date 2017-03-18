@@ -517,23 +517,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Class: {charClass}");
 
          // Stats - 0x15 - 0x22
-
-         int statsIntellect1 = _char.statsChunk[0];
-         int statsIntellect2 = _char.statsChunk[1];
-         int statsMight1 = _char.statsChunk[2];
-         int statsMight2 = _char.statsChunk[3];
-         int statsPersonality1 = _char.statsChunk[4];
-         int statsPersonality2 = _char.statsChunk[5];
-         int statsEndurance1 = _char.statsChunk[6];
-         int statsEndurance2 = _char.statsChunk[7];
-         int statsSpeed1 = _char.statsChunk[8];
-         int statsSpeed2 = _char.statsChunk[9];
-         int statsAccuracy1 = _char.statsChunk[10];
-         int statsAccuracy2 = _char.statsChunk[11];
-         int statsLuck1 = _char.statsChunk[12];
-         int statsLuck2 = _char.statsChunk[13];
-
-         Console.WriteLine($"Stats\n INT: {statsIntellect1}/{statsIntellect2}  MGT: {statsMight1}/{statsMight2}  PER: {statsPersonality1}/{statsPersonality2}\n END: {statsEndurance1}/{statsEndurance2}  SPD: {statsSpeed1}/{statsSpeed2}  ACC: {statsAccuracy1}/{statsAccuracy2}  LCK: {statsLuck1}/{statsLuck2}");
+         Console.WriteLine($"Stats\n INT: {_char.statsIntellect1}/{_char.statsIntellect2}  MGT: {_char.statsMight1}/{_char.statsMight2}  PER: {_char.statsPersonality1}/{_char.statsPersonality2}\n END: {_char.statsEndurance1}/{_char.statsEndurance2}  SPD: {_char.statsSpeed1}/{_char.statsSpeed2}  ACC: {_char.statsAccuracy1}/{_char.statsAccuracy2}  LCK: {_char.statsLuck1}/{_char.statsLuck2}");
 
          // Level - 0x23 - 0x24
          int levelNum = _char.levelChunk1[0];
@@ -609,133 +593,12 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Equipment Charges: {BitConverter.ToString(_char.equipmentChargesChunk)}");
 
          // Resistances 0x58 - 0x67
-
-         int resMagic1 = _char.resistancesChunk[0];
-         int resMagic2 = _char.resistancesChunk[1];
-         int resFire1 = _char.resistancesChunk[2];
-         int resFire2 = _char.resistancesChunk[3];
-         int resCold1 = _char.resistancesChunk[4];
-         int resCold2 = _char.resistancesChunk[5];
-         int resElec1 = _char.resistancesChunk[6];
-         int resElec2 = _char.resistancesChunk[7];
-         int resAcid1 = _char.resistancesChunk[8];
-         int resAcid2 = _char.resistancesChunk[9];
-         int resFear1 = _char.resistancesChunk[10];
-         int resFear2 = _char.resistancesChunk[11];
-         int resPoison1 = _char.resistancesChunk[12];
-         int resPoison2 = _char.resistancesChunk[13];
-         int resSleep1 = _char.resistancesChunk[14];
-         int resSleep2 = _char.resistancesChunk[15];
-
-         Console.WriteLine($"Resistances\n Magic  {resMagic1}%/{resMagic2}%  Fire   {resFire1}%/{resFire2}%  Cold   {resCold1}%/{resCold2}%  Elec   {resElec1}%/{resElec2}%\n Acid   {resAcid1}%/{resAcid2}% Fear   {resFear1}%/{resFear2}% Poison {resPoison1}%/{resPoison2}% Sleep  {resSleep1}%/{resSleep2}%");
+         Console.WriteLine($"Resistances\n Magic  {_char.resMagic1}%/{_char.resMagic2}%  Fire   {_char.resFire1}%/{_char.resFire2}%  Cold   {_char.resCold1}%/{_char.resCold2}%  Elec   {_char.resElec1}%/{_char.resElec2}%\n Acid   {_char.resAcid1}%/{_char.resAcid2}% Fear   {_char.resFear1}%/{_char.resFear2}% Poison {_char.resPoison1}%/{_char.resPoison2}% Sleep  {_char.resSleep1}%/{_char.resSleep2}%");
 
          // UNKNOWN 0x68 - 0x7D
 
          // Character Index number - 0x7E
          Console.WriteLine($"\nCharacter Index: {BitConverter.ToString(_char.characterIndexChunk)}");
       }
-   }
-
-   class Character
-   {
-      public int offset { get; set; } = 0;
-      public byte[] nameChunk { get; set; } = new byte[15]; // Offset 0=0x0
-
-      public int nameOffset
-      {
-         get { return offset; }
-      }
-
-
-      public byte[] unknownChunk1 { get; set; } = new byte[1]; // Offset 15=0xF
-
-      public byte[] sexChunk { get; set; } = new byte[1]; // Offset 16=0x10
-
-      public int sexOffset
-      {
-         get { return offset + 16; }
-      }
-
-      public byte[] unknownChunk2 { get; set; } = new byte[1]; // Offset 17=0x11
-
-      public byte[] alignmentChunk { get; set; } = new byte[1]; // Offset 18=0x12
-      public int alignmentOffset
-      {
-         get { return offset + 18; }
-      }
-
-      public byte[] raceChunk { get; set; } = new byte[1]; // Offset 19=0x13
-      public int raceOffset
-      {
-         get { return offset + 19; }
-      }
-
-      public byte[] classChunk { get; set; } = new byte[1]; // Offset 20=0x14
-      public int classOffset
-      {
-         get { return offset + 20; }
-      }
-
-      // Stats, there are seven statistics for each character, two bytes each.
-      public byte[] statsChunk { get; set; } = new byte[14]; // Offset 21=0x15
-
-      public byte[] levelChunk1 { get; set; } = new byte[1]; // Offset 35=0x23
-      public byte[] levelChunk2 { get; set; } = new byte[1]; // Offset 36=0x24
-
-      public byte[] ageChunk { get; set; } = new byte[1]; // Offset 37=0x25
-
-      public byte[] unknownChunk3 { get; set; } = new byte[1];  // Offset 38=0x26
-
-      // XP, stored as UInt24
-      public byte[] xpChunk { get; set; } = new byte[3]; // Offset 39=0x27
-      public int xpOffset
-      {
-         get { return offset + 39; }
-      }
-
-      public byte[] unknownChunk4 { get; set; } = new byte[1]; // Offset 42=0x2A
-
-      public byte[] magicPointsCurrentChunk { get; set; } = new byte[2]; // Offset 43=0x2B
-      public byte[] magicPointsMaxChunk { get; set; } = new byte[2]; // Offset 45=0x2D
-
-      public byte[] spellLevelChunk { get; set; } = new byte[2]; // Offset 47=0x2F
-
-      public byte[] gemsChunk { get; set; } = new byte[2]; // Offset 49=0x31
-      public int gemsOffset
-      {
-         get { return offset + 49; }
-      }
-
-      public byte[] healthCurrentChunk { get; set; } = new byte[2]; // Offset 51=0x33
-      public byte[] healthModifiedChunk { get; set; } = new byte[2]; // Offset 53
-      public byte[] healthMaxChunk { get; set; } = new byte[2]; // Offset 55
-
-      public byte[] goldChunk { get; set; } = new byte[3];  // Offset 57=0x39
-      public int goldOffset
-      {
-         get { return offset + 57; }
-      }
-
-
-      public byte[] unknownChunk7 { get; set; } = new byte[1]; // Offset 58=0x3A
-
-      public byte[] armorClassChunk { get; set; } = new byte[1]; // Offset 62=0x3D
-
-      public byte[] foodChunk { get; set; } = new byte[1]; // Offset 62=0x3E
-
-      public byte[] conditionChunk { get; set; } = new byte[1]; // Offset 63=0x3F
-
-      public byte[] equippedWeaponChunk { get; set; } = new byte[1]; // Offset 64=0x40
-      public byte[] equippedGearChunk { get; set; } = new byte[5]; // Offset 65=0x41
-      public byte[] inventoryChunk { get; set; } = new byte[6]; // Offset 70=0x46
-
-      public byte[] equipmentChargesChunk { get; set; } = new byte[12];// Offset 76=0x4C 
-
-      public byte[] resistancesChunk { get; set; } = new byte[16]; // Offset 88=0x58
-
-      public byte[] unknownChunk8 { get; set; } = new byte[22]; // Offset 104=0x68 - biggest chunk, probably contains various progress/quest-related data
-
-      public byte[] characterIndexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
-
    }
 }
