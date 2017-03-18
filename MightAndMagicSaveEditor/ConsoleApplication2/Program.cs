@@ -57,12 +57,18 @@ namespace MightAndMagicSaveEditor
 
       public static void ReadCharacterSlots(FileStream _stream)
       {
-         // Check if a given character exists before reading his data
-         // We read the character slot-byte at the end of the file to see if the character exists in the first place.
+         // We read the character slot chunk at the end of the file to see if the character exists in the first place.
          // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero in this case.
          int characterSlotsOffset = 2286;
          _stream.Position = characterSlotsOffset;
          _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
+
+         // Check a character's slot value and determine if they exist
+         for (int i = 0; i < characters.Length; i++)
+         {
+            characters[i].exists = (characterSlotsChunk[i] == 0) ? false : true;
+         }
+
       }
 
       public static void MainMenu(FileStream _stream)
@@ -112,9 +118,9 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine();
          PrintCharacterHeader();
 
-         for (int i = 0; i < characterOffsets.Length; i++)
+         for (int i = 0; i < characters.Length; i++)
          {
-            if (characterSlotsChunk[i] == 0)
+            if (!characters[i].exists)
             {
                Console.WriteLine($"-- ---EMPTY-SLOT-- --- ------- -------- -------- --- ----- -------- --------");
             }
@@ -135,11 +141,11 @@ namespace MightAndMagicSaveEditor
          ReadCharacterSlots(_stream);
 
          // We parse, modify and write back parameters for each character
-         for (int i = 0; i < characterOffsets.Length; i++)
+         for (int i = 0; i < characters.Length; i++)
          {
             Console.WriteLine($"\nReading Slot #{i + 1}...");
 
-            if (characterSlotsChunk[i] == 0)
+            if (!characters[i].exists)
             {
                Console.WriteLine($"No character found! Skipping to next slot...\n");
             }
@@ -157,15 +163,12 @@ namespace MightAndMagicSaveEditor
                ModifyChunkUInt16(characters[i].gemsChunk, "Gems", 200);
                ModifyChunkUInt24(characters[i].goldChunk, "Gold", 5000);
 
-
                Console.WriteLine($"Writing new values back to {FILE_NAME}. Are you sure?");
                Console.ReadLine();
 
                WriteChunk(_stream, characters[i].xpChunk, characters[i].xpOffset);
                WriteChunk(_stream, characters[i].gemsChunk, characters[i].gemsOffset);
                WriteChunk(_stream, characters[i].goldChunk, characters[i].goldOffset);
-
-
             }
          }
 
@@ -215,7 +218,7 @@ namespace MightAndMagicSaveEditor
 
             Console.WriteLine($"\nReading Slot #{i + 1}...");
 
-            if (characterSlotsChunk[i] == 0)
+            if (!characters[i].exists)
             {
                Console.WriteLine($"No character found! Skipping to next slot...\n");
             }
@@ -503,7 +506,7 @@ namespace MightAndMagicSaveEditor
 
       public static void PrintCharacterShort(Character _char)
       {
-         Console.WriteLine($"{BitConverter.ToString(_char.indexChunk)} {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
+         Console.WriteLine($"{_char.indexNum + 1}  {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
       }
 
       public static void PrintCharacter(Character _char)

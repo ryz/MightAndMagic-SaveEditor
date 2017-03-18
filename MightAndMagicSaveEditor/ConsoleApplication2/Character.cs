@@ -4,6 +4,7 @@ namespace MightAndMagicSaveEditor
 {
    class Character
    {
+      public bool exists = false;
       public int offset { get; set; } = 0;
       public byte[] nameChunk { get; set; } = new byte[15]; // Offset 0=0x0
 
@@ -131,6 +132,8 @@ namespace MightAndMagicSaveEditor
       public byte[] unknownChunk8 { get; set; } = new byte[22]; // Offset 104=0x68 - biggest chunk, probably contains various progress/quest-related data
 
       public byte[] indexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
+      public int indexNum { get { return indexChunk[0]; } }
+
    }
 
 }
