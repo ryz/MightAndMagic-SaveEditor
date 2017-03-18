@@ -10,13 +10,11 @@ namespace MightAndMagicSaveEditor
 
       public int nameOffset { get { return offset; } }
 
-
       public byte[] unknownChunk1 { get; set; } = new byte[1]; // Offset 15=0xF
 
       public byte[] sexChunk { get; set; } = new byte[1]; // Offset 16=0x10
 
-      public int sexOffset { get { return offset + 16; }
-      }
+      public int sexOffset { get { return offset + 16; } }
 
       public byte[] unknownChunk2 { get; set; } = new byte[1]; // Offset 17=0x11
 

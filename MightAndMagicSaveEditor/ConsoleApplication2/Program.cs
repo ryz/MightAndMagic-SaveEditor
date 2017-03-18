@@ -39,7 +39,7 @@ namespace MightAndMagicSaveEditor
 
       public static void InitializeCharacters()
       {
-         // create all the character constructors 
+         // create all the character constructors and set their offsets
          for (int i = 0; i < characters.Length; i++)
          {
             // Initialize stuff - There are 18 characters in the file, each is 127 bytes long
@@ -60,11 +60,11 @@ namespace MightAndMagicSaveEditor
 
          byte[] characterSlotsChunk = new byte[18];
          int characterSlotsOffset = 2286;
-         _stream.Position = characterSlotsOffset;
 
+         _stream.Position = characterSlotsOffset;
          _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
 
-         // Check a character's slot value and determine if they exist
+         // Check a character's slot value, determine if they exist and set their "location"
          for (int i = 0; i < characters.Length; i++)
          {
             characters[i].exists = (characterSlotsChunk[i] == 0) ? false : true;
