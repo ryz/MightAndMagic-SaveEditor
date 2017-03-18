@@ -110,8 +110,7 @@ namespace MightAndMagicSaveEditor
 
          Console.WriteLine("Character List");
          Console.WriteLine();
-         Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
-         Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -------- --------");
+         PrintCharacterHeader();
 
          for (int i = 0; i < characterOffsets.Length; i++)
          {
@@ -174,12 +173,44 @@ namespace MightAndMagicSaveEditor
          Console.ReadLine();
       }
 
+      public static void EditCharacter(FileStream _stream, Character _char)
+      {
+         _stream.Position = _char.offset;
+
+         ParseCharacter(_stream, _char);
+         PrintCharacter(_char);
+
+         // do work on the chunks
+         ModifyNameChunk(_char.nameChunk);
+
+         ModifyChunkUInt8(_char.sexChunk, "Sex", 1, 2);
+         ModifyChunkUInt8(_char.alignmentChunk, "Alignment", 1, 3);
+         ModifyChunkUInt8(_char.raceChunk, "Race", 1, 5);
+         ModifyChunkUInt8(_char.classChunk, "Class", 1, 5);
+         ModifyChunkUInt24(_char.xpChunk, "XP");
+         ModifyChunkUInt16(_char.gemsChunk, "Gems");
+         ModifyChunkUInt24(_char.goldChunk, "Gold");
+
+         // Write chunks back to the file
+         Console.WriteLine($"Writing new values back to {FILE_NAME}. Are you sure?");
+         Console.ReadLine();
+
+         WriteChunk(_stream, _char.nameChunk, _char.nameOffset);
+         WriteChunk(_stream, _char.sexChunk, _char.sexOffset);
+         WriteChunk(_stream, _char.alignmentChunk, _char.alignmentOffset);
+         WriteChunk(_stream, _char.raceChunk, _char.raceOffset);
+         WriteChunk(_stream, _char.classChunk, _char.classOffset);
+         WriteChunk(_stream, _char.xpChunk, _char.xpOffset);
+         WriteChunk(_stream, _char.gemsChunk, _char.gemsOffset);
+         WriteChunk(_stream, _char.goldChunk, _char.goldOffset);
+      }
+
       public static void EditAllCharacters(FileStream _stream)
       {
          ReadCharacterSlots(_stream);
 
          // We parse, modify and write back parameters for each character
-         for (int i = 0; i < characterOffsets.Length; i++)
+         for (int i = 0; i < characters.Length; i++)
          {
 
             Console.WriteLine($"\nReading Slot #{i + 1}...");
@@ -193,36 +224,7 @@ namespace MightAndMagicSaveEditor
                Console.WriteLine($"Character found!\n");
                Console.WriteLine($"Reading Character #{i + 1} at Offset {characterOffsets[i]}...\n");
 
-               _stream.Position = characterOffsets[i];
-
-               ParseCharacter(_stream, characters[i]);
-               PrintCharacter(characters[i]);
-
-               // do work on the chunks
-
-               ModifyNameChunk(characters[i].nameChunk);
-
-               ModifyChunkUInt8(characters[i].sexChunk, "Sex", 1, 2);
-               ModifyChunkUInt8(characters[i].alignmentChunk, "Alignment", 1, 3);
-               ModifyChunkUInt8(characters[i].raceChunk, "Race", 1, 5);
-               ModifyChunkUInt8(characters[i].classChunk, "Class", 1, 5);
-               ModifyChunkUInt24(characters[i].xpChunk, "XP");
-               ModifyChunkUInt16(characters[i].gemsChunk, "Gems");
-               ModifyChunkUInt24(characters[i].goldChunk, "Gold");
-
-               // Write chunks back to the file
-
-               Console.WriteLine($"Writing new values back to {FILE_NAME}. Are you sure?");
-               Console.ReadLine();
-
-               WriteChunk(_stream, characters[i].nameChunk, characters[i].nameOffset);
-               WriteChunk(_stream, characters[i].sexChunk, characters[i].sexOffset);
-               WriteChunk(_stream, characters[i].alignmentChunk, characters[i].alignmentOffset);
-               WriteChunk(_stream, characters[i].raceChunk, characters[i].raceOffset);
-               WriteChunk(_stream, characters[i].classChunk, characters[i].classOffset);
-               WriteChunk(_stream, characters[i].xpChunk, characters[i].xpOffset);
-               WriteChunk(_stream, characters[i].gemsChunk, characters[i].gemsOffset);
-               WriteChunk(_stream, characters[i].goldChunk, characters[i].goldOffset);
+               EditCharacter(_stream, characters[i]);
 
                Console.WriteLine($"\nCharacter #{i + 1} done!\n");
             }
@@ -493,6 +495,12 @@ namespace MightAndMagicSaveEditor
          return town;
       }
 
+      public static void PrintCharacterHeader()
+      {
+         Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
+         Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -------- --------");
+      }
+
       public static void PrintCharacterShort(Character _char)
       {
          Console.WriteLine($"{BitConverter.ToString(_char.indexChunk)} {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
@@ -502,8 +510,7 @@ namespace MightAndMagicSaveEditor
       {
          Console.Clear();
 
-         Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
-         Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -------- --------");
+         PrintCharacterHeader();
          PrintCharacterShort(_char);
          Console.WriteLine();
 
