@@ -13,14 +13,13 @@ namespace MightAndMagicSaveEditor
       static string FILE_NAME = "ROSTER.DTA";
       static string VERSION_NUMBER = "v0.4";
 
-      // Initialize stuff, mostly all the "chunks" as byte arrays
-      // There are 18 characters in the file, each one 127 bytes long
-      static int[] characterOffsets = { 0, 127, 254, 381, 508, 635, 762, 889, 1016, 1143, 1270, 1397, 1524, 1651, 1778, 1905, 2032, 2159 };
+      static Character[] characters = new Character[18];
+      static int[] characterOffsets = new int[18];
 
-      // These are the 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1) or not (value is 0).
+      // There are 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1) or not (value is 0).
       static byte[] characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
 
-      static Character[] characters = new Character[18];
+
 
       static bool isNewNameValid = false;
 
@@ -52,6 +51,11 @@ namespace MightAndMagicSaveEditor
          // create all the character constructors 
          for (int i = 0; i < characters.Length; i++)
          {
+            // Initialize stuff - There are 18 characters in the file, each is 127 bytes long
+            int characterChunkSize = 127;
+
+            characterOffsets[i] = i * characterChunkSize;
+
             characters[i] = new Character();
             characters[i].offset = characterOffsets[i];
          }
