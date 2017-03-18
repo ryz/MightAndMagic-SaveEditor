@@ -8,10 +8,8 @@ namespace MightAndMagicSaveEditor
 {
    class Program
    {
-      static ConsoleKeyInfo userInput;
-
       static string FILE_NAME = "ROSTER.DTA";
-      static string VERSION_NUMBER = "v0.4";
+      static string VERSION_NUMBER = "v0.5";
 
       static Character[] characters = new Character[18];
       static int[] characterOffsets = new int[18];
@@ -76,21 +74,20 @@ namespace MightAndMagicSaveEditor
 
       public static void MainMenu(FileStream _stream)
       {
+         ConsoleKeyInfo userInput;
+
          do
          {
-            DisplayMenu();
+            DisplayMainMenu();
             userInput = Console.ReadKey(false);
 
             switch (userInput.KeyChar.ToString())
             {
                case "1":
-                  EditAllCharacters(_stream);
+                  CharacterListMenu(_stream);
                   break;
                case "2":
                   QuickStartPackage(_stream, characters[0]);
-                  break;
-               case "3":
-                  ShortList(_stream);
                   break;
                default:
                   break;
@@ -100,26 +97,24 @@ namespace MightAndMagicSaveEditor
          while (userInput.Key != ConsoleKey.Escape);
       }
 
-      public static void DisplayMenu()
+      public static void DisplayMainMenu()
       {
          Console.WriteLine($"Might and Magic 1 Save Game Editor ({VERSION_NUMBER}) by ryz");
          Console.WriteLine();
-         Console.WriteLine("1. Edit all characters");
+         Console.WriteLine("1. List (and edit) characters");
          Console.WriteLine("2. Quick Start Package - Give each character XP, Gold and Gems");
-         Console.WriteLine("3. Short list of characters");
          Console.WriteLine();
          Console.WriteLine("Press ESC to exit.");
       }
 
-      public static void ShortList(FileStream _stream)
+      public static void DisplayCharacterListMenu(FileStream _stream)
       {
          Console.Clear();
-
-         ReadCharacterSlots(_stream);
-
          Console.WriteLine("Character List");
          Console.WriteLine();
          PrintCharacterHeader();
+
+         int characterCounter = 0;
 
          for (int i = 0; i < characters.Length; i++)
          {
@@ -133,9 +128,101 @@ namespace MightAndMagicSaveEditor
 
                ParseCharacter(_stream, characters[i]);
                PrintCharacterShort(characters[i]);
+
+               characterCounter++;
             }
          }
-         Console.ReadLine();
+
+         Console.WriteLine();
+         if(characterCounter <= 10)
+         {
+            Console.WriteLine($"Select a character (1-{characterCounter}). Press A to edit ALL characters.\nPress ESC to exit.");
+         }
+         else
+         {
+            Console.WriteLine($"Select a character (1-10, F1-F8). Press A to edit ALL characters.\nPress ESC to exit.");
+         }
+
+
+      }
+
+      public static void CharacterListMenu(FileStream _stream)
+      {
+
+         ConsoleKeyInfo input;
+         ReadCharacterSlots(_stream);
+
+         do
+         {
+            DisplayCharacterListMenu(_stream);
+            input = Console.ReadKey(false);
+
+            switch (input.Key)
+            {
+               case ConsoleKey.D1:
+                  EditCharacter(_stream, characters[0]);
+                  break;
+               case ConsoleKey.D2:
+                  EditCharacter(_stream, characters[1]);
+                  break;
+               case ConsoleKey.D3:
+                  EditCharacter(_stream, characters[2]);
+                  break;
+               case ConsoleKey.D4:
+                  EditCharacter(_stream, characters[3]);
+                  break;
+               case ConsoleKey.D5:
+                  EditCharacter(_stream, characters[4]);
+                  break;
+               case ConsoleKey.D6:
+                  EditCharacter(_stream, characters[5]);
+                  break;
+               case ConsoleKey.D7:
+                  EditCharacter(_stream, characters[6]);
+                  break;
+               case ConsoleKey.D8:
+                  EditCharacter(_stream, characters[7]);
+                  break;
+               case ConsoleKey.D9:
+                  EditCharacter(_stream, characters[8]);
+                  break;
+               case ConsoleKey.D0:
+                  EditCharacter(_stream, characters[9]);
+                  break;
+               case ConsoleKey.F1:
+                  EditCharacter(_stream, characters[10]);
+                  break;
+               case ConsoleKey.F2:
+                  EditCharacter(_stream, characters[11]);
+                  break;
+               case ConsoleKey.F3:
+                  EditCharacter(_stream, characters[12]);
+                  break;
+               case ConsoleKey.F4:
+                  EditCharacter(_stream, characters[13]);
+                  break;
+               case ConsoleKey.F5:
+                  EditCharacter(_stream, characters[14]);
+                  break;
+               case ConsoleKey.F6:
+                  EditCharacter(_stream, characters[15]);
+                  break;
+               case ConsoleKey.F7:
+                  EditCharacter(_stream, characters[16]);
+                  break;
+               case ConsoleKey.F8:
+                  EditCharacter(_stream, characters[17]);
+                  break;
+               case ConsoleKey.A:
+                  EditAllCharacters(_stream);
+                  break;
+               default:
+                  break;
+            }
+
+            Console.Clear();
+         } while (input.Key != ConsoleKey.Escape);
+
       }
 
       // gives each character 5000 XP, 200 Gems and 5000 Gold
@@ -181,34 +268,94 @@ namespace MightAndMagicSaveEditor
 
       public static void EditCharacter(FileStream _stream, Character _char)
       {
-         _stream.Position = _char.offset;
+         if (_char.exists)
+         {
 
-         ParseCharacter(_stream, _char);
-         PrintCharacter(_char);
+            ConsoleKeyInfo input;
 
-         // do work on the chunks
-         ModifyNameChunk(_char.nameChunk);
+            _stream.Position = _char.offset;
 
-         ModifyChunkUInt8(_char.sexChunk, "Sex", 1, 2);
-         ModifyChunkUInt8(_char.alignmentChunk, "Alignment", 1, 3);
-         ModifyChunkUInt8(_char.raceChunk, "Race", 1, 5);
-         ModifyChunkUInt8(_char.classChunk, "Class", 1, 5);
-         ModifyChunkUInt24(_char.xpChunk, "XP");
-         ModifyChunkUInt16(_char.gemsChunk, "Gems");
-         ModifyChunkUInt24(_char.goldChunk, "Gold");
+            ParseCharacter(_stream, _char);
 
-         // Write chunks back to the file
-         Console.WriteLine($"Writing new values back to {FILE_NAME}. Are you sure?");
-         Console.ReadLine();
+            do
+            {
+               bool isValueChanged = false;
+               PrintCharacter(_char);
+               Console.WriteLine("\nEdit (N)ame, (S)ex, A(l)ingment, (R)ace, (C)lass, E(X)perience, (G)old, G(E)ms\nor (A)LL values. Press ESC to go back.");
 
-         WriteChunk(_stream, _char.nameChunk, _char.nameOffset);
-         WriteChunk(_stream, _char.sexChunk, _char.sexOffset);
-         WriteChunk(_stream, _char.alignmentChunk, _char.alignmentOffset);
-         WriteChunk(_stream, _char.raceChunk, _char.raceOffset);
-         WriteChunk(_stream, _char.classChunk, _char.classOffset);
-         WriteChunk(_stream, _char.xpChunk, _char.xpOffset);
-         WriteChunk(_stream, _char.gemsChunk, _char.gemsOffset);
-         WriteChunk(_stream, _char.goldChunk, _char.goldOffset);
+               input = Console.ReadKey(true);
+
+               switch (input.Key)
+               {
+                  case ConsoleKey.N:
+                     ModifyNameChunk(_char.nameChunk);
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.S:
+                     ModifyChunkUInt8(_char.sexChunk, "Sex", 1, 2);
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.L:
+                     ModifyChunkUInt8(_char.alignmentChunk, "Alignment", 1, 3);
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.R:
+                     ModifyChunkUInt8(_char.raceChunk, "Race", 1, 5);
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.C:
+                     ModifyChunkUInt8(_char.classChunk, "Class", 1, 5);
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.X:
+                     ModifyChunkUInt24(_char.xpChunk, "XP");
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.G:
+                     ModifyChunkUInt16(_char.gemsChunk, "Gems");
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.E:
+                     ModifyChunkUInt24(_char.goldChunk, "Gold");
+                     isValueChanged = true;
+                     break;
+                  case ConsoleKey.A:
+                     ModifyNameChunk(_char.nameChunk);
+                     ModifyChunkUInt8(_char.sexChunk, "Sex", 1, 2);
+                     ModifyChunkUInt8(_char.alignmentChunk, "Alignment", 1, 3);
+                     ModifyChunkUInt8(_char.raceChunk, "Race", 1, 5);
+                     ModifyChunkUInt8(_char.classChunk, "Class", 1, 5);
+                     ModifyChunkUInt24(_char.xpChunk, "XP");
+                     ModifyChunkUInt16(_char.gemsChunk, "Gems");
+                     ModifyChunkUInt24(_char.goldChunk, "Gold");
+                     isValueChanged = true;
+
+                     break;
+               }
+
+               if (isValueChanged)
+               {
+                  // Write chunks back to the file
+                  Console.WriteLine($"Writing new value(s) back to {FILE_NAME}. Are you sure? Press ESC to abort.");
+                  input = Console.ReadKey(true);
+
+                  if (input.Key != ConsoleKey.Escape)
+                  {
+                     WriteChunk(_stream, _char.nameChunk, _char.nameOffset);
+                     WriteChunk(_stream, _char.sexChunk, _char.sexOffset);
+                     WriteChunk(_stream, _char.alignmentChunk, _char.alignmentOffset);
+                     WriteChunk(_stream, _char.raceChunk, _char.raceOffset);
+                     WriteChunk(_stream, _char.classChunk, _char.classOffset);
+                     WriteChunk(_stream, _char.xpChunk, _char.xpOffset);
+                     WriteChunk(_stream, _char.gemsChunk, _char.gemsOffset);
+                     WriteChunk(_stream, _char.goldChunk, _char.goldOffset);
+                  }
+
+               }
+
+            } while (input.Key != ConsoleKey.Escape);
+         }
+
       }
 
       public static void EditAllCharacters(FileStream _stream)
@@ -547,6 +694,8 @@ namespace MightAndMagicSaveEditor
 
          // Resistances 0x58 - 0x67
          Console.WriteLine($"Resistances: Magic  {_char.resMagic1}%/{_char.resMagic2}%  Fire   {_char.resFire1}%/{_char.resFire2}%  Cold   {_char.resCold1}%/{_char.resCold2}%  Elec   {_char.resElec1}%/{_char.resElec2}%\n             Acid   {_char.resAcid1}%/{_char.resAcid2}% Fear   {_char.resFear1}%/{_char.resFear2}% Poison {_char.resPoison1}%/{_char.resPoison2}% Sleep  {_char.resSleep1}%/{_char.resSleep2}%");
+
+         Console.WriteLine("----------------------------------------------------------------------------");
       }
 
       public static void PrintCharacterDebug(Character _char)
