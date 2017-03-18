@@ -130,7 +130,7 @@ namespace MightAndMagicSaveEditor
 
       public byte[] unknownChunk8 { get; set; } = new byte[22]; // Offset 104=0x68 - biggest chunk, probably contains various progress/quest-related data
 
-      public byte[] characterIndexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
+      public byte[] indexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
    }
 
 }

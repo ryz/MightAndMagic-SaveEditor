@@ -403,7 +403,7 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_char.resistancesChunk, 0, _char.resistancesChunk.Length);         // Resistances 0x58 - 0x67
          _stream.Position += 22;                                             // UNKNOWN 0x68 - 0x7D
 
-         _stream.Read(_char.characterIndexChunk, 0, _char.characterIndexChunk.Length);   // Character Index number - 0x7E
+         _stream.Read(_char.indexChunk, 0, _char.indexChunk.Length);   // Character Index number - 0x7E
       }
 
       public static string GetSexFromChunk(Character _char)
@@ -487,7 +487,7 @@ namespace MightAndMagicSaveEditor
       {
          string[] townNames = { "DELETED", "Sorpigal", "Portsmith", "Algary", "Dusk", "Erliquin" };
 
-         int charIndex = _char.characterIndexChunk[0];
+         int charIndex = _char.indexChunk[0];
 
          var town = townNames[characterSlotsChunk[charIndex]];
 
@@ -496,7 +496,7 @@ namespace MightAndMagicSaveEditor
 
       public static void PrintCharacterShort(Character _char)
       {
-         Console.WriteLine($"{BitConverter.ToString(_char.characterIndexChunk)} {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
+         Console.WriteLine($"{BitConverter.ToString(_char.indexChunk)} {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
       }
 
       public static void PrintCharacter(Character _char)
@@ -632,7 +632,7 @@ namespace MightAndMagicSaveEditor
          // UNKNOWN 0x68 - 0x7D
 
          // Character Index number - 0x7E
-         Console.WriteLine($"\nCharacter Index: {BitConverter.ToString(_char.characterIndexChunk)}");
+         Console.WriteLine($"\nCharacter Index: {BitConverter.ToString(_char.indexChunk)}");
       }
    }
 }
