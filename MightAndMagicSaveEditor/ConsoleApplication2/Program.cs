@@ -16,9 +16,6 @@ namespace MightAndMagicSaveEditor
       static Character[] characters = new Character[18];
       static int[] characterOffsets = new int[18];
 
-      // There are 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1-5) or not (value is 0).
-      static byte[] characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
-
       static void Main(string[] args)
       {
          if (File.Exists(FILE_NAME))
@@ -57,16 +54,22 @@ namespace MightAndMagicSaveEditor
 
       public static void ReadCharacterSlots(FileStream _stream)
       {
-         // We read the character slot chunk at the end of the file to see if the character exists in the first place.
+         // There are 18 "character slot" bytes at Offset 2286=0x8EE in the ROSTER.DTA file.
+         // We read this chunk to see if a character exists (value is not 0) and it's location/town (value is 1-5).
          // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero in this case.
+
+         byte[] characterSlotsChunk = new byte[18];
          int characterSlotsOffset = 2286;
          _stream.Position = characterSlotsOffset;
+
          _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
 
          // Check a character's slot value and determine if they exist
          for (int i = 0; i < characters.Length; i++)
          {
             characters[i].exists = (characterSlotsChunk[i] == 0) ? false : true;
+
+            characters[i].locationNum = characterSlotsChunk[i];
          }
 
       }
@@ -491,11 +494,9 @@ namespace MightAndMagicSaveEditor
       {
          string[] townNames = { "DELETED", "Sorpigal", "Portsmith", "Algary", "Dusk", "Erliquin" };
 
-         int charIndex = _char.indexChunk[0];
+         var townName = townNames[_char.locationNum];
 
-         var town = townNames[characterSlotsChunk[charIndex]];
-
-         return town;
+         return townName;
       }
 
       public static void PrintCharacterHeader()

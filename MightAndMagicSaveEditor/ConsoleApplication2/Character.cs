@@ -134,6 +134,8 @@ namespace MightAndMagicSaveEditor
       public byte[] indexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
       public int indexNum { get { return indexChunk[0]; } }
 
+      public int locationNum { get; set; } = 0;
+
    }
 
 }
