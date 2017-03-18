@@ -19,10 +19,6 @@ namespace MightAndMagicSaveEditor
       // There are 18 "character slots" at the very end of the ROSTER.DTA file. They indicate if a character exists (value is 1) or not (value is 0).
       static byte[] characterSlotsChunk = new byte[18]; // Offset 2286=0x8EE
 
-
-
-      static bool isNewNameValid = false;
-
       static void Main(string[] args)
       {
          CreateCharacters();
@@ -168,9 +164,9 @@ namespace MightAndMagicSaveEditor
                Console.WriteLine($"Writing new values back to {FILE_NAME}. Are you sure?");
                Console.ReadLine();
 
-               WriteChunk(_stream, "XP", characters[i].xpChunk, characters[i].xpOffset);
-               WriteChunk(_stream, "Gems", characters[i].gemsChunk, characters[i].gemsOffset);
-               WriteChunk(_stream, "Gold", characters[i].goldChunk, characters[i].goldOffset);
+               WriteChunk(_stream, characters[i].xpChunk, characters[i].xpOffset);
+               WriteChunk(_stream, characters[i].gemsChunk, characters[i].gemsOffset);
+               WriteChunk(_stream, characters[i].goldChunk, characters[i].goldOffset);
 
 
             }
@@ -206,7 +202,7 @@ namespace MightAndMagicSaveEditor
 
                // do work on the chunks
 
-               ModifyNameChunk(characters[i].nameChunk, ref isNewNameValid);
+               ModifyNameChunk(characters[i].nameChunk);
 
                ModifyChunkUInt8(characters[i].sexChunk, "Sex", 1, 2);
                ModifyChunkUInt8(characters[i].alignmentChunk, "Alignment", 1, 3);
@@ -221,18 +217,14 @@ namespace MightAndMagicSaveEditor
                Console.WriteLine($"Writing new values back to {FILE_NAME}. Are you sure?");
                Console.ReadLine();
 
-               if (isNewNameValid)
-               {
-                  WriteChunk(_stream, "Name", characters[0].nameChunk, characters[0].nameOffset);
-               }
-
-               WriteChunk(_stream, "Sex", characters[0].sexChunk, characters[0].sexOffset);
-               WriteChunk(_stream, "Alignment", characters[0].alignmentChunk, characters[0].alignmentOffset);
-               WriteChunk(_stream, "Race", characters[0].raceChunk, characters[0].raceOffset);
-               WriteChunk(_stream, "Class", characters[0].classChunk, characters[0].classOffset);
-               WriteChunk(_stream, "XP", characters[0].xpChunk, characters[0].xpOffset);
-               WriteChunk(_stream, "Gems", characters[0].gemsChunk, characters[0].gemsOffset);
-               WriteChunk(_stream, "Gold", characters[0].goldChunk, characters[0].goldOffset);
+               WriteChunk(_stream, characters[i].nameChunk, characters[i].nameOffset);
+               WriteChunk(_stream, characters[i].sexChunk, characters[i].sexOffset);
+               WriteChunk(_stream, characters[i].alignmentChunk, characters[i].alignmentOffset);
+               WriteChunk(_stream, characters[i].raceChunk, characters[i].raceOffset);
+               WriteChunk(_stream, characters[i].classChunk, characters[i].classOffset);
+               WriteChunk(_stream, characters[i].xpChunk, characters[i].xpOffset);
+               WriteChunk(_stream, characters[i].gemsChunk, characters[i].gemsOffset);
+               WriteChunk(_stream, characters[i].goldChunk, characters[i].goldOffset);
 
                Console.WriteLine($"\nCharacter #{i + 1} done!\n");
             }
@@ -317,45 +309,53 @@ namespace MightAndMagicSaveEditor
       }
 
       // Write chunk back from byte array
-      public static void WriteChunk(Stream _stream, string _chunkName, byte[] _chunk, int _offset)
+      public static void WriteChunk(Stream _stream, byte[] _chunk, int _offset)
       {
          _stream.Seek(_offset, SeekOrigin.Begin);
          _stream.Write(_chunk, 0, _chunk.Length);
       }
 
       // Write chunk back from single byte
-      public static void WriteChunk(Stream _stream, string _chunkName, byte _byte, int _offset)
+      public static void WriteChunk(Stream _stream, byte _byte, int _offset)
       {
          _stream.Seek(_offset, SeekOrigin.Begin);
          _stream.WriteByte(_byte);
       }
 
-      public static void ModifyNameChunk(byte[] _name, ref bool _nameValid)
+      public static void ModifyNameChunk(byte[] _name)
       {
+         bool isNameValid = false;
          byte[] newName = new byte[_name.Length];
 
-         //ask for and get new name from input and save it into a byte array
-         Console.Write("\nEnter a new Name: ");
-         string nameInput = Console.ReadLine().ToUpper();
-
-         // Truncate input above 15 characters
-         nameInput = nameInput.Substring(0, Math.Min(15, nameInput.Length));
 
          // Check that the name contains only uppercase latin characters and numerals from 0-9
          Regex rx = new Regex("^[A-Z0-9]*$");
 
-         if (rx.IsMatch(nameInput))
-         {
-            Console.Write($"Name '{nameInput}' accepted.\n");
-            newName = Encoding.ASCII.GetBytes(nameInput);
 
-            _nameValid = true;
-         }
-         else
+
+         do
          {
-            Console.Write($"Name '{nameInput}' contains invalid characters! Name has not been changed.\n");
-            _nameValid = false;
+            //ask for and get new name from input and save it into a byte array
+            Console.Write("\nEnter a new Name (Max 15 characters): ");
+            string nameInput = Console.ReadLine().ToUpper();
+
+            // Truncate input above 15 characters
+            nameInput = nameInput.Substring(0, Math.Min(15, nameInput.Length));
+
+            if (rx.IsMatch(nameInput))
+            {
+               Console.Write($"Name '{nameInput}' accepted.\n");
+               newName = Encoding.ASCII.GetBytes(nameInput);
+
+               isNameValid = true;
+            }
+            else
+            {
+               Console.Write($"Name '{nameInput}' contains invalid characters! Try again.\n");
+               isNameValid = false;
+            }
          }
+         while (!isNameValid);
 
          // we clear the old array first so we can just copy the new one in it - keeps array size the same
          Array.Clear(_name, 0, _name.Length);
