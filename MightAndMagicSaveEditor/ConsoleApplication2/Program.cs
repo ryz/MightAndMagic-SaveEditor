@@ -482,19 +482,19 @@ namespace MightAndMagicSaveEditor
          bool isNameValid = false;
          byte[] newName = new byte[_name.Length];
 
-         // Check that the name contains only uppercase latin characters and numerals from 0-9
+         // Check if the name contains only uppercase latin characters and numerals from 0-9
          Regex rx = new Regex("^[A-Z0-9]*$");
 
-         do
+         while(!isNameValid)
          {
             //ask for and get new name from input and save it into a byte array
-            Console.Write("\nEnter a new Name (Max 15 characters): ");
+            Console.Write("\nEnter new Name (Max 15 characters, A-Z, 0-9): ");
             string nameInput = Console.ReadLine().ToUpper();
 
             // Truncate input above 15 characters
             nameInput = nameInput.Substring(0, Math.Min(15, nameInput.Length));
 
-            if (rx.IsMatch(nameInput))
+            if (rx.IsMatch(nameInput) && !String.IsNullOrEmpty(nameInput))
             {
                Console.Write($"Name '{nameInput}' accepted.\n");
                newName = Encoding.ASCII.GetBytes(nameInput);
@@ -507,7 +507,6 @@ namespace MightAndMagicSaveEditor
                isNameValid = false;
             }
          }
-         while (!isNameValid);
 
          // we clear the old array first so we can just copy the new one in it - keeps array size the same
          Array.Clear(_name, 0, _name.Length);
