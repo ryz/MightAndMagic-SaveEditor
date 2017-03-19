@@ -35,7 +35,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public static void InitializeCharacters()
+      static void InitializeCharacters()
       {
          // create all the character constructors and set their offsets
          for (int i = 0; i < characters.Length; i++)
@@ -50,7 +50,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public static void ReadCharacterSlots(FileStream _stream)
+      static void ReadCharacterSlots(FileStream _stream)
       {
          // There are 18 "character slot" bytes at Offset 2286=0x8EE in the ROSTER.DTA file.
          // We read this chunk to see if a character exists (value is not 0) and it's location/town (value is 1-5).
@@ -72,7 +72,7 @@ namespace MightAndMagicSaveEditor
 
       }
 
-      public static void MainMenu(FileStream _stream)
+      static void MainMenu(FileStream _stream)
       {
          ConsoleKeyInfo userInput;
 
@@ -97,7 +97,7 @@ namespace MightAndMagicSaveEditor
          while (userInput.Key != ConsoleKey.Escape);
       }
 
-      public static void DisplayMainMenu()
+      static void DisplayMainMenu()
       {
          Console.WriteLine($"Might and Magic 1 Save Game Editor ({VERSION_NUMBER}) by ryz");
          Console.WriteLine();
@@ -107,7 +107,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine("Press ESC to exit.");
       }
 
-      public static void DisplayCharacterListMenu(FileStream _stream)
+      static void DisplayCharacterListMenu(FileStream _stream)
       {
          Console.Clear();
          Console.WriteLine("Character List");
@@ -146,7 +146,7 @@ namespace MightAndMagicSaveEditor
 
       }
 
-      public static void CharacterListMenu(FileStream _stream)
+      static void CharacterListMenu(FileStream _stream)
       {
 
          ConsoleKeyInfo input;
@@ -226,7 +226,7 @@ namespace MightAndMagicSaveEditor
       }
 
       // gives each character 5000 XP, 200 Gems and 5000 Gold
-      public static void QuickStartPackage(FileStream _stream, Character _char)
+      static void QuickStartPackage(FileStream _stream, Character _char)
       {
          ReadCharacterSlots(_stream);
 
@@ -266,7 +266,7 @@ namespace MightAndMagicSaveEditor
          Console.ReadLine();
       }
 
-      public static void EditCharacter(FileStream _stream, Character _char)
+      static void EditCharacter(FileStream _stream, Character _char)
       {
          if (_char.exists)
          {
@@ -311,11 +311,11 @@ namespace MightAndMagicSaveEditor
                      ModifyChunkUInt24(_char.xpChunk, "XP");
                      isValueChanged = true;
                      break;
-                  case ConsoleKey.G:
+                  case ConsoleKey.E:
                      ModifyChunkUInt16(_char.gemsChunk, "Gems");
                      isValueChanged = true;
                      break;
-                  case ConsoleKey.E:
+                  case ConsoleKey.G:
                      ModifyChunkUInt24(_char.goldChunk, "Gold");
                      isValueChanged = true;
                      break;
@@ -358,7 +358,7 @@ namespace MightAndMagicSaveEditor
 
       }
 
-      public static void EditAllCharacters(FileStream _stream)
+      static void EditAllCharacters(FileStream _stream)
       {
          ReadCharacterSlots(_stream);
 
@@ -387,33 +387,44 @@ namespace MightAndMagicSaveEditor
          Console.ReadLine();
       }
 
-      public static void ModifyChunkUInt8(byte[] _chunk, string _chunkName, uint _min, uint _max)
+      static void ModifyChunkUInt8(byte[] _chunk, string _chunkName, uint _min, uint _max)
       {
-         Console.Write($"\nEnter new {_chunkName} value ({_min}-{_max}): ");
-         byte newVal = Byte.Parse(Console.ReadLine());
-
+         byte input;
          byte[] newArray = new byte[1];
 
-         newArray[0] = newVal;
+         Console.Write($"\nEnter new {_chunkName} value ({_min}-{_max}): ");
+
+         while (!byte.TryParse(Console.ReadLine(), out input) || input < _min || input > _max)
+         {
+            Console.Write($"Enter a valid numerical value between {_min} and {_max}! New value: ");
+         }
+
+         newArray[0] = input;
 
          Array.Clear(_chunk, 0, _chunk.Length);
          Array.Copy(newArray, _chunk, newArray.Length);
       }
 
       // Set by input
-      public static void ModifyChunkUInt16(byte[] _chunk, string _chunkName)
+      static void ModifyChunkUInt16(byte[] _chunk, string _chunkName)
       {
-         Console.Write($"\nEnter new {_chunkName} value (UInt16): ");
-         ushort newVal = UInt16.Parse(Console.ReadLine());
+         ushort input;
 
-         byte[] newArray = BitConverter.GetBytes(newVal);
+         Console.Write($"\nEnter new {_chunkName} value (0-65535): ");
+
+         while (!UInt16.TryParse(Console.ReadLine(), out input))
+         {
+            Console.Write($"Enter a valid numerical value between 0 and 65535! New value: ");
+         }
+
+         byte[] newArray = BitConverter.GetBytes(input);
 
          Array.Clear(_chunk, 0, _chunk.Length);
          Array.Copy(newArray, _chunk, 2);
       }
 
       // Set directly
-      public static void ModifyChunkUInt16(byte[] _chunk, string _chunkName, ushort _amount)
+      static void ModifyChunkUInt16(byte[] _chunk, string _chunkName, ushort _amount)
       {
          ushort newVal = _amount;
 
@@ -424,58 +435,49 @@ namespace MightAndMagicSaveEditor
       }
 
       // Set by input
-      public static void ModifyChunkUInt24(byte[] _chunk, string _chunkName)
+      static void ModifyChunkUInt24(byte[] _chunk, string _chunkName)
       {
-         Console.Write($"\nEnter new {_chunkName} value (UInt24): ");
-         
-         // Although this should be a UInt24, we read this as a UInt32 and later just copy three bytes
-         uint newVal = UInt32.Parse(Console.ReadLine());
+         uint input;
+         var uint24RangeMax = 16777215;
 
-         // We have to create an intermediate byte array here where we copy to and from
+         Console.Write($"\nEnter new {_chunkName} value (0-{uint24RangeMax}): ");
+
+         // Should be a UInt24, but there's none in C# by default.
+         // Read this as a UInt32 and later just copy three bytes.
+         while (!UInt32.TryParse(Console.ReadLine(), out input) || input > uint24RangeMax)
+         {
+            Console.Write($"Enter a valid numerical value between 0 and {uint24RangeMax}! New value: ");
+         }
+
+         // Create an intermediate byte array where we copy to and from
          // This is because BitConverter.GetBytes() can't return UInt24
          // which would result in a too long chunk (byte array). 
-
-         byte[] newArray = BitConverter.GetBytes(newVal);
+         byte[] newArray = BitConverter.GetBytes(input);
 
          Array.Clear(_chunk, 0, _chunk.Length);
 
-         // Remember to copy just three bytes > UInt24
-         Array.Copy(newArray, _chunk, 3);
+         Array.Copy(newArray, _chunk, 3); // Remember to copy just three bytes > UInt24
       }
 
       // Set directly
-      public static void ModifyChunkUInt24(byte[] _chunk, string _chunkName, uint _amount)
+      static void ModifyChunkUInt24(byte[] _chunk, string _chunkName, uint _amount)
       {;
-         // Although this should be a UInt24, we read this as a UInt32 and later just copy three bytes
+         // Should be a UInt24, but there's none in C# by default.
+         // Read this as a UInt32 and later just copy three bytes.
          uint newVal = _amount;
 
-         // We have to create an intermediate byte array here where we copy to and from
+         // Create an intermediate byte array where we copy to and from
          // This is because BitConverter.GetBytes() can't return UInt24
          // which would result in a too long chunk (byte array). 
 
          byte[] newArray = BitConverter.GetBytes(newVal);
 
          Array.Clear(_chunk, 0, _chunk.Length);
-
-         // Remember to copy just three bytes > UInt24
-         Array.Copy(newArray, _chunk, 3);
+         
+         Array.Copy(newArray, _chunk, 3); // Remember to copy just three bytes > UInt24
       }
 
-      // Write chunk back from byte array
-      public static void WriteChunk(Stream _stream, byte[] _chunk, int _offset)
-      {
-         _stream.Seek(_offset, SeekOrigin.Begin);
-         _stream.Write(_chunk, 0, _chunk.Length);
-      }
-
-      // Write chunk back from single byte
-      public static void WriteChunk(Stream _stream, byte _byte, int _offset)
-      {
-         _stream.Seek(_offset, SeekOrigin.Begin);
-         _stream.WriteByte(_byte);
-      }
-
-      public static void ModifyNameChunk(byte[] _name)
+      static void ModifyNameChunk(byte[] _name)
       {
          bool isNameValid = false;
          byte[] newName = new byte[_name.Length];
@@ -512,7 +514,21 @@ namespace MightAndMagicSaveEditor
          Array.Copy(newName, _name, newName.Length);
       }
 
-      public static void ParseCharacter(FileStream _stream, Character _char)
+      // Write chunk back from byte array
+      static void WriteChunk(Stream _stream, byte[] _chunk, int _offset)
+      {
+         _stream.Seek(_offset, SeekOrigin.Begin);
+         _stream.Write(_chunk, 0, _chunk.Length);
+      }
+
+      // Write chunk back from single byte
+      static void WriteChunk(Stream _stream, byte _byte, int _offset)
+      {
+         _stream.Seek(_offset, SeekOrigin.Begin);
+         _stream.WriteByte(_byte);
+      }
+
+      static void ParseCharacter(FileStream _stream, Character _char)
       {
          _stream.Read(_char.nameChunk, 0, _char.nameChunk.Length);                       // Character Name 0x0 - 0xE
          _stream.Position += 1;                                              // UNKNOWN 0xF
@@ -560,7 +576,7 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_char.indexChunk, 0, _char.indexChunk.Length);   // Character Index number - 0x7E
       }
 
-      public static string GetSexFromChunk(Character _char)
+      static string GetSexFromChunk(Character _char)
       {
          var s = BitConverter.ToString(_char.sexChunk);
 
@@ -573,7 +589,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public static string GetAlignmentFromChunk(Character _char)
+      static string GetAlignmentFromChunk(Character _char)
       {
          var s = BitConverter.ToString(_char.alignmentChunk);
 
@@ -587,7 +603,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public static string GetRaceFromChunk(Character _char)
+      static string GetRaceFromChunk(Character _char)
       {
          var s = BitConverter.ToString(_char.raceChunk);
 
@@ -603,7 +619,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public static string GetClassFromChunk(Character _char)
+      static string GetClassFromChunk(Character _char)
       {
          var s = BitConverter.ToString(_char.classChunk);
 
@@ -620,7 +636,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public static string GetConditionFromChunk(Character _char)
+      static string GetConditionFromChunk(Character _char)
       {
          var s = BitConverter.ToString(_char.conditionChunk);
 
@@ -637,7 +653,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public static string GetTownName(Character _char)
+      static string GetTownName(Character _char)
       {
          string[] townNames = { "DELETED", "Sorpigal", "Portsmith", "Algary", "Dusk", "Erliquin" };
 
@@ -646,18 +662,18 @@ namespace MightAndMagicSaveEditor
          return townName;
       }
 
-      public static void PrintCharacterHeader()
+      static void PrintCharacterHeader()
       {
          Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
          Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -------- --------");
       }
 
-      public static void PrintCharacterShort(Character _char)
+      static void PrintCharacterShort(Character _char)
       {
          Console.WriteLine($"{_char.indexNum + 1}  {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
       }
 
-      public static void PrintCharacter(Character _char)
+      static void PrintCharacter(Character _char)
       {
          Console.Clear();
 
@@ -676,7 +692,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine();
 
          // Gold Gems Food
-         Console.WriteLine($"Gold: {_char.goldNum} / Gems: {BitConverter.ToInt16(_char.gemsChunk, 0)} / Food: {_char.foodNum}");
+         Console.WriteLine($"Gold: {_char.goldNum} / Gems: {BitConverter.ToUInt16(_char.gemsChunk, 0)} / Food: {_char.foodNum}");
          Console.WriteLine();
 
          // Equipped Weapon
@@ -698,7 +714,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine("----------------------------------------------------------------------------");
       }
 
-      public static void PrintCharacterDebug(Character _char)
+      static void PrintCharacterDebug(Character _char)
       {
          
          // Character Name 0x0 - 0xE
