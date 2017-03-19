@@ -320,7 +320,8 @@ namespace MightAndMagicSaveEditor
                      isValueChanged = true;
                      break;
                   case ConsoleKey.Q:
-                     ModifyChunkUInt8(_char.questChunk1, "Quest", 0, 2);
+                     ModifyChunkUInt8(_char.questChunk1, "Quest", 0, 255);
+                     isValueChanged = true;
                      break;
                   case ConsoleKey.A:
                      ModifyNameChunk(_char.nameChunk);
@@ -657,8 +658,25 @@ namespace MightAndMagicSaveEditor
             case "03": return "03";
             case "04": return "04";
             case "05": return "05";
-            default:
-               throw new Exception($"Unknown condition: {s}");
+            case "10": return "Pois.";
+            default: return $"{s}?";
+         }
+      }
+
+      static string GetQuestProgress(Character _char)
+      {
+         var s = BitConverter.ToString(_char.questChunk1);
+
+         switch (s)
+         {
+            case "00": return "Quest not begun"; // 0
+            case "01": return "Talked to old Man in Sorpigal Dungeon"; // 1, gives quest item "Vellum Scroll" (0xE7)
+            case "02": return "Talked to Wizard Agar behin Erliquin Inn"; // 2, needs "Vellum Scroll" (0xE7) in backpack
+            case "04": return "Talked to Telgoran (Robed Elf) in Dusk"; // 4, needs "Vellum Scroll" (0xE7) in backpack, removes it
+            case "0C": return "Talked to Zom in Algary"; // 12, gives clue #1: "1-15"
+            case "14": return "Talked to Zam in Portsmith"; // 20, gives clue #2: "C-15"
+            case "1C": return "Talked to both Zom and Zam"; // 28, both clues: "C1; 15-15"
+            default: return $"Unknown progress: {s}";
          }
       }
 
@@ -720,7 +738,7 @@ namespace MightAndMagicSaveEditor
          // Resistances 0x58 - 0x67
          Console.WriteLine($"Resistances: Magic  {_char.resMagic1}%/{_char.resMagic2}%  Fire   {_char.resFire1}%/{_char.resFire2}%  Cold   {_char.resCold1}%/{_char.resCold2}%  Elec   {_char.resElec1}%/{_char.resElec2}%\n             Acid   {_char.resAcid1}%/{_char.resAcid2}% Fear   {_char.resFear1}%/{_char.resFear2}% Poison {_char.resPoison1}%/{_char.resPoison2}% Sleep  {_char.resSleep1}%/{_char.resSleep2}%");
 
-         Console.WriteLine($"Quest #1 Progress: {BitConverter.ToString(_char.questChunk1)}");
+         Console.WriteLine($"\nQuest #1 Progress: {GetQuestProgress(_char)} 0x{BitConverter.ToString(_char.questChunk1)}");
 
          Console.WriteLine("----------------------------------------------------------------------------");
       }
