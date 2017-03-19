@@ -52,7 +52,7 @@ namespace MightAndMagicSaveEditor
       public byte[] ageChunk { get; set; } = new byte[1]; // Offset 37=0x25
       public int ageNum { get { return ageChunk[0]; } }
 
-      public byte[] unknownChunk3 { get; set; } = new byte[1];  // Offset 38=0x26
+      public byte[] unknownChunk2 { get; set; } = new byte[1];  // Offset 38=0x26
 
       // XP, stored as UInt24
       public byte[] xpChunk { get; set; } = new byte[3]; // Offset 39=0x27
@@ -66,7 +66,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public byte[] unknownChunk4 { get; set; } = new byte[1]; // Offset 42=0x2A
+      public byte[] unknownChunk3 { get; set; } = new byte[1]; // Offset 42=0x2A
 
       public byte[] magicPointsCurrentChunk { get; set; } = new byte[2]; // Offset 43=0x2B
       public byte[] magicPointsMaxChunk { get; set; } = new byte[2]; // Offset 45=0x2D
@@ -92,7 +92,7 @@ namespace MightAndMagicSaveEditor
          }
       }
 
-      public byte[] unknownChunk7 { get; set; } = new byte[1]; // Offset 58=0x3A
+      public byte[] unknownChunk4 { get; set; } = new byte[1]; // Offset 61=0x3C
 
       public byte[] armorClassChunk { get; set; } = new byte[1]; // Offset 62=0x3D
       public int acNum { get { return armorClassChunk[0]; } }
@@ -127,12 +127,12 @@ namespace MightAndMagicSaveEditor
       public int resSleep1  { get { return resistancesChunk[14]; } }
       public int resSleep2  { get { return resistancesChunk[15]; } }
 
-      public byte[] unknownChunk8 { get; set; } = new byte[8]; // Offset 104=0x68 - probably contains various progress/quest-related data
+      public byte[] unknownChunk5 { get; set; } = new byte[8]; // Offset 104=0x68 - probably contains various progress/quest-related data
 
       public byte[] questChunk1 { get; set; } = new byte[1]; // Offset 0x70
       public int questOffset { get { return offset + 0x70; } }
 
-      public byte[] unknownChunk9 { get; set; } = new byte[13]; // Offset 0x71 - probably contains various progress/quest-related data
+      public byte[] unknownChunk6 { get; set; } = new byte[13]; // Offset 0x71 - probably contains various progress/quest-related data
 
       public byte[] indexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
       public int indexNum { get { return indexChunk[0]; } }

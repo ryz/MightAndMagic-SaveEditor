@@ -535,10 +535,10 @@ namespace MightAndMagicSaveEditor
       static void ParseCharacter(FileStream _stream, Character _char)
       {
          _stream.Read(_char.nameChunk, 0, _char.nameChunk.Length);                       // Character Name 0x0 - 0xE
-         _stream.Position += 1;                                                          // UNKNOWN 0xF
+
+         _stream.Read(_char.unknownChunk1, 0, _char.unknownChunk1.Length);               // UNKNOWN #1 - 0xF
 
          _stream.Read(_char.sexChunk, 0, _char.sexChunk.Length);                         // Sex 0x10
-
          _stream.Read(_char.alignmentOriginalChunk, 0, _char.alignmentOriginalChunk.Length); // Original Alignment (on creation) 0x11
          _stream.Read(_char.alignmentCurrentChunk, 0, _char.alignmentCurrentChunk.Length); // Current Alignment (can be altered through actions) 0x12
          _stream.Read(_char.raceChunk, 0, _char.raceChunk.Length);                       // Race 0x13
@@ -548,10 +548,12 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_char.levelChunk1, 0, _char.levelChunk1.Length);                   // Level - 0x23
          _stream.Read(_char.levelChunk2, 0, _char.levelChunk2.Length);                   // Level - 0x24
          _stream.Read(_char.ageChunk, 0, _char.ageChunk.Length);                         // Age Offset 37=0x25
-         _stream.Position += 1;                                                          // UNKNOWN - 0x26
+
+         _stream.Read(_char.unknownChunk2, 0, _char.unknownChunk2.Length);               // UNKNOWN #2 - 0x26
 
          _stream.Read(_char.xpChunk, 0, _char.xpChunk.Length);                           // Experience - UInt24 0x27 - 0x29
-         _stream.Position += 1;                                                          // UNKNOWN - 0x2A
+
+         _stream.Read(_char.unknownChunk3, 0, _char.unknownChunk3.Length);               // UNKNOWN #3 - 0x2A
 
          _stream.Read(_char.magicPointsCurrentChunk, 0, _char.magicPointsCurrentChunk.Length); // Magic Points - 0x2B - 0x2C
          _stream.Read(_char.magicPointsMaxChunk, 0, _char.magicPointsMaxChunk.Length);   // Magic Points Max - 0x2D - 0x2E
@@ -564,7 +566,8 @@ namespace MightAndMagicSaveEditor
          _stream.Read(_char.healthMaxChunk, 0, _char.healthMaxChunk.Length);             // Health Points Max - 0x37 - 0x38
 
          _stream.Read(_char.goldChunk, 0, _char.goldChunk.Length);                       // Gold - 0x39 - 0x3B
-         _stream.Position += 1;                                                          // UNKNOWN 0x3C
+
+         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 - 0x3C
 
          _stream.Read(_char.armorClassChunk, 0, _char.armorClassChunk.Length);           // Armor Class - 0x3D
          _stream.Read(_char.foodChunk, 0, _char.foodChunk.Length);                       // Food - 0x3E
@@ -577,11 +580,11 @@ namespace MightAndMagicSaveEditor
 
          _stream.Read(_char.resistancesChunk, 0, _char.resistancesChunk.Length);         // Resistances 0x58 - 0x67
 
-         _stream.Position += 8;                                                          // UNKNOWN 0x68 - 0x6F
+         _stream.Read(_char.unknownChunk5, 0, _char.unknownChunk5.Length);               // UNKNOWN #5 0x68 - 0x6F
 
-         _stream.Read(_char.questChunk1, 0, _char.questChunk1.Length);                   // Quest #1 Progress? 0x70 - 0x7D
+         _stream.Read(_char.questChunk1, 0, _char.questChunk1.Length);                   // Quest #1 Progress? 0x70
 
-         _stream.Position += 13;                                                         // UNKNOWN 0x71 - 0x7D
+         _stream.Read(_char.unknownChunk6, 0, _char.unknownChunk6.Length);               // UNKNOWN #6 0x71 - 0x7D
 
          _stream.Read(_char.indexChunk, 0, _char.indexChunk.Length);                     // Character Index number - 0x7E
       }
