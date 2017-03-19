@@ -249,7 +249,7 @@ namespace MightAndMagicSaveEditor
                ParseCharacter(_stream, characters[i]);
                PrintCharacter(characters[i]);
 
-               ModifyChunkUInt24(characters[i].xpChunk, "XP", 5000);
+               ModifyChunkUInt32(characters[i].xpChunk, "XP", 5000);
                ModifyChunkUInt16(characters[i].gemsChunk, "Gems", 200);
                ModifyChunkUInt24(characters[i].goldChunk, "Gold", 5000);
 
@@ -308,7 +308,7 @@ namespace MightAndMagicSaveEditor
                      isValueChanged = true;
                      break;
                   case ConsoleKey.X:
-                     ModifyChunkUInt24(_char.xpChunk, "XP");
+                     ModifyChunkUInt32(_char.xpChunk, "XP");
                      isValueChanged = true;
                      break;
                   case ConsoleKey.E:
@@ -329,7 +329,7 @@ namespace MightAndMagicSaveEditor
                      ModifyChunkUInt8(_char.alignmentCurrentChunk, "Alignment", 1, 3);
                      ModifyChunkUInt8(_char.raceChunk, "Race", 1, 5);
                      ModifyChunkUInt8(_char.classChunk, "Class", 1, 5);
-                     ModifyChunkUInt24(_char.xpChunk, "XP");
+                     ModifyChunkUInt32(_char.xpChunk, "XP");
                      ModifyChunkUInt16(_char.gemsChunk, "Gems");
                      ModifyChunkUInt24(_char.goldChunk, "Gold");
                      isValueChanged = true;
@@ -482,6 +482,35 @@ namespace MightAndMagicSaveEditor
          Array.Copy(newArray, _chunk, 3); // Remember to copy just three bytes > UInt24
       }
 
+      // Set by input
+      static void ModifyChunkUInt32(byte[] _chunk, string _chunkName)
+      {
+         uint input;
+
+         Console.Write($"\nEnter new {_chunkName} value (0-9999999999): ");
+
+         while (!UInt32.TryParse(Console.ReadLine(), out input))
+         {
+            Console.Write($"Enter a valid numerical value between 0 and 99999999999! New value: ");
+         }
+
+         byte[] newArray = BitConverter.GetBytes(input);
+
+         Array.Clear(_chunk, 0, _chunk.Length);
+         Array.Copy(newArray, _chunk, newArray.Length);
+      }
+
+      // Set directly
+      static void ModifyChunkUInt32(byte[] _chunk, string _chunkName, uint _amount)
+      {
+         uint newVal = _amount;
+
+         byte[] newArray = BitConverter.GetBytes(newVal);
+
+         Array.Clear(_chunk, 0, _chunk.Length);
+         Array.Copy(newArray, _chunk, newArray.Length);
+      }
+
       static void ModifyNameChunk(byte[] _name)
       {
          bool isNameValid = false;
@@ -551,9 +580,7 @@ namespace MightAndMagicSaveEditor
 
          _stream.Read(_char.unknownChunk2, 0, _char.unknownChunk2.Length);               // UNKNOWN #2 - 0x26
 
-         _stream.Read(_char.xpChunk, 0, _char.xpChunk.Length);                           // Experience - UInt24 0x27 - 0x29
-
-         _stream.Read(_char.unknownChunk3, 0, _char.unknownChunk3.Length);               // UNKNOWN #3 - 0x2A
+         _stream.Read(_char.xpChunk, 0, _char.xpChunk.Length);                           // Experience - UInt32 0x27 - 0x2A
 
          _stream.Read(_char.magicPointsCurrentChunk, 0, _char.magicPointsCurrentChunk.Length); // Magic Points - 0x2B - 0x2C
          _stream.Read(_char.magicPointsMaxChunk, 0, _char.magicPointsMaxChunk.Length);   // Magic Points Max - 0x2D - 0x2E
@@ -580,11 +607,11 @@ namespace MightAndMagicSaveEditor
 
          _stream.Read(_char.resistancesChunk, 0, _char.resistancesChunk.Length);         // Resistances 0x58 - 0x67
 
-         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x68 - 0x6F
+         _stream.Read(_char.unknownChunk3, 0, _char.unknownChunk3.Length);               // UNKNOWN #3 0x68 - 0x6F
 
          _stream.Read(_char.questChunk1, 0, _char.questChunk1.Length);                   // Quest #1 Progress? 0x70
 
-         _stream.Read(_char.unknownChunk5, 0, _char.unknownChunk5.Length);               // UNKNOWN #5 0x71 - 0x7D
+         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x71 - 0x7D
 
          _stream.Read(_char.indexChunk, 0, _char.indexChunk.Length);                     // Character Index number - 0x7E
       }
