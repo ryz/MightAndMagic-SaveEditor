@@ -127,7 +127,12 @@ namespace MightAndMagicSaveEditor
       public int resSleep1  { get { return resistancesChunk[14]; } }
       public int resSleep2  { get { return resistancesChunk[15]; } }
 
-      public byte[] unknownChunk8 { get; set; } = new byte[22]; // Offset 104=0x68 - biggest chunk, probably contains various progress/quest-related data
+      public byte[] unknownChunk8 { get; set; } = new byte[8]; // Offset 104=0x68 - probably contains various progress/quest-related data
+
+      public byte[] questChunk1 { get; set; } = new byte[1]; // Offset 0x70
+      public int questOffset { get { return offset + 0x70; } }
+
+      public byte[] unknownChunk9 { get; set; } = new byte[13]; // Offset 0x71 - probably contains various progress/quest-related data
 
       public byte[] indexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
       public int indexNum { get { return indexChunk[0]; } }
