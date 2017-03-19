@@ -296,7 +296,7 @@ namespace MightAndMagicSaveEditor
                      isValueChanged = true;
                      break;
                   case ConsoleKey.L:
-                     ModifyChunkUInt8(_char.alignmentChunk, "Alignment", 1, 3);
+                     ModifyChunkUInt8(_char.alignmentCurrentChunk, "Alignment", 1, 3);
                      isValueChanged = true;
                      break;
                   case ConsoleKey.R:
@@ -326,7 +326,7 @@ namespace MightAndMagicSaveEditor
                   case ConsoleKey.A:
                      ModifyNameChunk(_char.nameChunk);
                      ModifyChunkUInt8(_char.sexChunk, "Sex", 1, 2);
-                     ModifyChunkUInt8(_char.alignmentChunk, "Alignment", 1, 3);
+                     ModifyChunkUInt8(_char.alignmentCurrentChunk, "Alignment", 1, 3);
                      ModifyChunkUInt8(_char.raceChunk, "Race", 1, 5);
                      ModifyChunkUInt8(_char.classChunk, "Class", 1, 5);
                      ModifyChunkUInt24(_char.xpChunk, "XP");
@@ -347,7 +347,7 @@ namespace MightAndMagicSaveEditor
                   {
                      WriteChunk(_stream, _char.nameChunk, _char.nameOffset);
                      WriteChunk(_stream, _char.sexChunk, _char.sexOffset);
-                     WriteChunk(_stream, _char.alignmentChunk, _char.alignmentOffset);
+                     WriteChunk(_stream, _char.alignmentCurrentChunk, _char.alignmentCurrentOffset);
                      WriteChunk(_stream, _char.raceChunk, _char.raceOffset);
                      WriteChunk(_stream, _char.classChunk, _char.classOffset);
                      WriteChunk(_stream, _char.xpChunk, _char.xpOffset);
@@ -538,9 +538,9 @@ namespace MightAndMagicSaveEditor
          _stream.Position += 1;                                                          // UNKNOWN 0xF
 
          _stream.Read(_char.sexChunk, 0, _char.sexChunk.Length);                         // Sex 0x10
-         _stream.Position += 1;                                                          // UNKNOWN 0x11
 
-         _stream.Read(_char.alignmentChunk, 0, _char.alignmentChunk.Length);             // Alignment 0x12
+         _stream.Read(_char.alignmentOriginalChunk, 0, _char.alignmentOriginalChunk.Length); // Original Alignment (on creation) 0x11
+         _stream.Read(_char.alignmentCurrentChunk, 0, _char.alignmentCurrentChunk.Length); // Current Alignment (can be altered through actions) 0x12
          _stream.Read(_char.raceChunk, 0, _char.raceChunk.Length);                       // Race 0x13
          _stream.Read(_char.classChunk, 0, _char.classChunk.Length);                     // Character Class - 0x14
          _stream.Read(_char.statsChunk, 0, _char.statsChunk.Length);                     // Stats - 0x15 - 0x22
@@ -601,7 +601,7 @@ namespace MightAndMagicSaveEditor
 
       static string GetAlignmentFromChunk(Character _char)
       {
-         var s = BitConverter.ToString(_char.alignmentChunk);
+         var s = BitConverter.ToString(_char.alignmentCurrentChunk);
 
          switch (s)
          {
@@ -676,7 +676,8 @@ namespace MightAndMagicSaveEditor
             case "0C": return "Talked to Zom in Algary"; // 12, gives clue #1: "1-15"
             case "14": return "Talked to Zam in Portsmith"; // 20, gives clue #2: "C-15"
             case "1C": return "Talked to both Zom and Zam"; // 28, both clues: "C1; 15-15"
-            default: return $"Unknown progress: {s}";
+            case "24": return "Found Ruby Whistle"; // 36, gives quest item "Ruby Whistle" (0xE8), 2k gold and note: "Stronghold at B-3 14,2 - blow 2x"
+            default: return $"Unknown ({s})";
          }
       }
 
@@ -715,7 +716,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Magic Points: {BitConverter.ToUInt16(_char.magicPointsCurrentChunk, 0)}/{BitConverter.ToUInt16(_char.magicPointsMaxChunk, 0)} (Spell Level: {_char.spellLvlNum})");
 
          // Stats 
-         Console.WriteLine($"Stats: INT {_char.statsIntellect1}/{_char.statsIntellect2}  MGT {_char.statsMight1}/{_char.statsMight2}  PER {_char.statsPersonality1}/{_char.statsPersonality2}\n       END {_char.statsEndurance1}/{_char.statsEndurance2}  SPD {_char.statsSpeed1}/{_char.statsSpeed2}  ACC {_char.statsAccuracy1}/{_char.statsAccuracy2}  LCK {_char.statsLuck1}/{_char.statsLuck2}");
+         Console.WriteLine($"Stats: INT {_char.statIntellect}/{_char.statIntellectTemp}  MGT {_char.statMight}/{_char.statMightTemp}  PER {_char.statPersonality}/{_char.statPersonalityTemp}\n       END {_char.statEndurance}/{_char.statEnduranceTemp}  SPD {_char.statSpeed}/{_char.statSpeedTemp}  ACC {_char.statAccuracy}/{_char.statAccuracyTemp}  LCK {_char.statLuck}/{_char.statLuckTemp}");
          Console.WriteLine();
 
          // Gold Gems Food
@@ -738,7 +739,7 @@ namespace MightAndMagicSaveEditor
          // Resistances 0x58 - 0x67
          Console.WriteLine($"Resistances: Magic  {_char.resMagic1}%/{_char.resMagic2}%  Fire   {_char.resFire1}%/{_char.resFire2}%  Cold   {_char.resCold1}%/{_char.resCold2}%  Elec   {_char.resElec1}%/{_char.resElec2}%\n             Acid   {_char.resAcid1}%/{_char.resAcid2}% Fear   {_char.resFear1}%/{_char.resFear2}% Poison {_char.resPoison1}%/{_char.resPoison2}% Sleep  {_char.resSleep1}%/{_char.resSleep2}%");
 
-         Console.WriteLine($"\nQuest #1 Progress: {GetQuestProgress(_char)} 0x{BitConverter.ToString(_char.questChunk1)}");
+         Console.WriteLine($"\nQuest #1 Progress: {GetQuestProgress(_char)} (0x{BitConverter.ToString(_char.questChunk1)})");
 
          Console.WriteLine("----------------------------------------------------------------------------");
       }
@@ -764,7 +765,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Class: {GetClassFromChunk(_char)}");
 
          // Stats - 0x15 - 0x22
-         Console.WriteLine($"Stats\n INT: {_char.statsIntellect1}/{_char.statsIntellect2}  MGT: {_char.statsMight1}/{_char.statsMight2}  PER: {_char.statsPersonality1}/{_char.statsPersonality2}\n END: {_char.statsEndurance1}/{_char.statsEndurance2}  SPD: {_char.statsSpeed1}/{_char.statsSpeed2}  ACC: {_char.statsAccuracy1}/{_char.statsAccuracy2}  LCK: {_char.statsLuck1}/{_char.statsLuck2}");
+         Console.WriteLine($"Stats\n INT: {_char.statIntellect}/{_char.statIntellectTemp}  MGT: {_char.statMight}/{_char.statMightTemp}  PER: {_char.statPersonality}/{_char.statPersonalityTemp}\n END: {_char.statEndurance}/{_char.statEnduranceTemp}  SPD: {_char.statSpeed}/{_char.statSpeedTemp}  ACC: {_char.statAccuracy}/{_char.statAccuracyTemp}  LCK: {_char.statLuck}/{_char.statLuckTemp}");
 
          // Level - 0x23 - 0x24
          Console.WriteLine($"Level: {_char.levelNum} [{BitConverter.ToString(_char.levelChunk1)}]");

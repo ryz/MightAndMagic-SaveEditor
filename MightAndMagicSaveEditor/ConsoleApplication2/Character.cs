@@ -16,10 +16,9 @@ namespace MightAndMagicSaveEditor
 
       public int sexOffset { get { return offset + 16; } }
 
-      public byte[] unknownChunk2 { get; set; } = new byte[1]; // Offset 17=0x11
-
-      public byte[] alignmentChunk { get; set; } = new byte[1]; // Offset 18=0x12
-      public int alignmentOffset { get { return offset + 18; } }
+      public byte[] alignmentOriginalChunk { get; set; } = new byte[1]; // Offset 17=0x11
+      public byte[] alignmentCurrentChunk { get; set; } = new byte[1]; // Offset 18=0x12
+      public int alignmentCurrentOffset { get { return offset + 18; } }
 
       public byte[] raceChunk { get; set; } = new byte[1]; // Offset 19=0x13
       public int raceOffset { get { return offset + 19; } }
@@ -28,22 +27,23 @@ namespace MightAndMagicSaveEditor
       public int classOffset { get { return offset + 20; } }
 
       // Stats, there are seven statistics for each character, two bytes each.
+      // Temp stats are always the "active" ones and are reset to the given normal stat after resting.
       public byte[] statsChunk { get; set; } = new byte[14]; // Offset 21=0x15
 
-      public int statsIntellect1   { get { return statsChunk[0]; } }
-      public int statsIntellect2   { get { return statsChunk[1]; } }
-      public int statsMight1       { get { return statsChunk[2]; } }
-      public int statsMight2       { get { return statsChunk[3]; } }
-      public int statsPersonality1 { get { return statsChunk[4]; } }
-      public int statsPersonality2 { get { return statsChunk[5]; } }
-      public int statsEndurance1   { get { return statsChunk[6]; } }
-      public int statsEndurance2   { get { return statsChunk[7]; } }
-      public int statsSpeed1       { get { return statsChunk[8]; } }
-      public int statsSpeed2       { get { return statsChunk[9]; } }
-      public int statsAccuracy1    { get { return statsChunk[10]; } }
-      public int statsAccuracy2    { get { return statsChunk[11]; } }
-      public int statsLuck1        { get { return statsChunk[12]; } }
-      public int statsLuck2        { get { return statsChunk[13]; } }
+      public int statIntellect       { get { return statsChunk[0]; } }
+      public int statIntellectTemp   { get { return statsChunk[1]; } }
+      public int statMight           { get { return statsChunk[2]; } }
+      public int statMightTemp       { get { return statsChunk[3]; } }
+      public int statPersonality     { get { return statsChunk[4]; } }
+      public int statPersonalityTemp { get { return statsChunk[5]; } }
+      public int statEndurance       { get { return statsChunk[6]; } }
+      public int statEnduranceTemp   { get { return statsChunk[7]; } }
+      public int statSpeed           { get { return statsChunk[8]; } }
+      public int statSpeedTemp       { get { return statsChunk[9]; } }
+      public int statAccuracy        { get { return statsChunk[10]; } }
+      public int statAccuracyTemp    { get { return statsChunk[11]; } }
+      public int statLuck            { get { return statsChunk[12]; } }
+      public int statLuckTemp        { get { return statsChunk[13]; } }
 
       public byte[] levelChunk1 { get; set; } = new byte[1]; // Offset 35=0x23
       public byte[] levelChunk2 { get; set; } = new byte[1]; // Offset 36=0x24
