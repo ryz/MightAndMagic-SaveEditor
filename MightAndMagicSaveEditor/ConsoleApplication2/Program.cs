@@ -567,9 +567,9 @@ namespace MightAndMagicSaveEditor
 
          _stream.Read(_char.goldChunk, 0, _char.goldChunk.Length);                       // Gold - 0x39 - 0x3B
 
-         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 - 0x3C
+         _stream.Read(_char.armorClassFromItemsChunk, 0, _char.armorClassFromItemsChunk.Length); // Armor Class from Items - 0x3C
+         _stream.Read(_char.armorClassTotalChunk, 0, _char.armorClassTotalChunk.Length);         // Armor Class - 0x3D
 
-         _stream.Read(_char.armorClassChunk, 0, _char.armorClassChunk.Length);           // Armor Class - 0x3D
          _stream.Read(_char.foodChunk, 0, _char.foodChunk.Length);                       // Food - 0x3E
          _stream.Read(_char.conditionChunk, 0, _char.conditionChunk.Length);             // Condition - 0x3F
 
@@ -580,11 +580,11 @@ namespace MightAndMagicSaveEditor
 
          _stream.Read(_char.resistancesChunk, 0, _char.resistancesChunk.Length);         // Resistances 0x58 - 0x67
 
-         _stream.Read(_char.unknownChunk5, 0, _char.unknownChunk5.Length);               // UNKNOWN #5 0x68 - 0x6F
+         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x68 - 0x6F
 
          _stream.Read(_char.questChunk1, 0, _char.questChunk1.Length);                   // Quest #1 Progress? 0x70
 
-         _stream.Read(_char.unknownChunk6, 0, _char.unknownChunk6.Length);               // UNKNOWN #6 0x71 - 0x7D
+         _stream.Read(_char.unknownChunk5, 0, _char.unknownChunk5.Length);               // UNKNOWN #5 0x71 - 0x7D
 
          _stream.Read(_char.indexChunk, 0, _char.indexChunk.Length);                     // Character Index number - 0x7E
       }
@@ -713,7 +713,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine();
 
          // HP Current (Modified) / Max
-         Console.WriteLine($"Health: {BitConverter.ToUInt16(_char.healthCurrentChunk, 0)} ({BitConverter.ToUInt16(_char.healthModifiedChunk, 0)}) / {BitConverter.ToUInt16(_char.healthMaxChunk, 0)} (AC: {_char.acNum})");
+         Console.WriteLine($"Health: {BitConverter.ToUInt16(_char.healthCurrentChunk, 0)} ({BitConverter.ToUInt16(_char.healthModifiedChunk, 0)}) / {BitConverter.ToUInt16(_char.healthMaxChunk, 0)}");
 
          // MP Current / Max (Spell Level)
          Console.WriteLine($"Magic Points: {BitConverter.ToUInt16(_char.magicPointsCurrentChunk, 0)}/{BitConverter.ToUInt16(_char.magicPointsMaxChunk, 0)} (Spell Level: {_char.spellLvlNum})");
@@ -730,7 +730,7 @@ namespace MightAndMagicSaveEditor
          Console.WriteLine($"Equipped Weapon: {BitConverter.ToString(_char.equippedWeaponChunk)}");
 
          // Other equipment
-         Console.WriteLine($"Equipment: {BitConverter.ToString(_char.equippedGearChunk)}");
+         Console.WriteLine($"Equipment: {BitConverter.ToString(_char.equippedGearChunk)} / AC: {_char.acTotalNum} ({_char.acFromItemsNum})");
 
          // Backpack
          Console.WriteLine($"Backpack: {BitConverter.ToString(_char.inventoryChunk)}");
@@ -814,7 +814,7 @@ namespace MightAndMagicSaveEditor
          // UNKNOWN 0x3C
 
          // Armor Class - 0x3D
-         Console.WriteLine($"AC: {_char.acNum} [{BitConverter.ToString(_char.armorClassChunk)}]");
+         Console.WriteLine($"AC: {_char.acTotalNum} [{BitConverter.ToString(_char.armorClassTotalChunk)}]");
 
          // Food - 0x3E
          Console.WriteLine($"Food: {_char.foodNum} [{BitConverter.ToString(_char.foodChunk)}]");

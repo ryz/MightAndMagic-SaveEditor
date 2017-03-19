@@ -5,26 +5,26 @@ namespace MightAndMagicSaveEditor
    class Character
    {
       public bool exists = false;
-      public int offset { get; set; } = 0;
-      public byte[] nameChunk { get; set; } = new byte[15]; // Offset 0=0x0
 
+      public int offset { get; set; } = 0;
+
+      public byte[] nameChunk { get; set; } = new byte[15]; // Offset 0=0x0
       public int nameOffset { get { return offset; } }
 
       public byte[] unknownChunk1 { get; set; } = new byte[1]; // Offset 15=0xF
 
       public byte[] sexChunk { get; set; } = new byte[1]; // Offset 16=0x10
-
-      public int sexOffset { get { return offset + 16; } }
+      public int sexOffset { get { return offset + 0x10; } }
 
       public byte[] alignmentOriginalChunk { get; set; } = new byte[1]; // Offset 17=0x11
       public byte[] alignmentCurrentChunk { get; set; } = new byte[1]; // Offset 18=0x12
-      public int alignmentCurrentOffset { get { return offset + 18; } }
+      public int alignmentCurrentOffset { get { return offset + 0x12; } }
 
       public byte[] raceChunk { get; set; } = new byte[1]; // Offset 19=0x13
-      public int raceOffset { get { return offset + 19; } }
+      public int raceOffset { get { return offset + 0x13; } }
 
       public byte[] classChunk { get; set; } = new byte[1]; // Offset 20=0x14
-      public int classOffset { get { return offset + 20; } }
+      public int classOffset { get { return offset + 0x14; } }
 
       // Stats, there are seven statistics for each character, two bytes each.
       // Temp stats are always the "active" ones and are reset to the given normal stat after resting.
@@ -56,14 +56,11 @@ namespace MightAndMagicSaveEditor
 
       // XP, stored as UInt24
       public byte[] xpChunk { get; set; } = new byte[3]; // Offset 39=0x27
-      public int xpOffset { get { return offset + 39; } }
+      public int xpOffset { get { return offset + 0x27; } }
 
       public int xpNum
       {
-         get
-         {
-            return (xpChunk[2] << 16) | (xpChunk[1] << 8) | xpChunk[0];
-         }
+         get { return (xpChunk[2] << 16) | (xpChunk[1] << 8) | xpChunk[0]; }
       }
 
       public byte[] unknownChunk3 { get; set; } = new byte[1]; // Offset 42=0x2A
@@ -75,27 +72,26 @@ namespace MightAndMagicSaveEditor
       public int spellLvlNum { get { return spellLevelChunk[0]; } }
 
       public byte[] gemsChunk { get; set; } = new byte[2]; // Offset 49=0x31
-      public int gemsOffset { get { return offset + 49; } }
+      public int gemsOffset { get { return offset + 0x31; } }
 
       public byte[] healthCurrentChunk { get; set; } = new byte[2]; // Offset 51=0x33
       public byte[] healthModifiedChunk { get; set; } = new byte[2]; // Offset 53
       public byte[] healthMaxChunk { get; set; } = new byte[2]; // Offset 55
 
       public byte[] goldChunk { get; set; } = new byte[3];  // Offset 57=0x39
-      public int goldOffset { get { return offset + 57; } }
+      public int goldOffset { get { return offset + 0x39; } }
 
       public int goldNum
       {
-         get
-         {
-            return (goldChunk[2] << 16) | (goldChunk[1] << 8) | goldChunk[0];
-         }
+         get { return (goldChunk[2] << 16) | (goldChunk[1] << 8) | goldChunk[0]; }
       }
 
-      public byte[] unknownChunk4 { get; set; } = new byte[1]; // Offset 61=0x3C
-
-      public byte[] armorClassChunk { get; set; } = new byte[1]; // Offset 62=0x3D
-      public int acNum { get { return armorClassChunk[0]; } }
+      // The innate AC depends on the class and is set on character creation.
+      // Total AC is always this plus AC from items.
+      public byte[] armorClassFromItemsChunk { get; set; } = new byte[1]; // Offset 61=0x3C
+      public byte[] armorClassTotalChunk { get; set; } = new byte[1]; // Offset 62=0x3D
+      public int acFromItemsNum { get { return armorClassFromItemsChunk[0]; } }
+      public int acTotalNum { get { return armorClassTotalChunk[0]; } }
 
       public byte[] foodChunk { get; set; } = new byte[1]; // Offset 62=0x3E
       public int foodNum { get { return foodChunk[0]; } }
@@ -127,12 +123,12 @@ namespace MightAndMagicSaveEditor
       public int resSleep1  { get { return resistancesChunk[14]; } }
       public int resSleep2  { get { return resistancesChunk[15]; } }
 
-      public byte[] unknownChunk5 { get; set; } = new byte[8]; // Offset 104=0x68 - probably contains various progress/quest-related data
+      public byte[] unknownChunk4 { get; set; } = new byte[8]; // Offset 104=0x68 - probably contains various progress/quest-related data
 
       public byte[] questChunk1 { get; set; } = new byte[1]; // Offset 0x70
       public int questOffset { get { return offset + 0x70; } }
 
-      public byte[] unknownChunk6 { get; set; } = new byte[13]; // Offset 0x71 - probably contains various progress/quest-related data
+      public byte[] unknownChunk5 { get; set; } = new byte[13]; // Offset 0x71 - probably contains various progress/quest-related data
 
       public byte[] indexChunk { get; set; } = new byte[1]; // Offset 126=0x7E
       public int indexNum { get { return indexChunk[0]; } }
