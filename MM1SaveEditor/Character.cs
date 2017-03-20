@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MightAndMagicSaveEditor
+namespace MM1SaveEditor
 {
    class Character
    {

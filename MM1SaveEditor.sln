@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MightAndMagicSaveEditor", "MightAndMagicSaveEditor\MightAndMagicSaveEditor.csproj", "{A1DB87B9-C7F8-4C61-B1F6-D6734184F0EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MM1SaveEditor", "MM1SaveEditor\MM1SaveEditor.csproj", "{A1DB87B9-C7F8-4C61-B1F6-D6734184F0EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MM1DataDumper", "MM1DataDumper\MM1DataDumper.csproj", "{C29EC405-39A5-4D34-A323-B0BA6A90CE9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{A1DB87B9-C7F8-4C61-B1F6-D6734184F0EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1DB87B9-C7F8-4C61-B1F6-D6734184F0EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1DB87B9-C7F8-4C61-B1F6-D6734184F0EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C29EC405-39A5-4D34-A323-B0BA6A90CE9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C29EC405-39A5-4D34-A323-B0BA6A90CE9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C29EC405-39A5-4D34-A323-B0BA6A90CE9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C29EC405-39A5-4D34-A323-B0BA6A90CE9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

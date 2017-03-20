@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
 
-namespace MightAndMagicSaveEditor
+namespace MM1SaveEditor
 {
    class Program
    {
