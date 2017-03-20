@@ -682,6 +682,8 @@ namespace MM1SaveEditor
 
          switch (s)
          {
+            // Conditions are: Eradicated, Dead, Stone, Unconscious
+            // Paralyzed, Poisoned, Diseased, Silenced, Blinded, Asleep
             case "00": return "Good";
             case "01": return "01";
             case "02": return "02";
