@@ -7,11 +7,15 @@ namespace MM1DataDumper
    class Program
    {
       static string FILE_NAME = "MM.EXE";
-      static string DUMP_FILE_NAME = "dump.txt";
-      static string VERSION_NUMBER = "v0.2";
+      static string ITEM_DUMP_FILE_NAME = "itemdump.txt";
+      static string MONSTER_DUMP_FILE_NAME = "monsterdump.txt";
+      static string VERSION_NUMBER = "v0.3";
 
       static Item[] items = new Item[255];
-      static int[] itemOffsets = new int[255];
+      static int[] itemOffsets = new int[items.Length];
+
+      static Monster[] monsters = new Monster[195];
+      static int[] monsterOffsets = new int[monsters.Length];
 
       static void Main(string[] args)
       {
@@ -26,9 +30,10 @@ namespace MM1DataDumper
                Console.WriteLine($"Might and Magic 1 Data Dumper ({VERSION_NUMBER}) by ryz\n");
                Console.WriteLine($"Press any key to dump data.\n");
 
-               DumpItemData(stream);
+              // DumpItemData(stream);
+               DumpMonsterData(stream);
 
-               Console.WriteLine($"All done! data dumped to file {DUMP_FILE_NAME}.");
+               Console.WriteLine($"All done! data dumped to files {ITEM_DUMP_FILE_NAME} and {MONSTER_DUMP_FILE_NAME}.");
                //Console.ReadLine();
 
             }
@@ -48,13 +53,13 @@ namespace MM1DataDumper
 
          Console.WriteLine("Dumping all items...");
 
-         File.WriteAllText(DUMP_FILE_NAME, string.Empty); // Clear file
+         File.WriteAllText(ITEM_DUMP_FILE_NAME, string.Empty); // Clear file
 
          string header =    $"ID|Item Name     |Category    |Used by  |EquipBonus|Amount|Magic     |Effect     |Charges|Cost  |Dmg|Bonus|";
          string separator = $"--+--------------+------------+---------+----------+------+----------+-----------+-------+------+---+-----+";
 
-         File.AppendAllText(DUMP_FILE_NAME, header + Environment.NewLine);
-         File.AppendAllText(DUMP_FILE_NAME, separator + Environment.NewLine);
+         File.AppendAllText(ITEM_DUMP_FILE_NAME, header + Environment.NewLine);
+         File.AppendAllText(ITEM_DUMP_FILE_NAME, separator + Environment.NewLine);
 
 
          for (int i = 0; i < items.Length; i++)
@@ -120,9 +125,9 @@ namespace MM1DataDumper
 
             string s = $"{items[i].id.ToString("X2")}|{Encoding.Default.GetString(items[i].nameChunk)}|{items[i].category.PadRight(12)}|{GetRestriction(items[i]).PadRight(9)}|{GetSpecialName(items[i]).PadRight(9)} |{items[i].specialAmount.ToString().PadRight(5)} |{GetMagicState(items[i]).PadRight(10)}|{GetMagicEffect(items[i]).PadRight(11)}|{items[i].charges.ToString().PadRight(6)} |{items[i].value.ToString().PadRight(6)}|{items[i].damage.ToString().PadRight(2)} |{items[i].bonus.ToString().PadRight(2)}   |";
 
-            File.AppendAllText(DUMP_FILE_NAME, s + Environment.NewLine);
+            File.AppendAllText(ITEM_DUMP_FILE_NAME, s + Environment.NewLine);
          }
-         File.AppendAllText(DUMP_FILE_NAME, separator + Environment.NewLine);
+         File.AppendAllText(ITEM_DUMP_FILE_NAME, separator + Environment.NewLine);
          Console.WriteLine("Done!");
 
       }
@@ -324,10 +329,53 @@ namespace MM1DataDumper
          }
       }
 
-      static void DumpMonsterData()
+      static void DumpMonsterData(FileStream _stream)
       {
          // Offset 0x1B312 - 0x1CB71 (6240 byte)
          // 32 Byte per Monster, 6240 / 32 = 195 monsters total
+
+         File.WriteAllText(MONSTER_DUMP_FILE_NAME, string.Empty); // Clear file
+
+         string header =    "ID|Name           |Data |HP     |AC   |Damage|Attacks|Speed|XP   |Data2";
+         string separator = "--+---------------+-----+-------+-----+------+-------+-----+-----+-----------------------";
+
+         File.AppendAllText(MONSTER_DUMP_FILE_NAME, header + Environment.NewLine);
+         File.AppendAllText(MONSTER_DUMP_FILE_NAME, separator + Environment.NewLine);
+
+
+         for (int i = 0; i < monsters.Length; i++)
+         {
+            int monsterChunkSize = 32;
+            int monsterAbsoluteOffset = 111378;
+
+            monsterOffsets[i] = i * monsterChunkSize;
+
+            monsters[i] = new Monster();
+            monsters[i].offset = monsterAbsoluteOffset + monsterOffsets[i];
+            monsters[i].id = i + 1;
+
+            _stream.Position = monsters[i].offset;
+
+            _stream.Read(monsters[i].nameChunk, 0, monsters[i].nameChunk.Length);
+            _stream.Read(monsters[i].dataChunk, 0, monsters[i].dataChunk.Length);
+            _stream.Read(monsters[i].healthChunk, 0, monsters[i].healthChunk.Length);
+            _stream.Read(monsters[i].acChunk, 0, monsters[i].acChunk.Length);
+            _stream.Read(monsters[i].damageChunk, 0, monsters[i].damageChunk.Length);
+            _stream.Read(monsters[i].attacksChunk, 0, monsters[i].attacksChunk.Length);
+            _stream.Read(monsters[i].speedChunk, 0, monsters[i].speedChunk.Length);
+            _stream.Read(monsters[i].xpChunk, 0, monsters[i].xpChunk.Length);
+            _stream.Read(monsters[i].dataChunk2, 0, monsters[i].dataChunk2.Length);
+
+
+            Console.WriteLine($"Monster #{i} at Offset {monsters[i].offset} is: {Encoding.Default.GetString(monsters[i].nameChunk)}");
+
+            string s = $"{monsters[i].id.ToString("X2")}|{Encoding.Default.GetString(monsters[i].nameChunk)}|{BitConverter.ToString(monsters[i].dataChunk, 0)}|{monsters[i].healthMin.ToString().PadLeft(3)}-{monsters[i].healthMax.ToString().PadRight(3)}|{monsters[i].ac.ToString().PadRight(5)}|{monsters[i].damage.ToString().PadRight(6)}|{monsters[i].attacks.ToString().PadRight(7)}|{monsters[i].speed.ToString().PadRight(5)}|{monsters[i].xp.ToString().PadRight(5)}|{BitConverter.ToString(monsters[i].dataChunk2, 0)}";
+
+            File.AppendAllText(MONSTER_DUMP_FILE_NAME, s + Environment.NewLine);
+         }
+         File.AppendAllText(MONSTER_DUMP_FILE_NAME, separator + Environment.NewLine);
+         Console.WriteLine("Done!");
+
       }
    }
 }
