@@ -52,7 +52,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>MightAndMagicSaveEditor.Program</StartupObject>
+    <StartupObject>MM1SaveEditor.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>F60022100187D7D089CEB353189C897396BDA8A6</ManifestCertificateThumbprint>
