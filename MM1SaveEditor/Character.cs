@@ -89,11 +89,40 @@ namespace MM1SaveEditor
 
       public byte[] conditionChunk           { get; set; } = new byte[1]; // Offset 63=0x3F
 
-      public byte[] equippedWeaponChunk      { get; set; } = new byte[1]; // Offset 64=0x40
-      public byte[] equippedGearChunk        { get; set; } = new byte[5]; // Offset 65=0x41
-      public byte[] inventoryChunk           { get; set; } = new byte[6]; // Offset 70=0x46
+      public byte[] equipmentChunk           { get; set; } = new byte[6]; // Offset 64=0x40
+      public byte[] backpackChunk            { get; set; } = new byte[6]; // Offset 70=0x46
 
-      public byte[] equipmentChargesChunk    { get; set; } = new byte[12];// Offset 76=0x4C 
+      public int equipSlot1 { get { return equipmentChunk[0]; } }
+      public int equipSlot2 { get { return equipmentChunk[1]; } }
+      public int equipSlot3 { get { return equipmentChunk[2]; } }
+      public int equipSlot4 { get { return equipmentChunk[3]; } }
+      public int equipSlot5 { get { return equipmentChunk[4]; } }
+      public int equipSlot6 { get { return equipmentChunk[5]; } }
+
+      public int backpackSlot1 { get { return backpackChunk[0]; } }
+      public int backpackSlot2 { get { return backpackChunk[1]; } }
+      public int backpackSlot3 { get { return backpackChunk[2]; } }
+      public int backpackSlot4 { get { return backpackChunk[3]; } }
+      public int backpackSlot5 { get { return backpackChunk[4]; } }
+      public int backpackSlot6 { get { return backpackChunk[5]; } }
+
+      public byte[] equipmentChargesChunk    { get; set; } = new byte[6];// Offset 76=0x4C 
+      public byte[] backpackChargesChunk     { get; set; } = new byte[6];// Offset 82=0x51 
+
+      public int equipChargesSlot1 { get { return equipmentChargesChunk[0]; } }
+      public int equipChargesSlot2 { get { return equipmentChargesChunk[1]; } }
+      public int equipChargesSlot3 { get { return equipmentChargesChunk[2]; } }
+      public int equipChargesSlot4 { get { return equipmentChargesChunk[3]; } }
+      public int equipChargesSlot5 { get { return equipmentChargesChunk[4]; } }
+      public int equipChargesSlot6 { get { return equipmentChargesChunk[5]; } }
+
+      public int backpackChargesSlot1 { get { return backpackChargesChunk[0]; } }
+      public int backpackChargesSlot2 { get { return backpackChargesChunk[1]; } }
+      public int backpackChargesSlot3 { get { return backpackChargesChunk[2]; } }
+      public int backpackChargesSlot4 { get { return backpackChargesChunk[3]; } }
+      public int backpackChargesSlot5 { get { return backpackChargesChunk[4]; } }
+      public int backpackChargesSlot6 { get { return backpackChargesChunk[5]; } }
+
 
       public byte[] resistancesChunk         { get; set; } = new byte[16]; // Offset 88=0x58
 

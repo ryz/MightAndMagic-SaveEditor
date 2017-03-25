@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace MM1SaveEditor
@@ -9,12 +10,14 @@ namespace MM1SaveEditor
    class Program
    {
       static string ROSTER_FILE_NAME = "ROSTER.DTA";
-      static string VERSION_NUMBER = "v0.5";
+      static string VERSION_NUMBER = "v0.6";
 
       static Character[] characters = new Character[18];
       static int[] characterOffsets = new int[18];
 
       static Dumper dumper = new Dumper();
+
+      static Dictionary<int, string> itemlookup = new Dictionary<int, string>();
 
       static void Main(string[] args)
       {
@@ -26,7 +29,15 @@ namespace MM1SaveEditor
             {
                Console.WriteLine("Success!\n");
 
-               dumper.Init();
+               dumper.Init(); // If MM.exe is found, initialize and parse item & monster data
+
+               if (Dumper.isInitialized)
+               {
+                  for (int i = 0; i < Dumper.items.Length; i++)
+                  {
+                     itemlookup.Add(Dumper.items[i].id, Encoding.Default.GetString(Dumper.items[i].nameChunk)); // Get all the item names from the dumper
+                  }
+               }
 
                InitializeCharacters();
                MainMenu(stream);
@@ -83,7 +94,7 @@ namespace MM1SaveEditor
          do
          {
             DisplayMainMenu();
-            userInput = Console.ReadKey(false);
+            userInput = Console.ReadKey(true);
 
             switch (userInput.KeyChar.ToString())
             {
@@ -94,7 +105,16 @@ namespace MM1SaveEditor
                   QuickStartPackage(_stream, characters[0]);
                   break;
                case "9":
-                  dumper.DumpAllItemsToFile();
+                  if (Dumper.isInitialized)
+                  {
+                     dumper.DumpAllItemsToFile();
+                     Console.ReadLine();
+                  }
+                  else
+                  {
+                     Console.Write("Dumper not initialized! Nothing has been dumped. Press any key to continue.");
+                     Console.ReadLine();
+                  }
                   break;
                   
                default:
@@ -107,6 +127,7 @@ namespace MM1SaveEditor
 
       static void DisplayMainMenu()
       {
+         Console.Clear();
          Console.WriteLine($"Might and Magic 1 Save Game Editor ({VERSION_NUMBER}) by ryz");
          Console.WriteLine();
          Console.WriteLine("1. List (and edit) characters");
@@ -610,10 +631,11 @@ namespace MM1SaveEditor
          _stream.Read(_char.foodChunk, 0, _char.foodChunk.Length);                       // Food - 0x3E
          _stream.Read(_char.conditionChunk, 0, _char.conditionChunk.Length);             // Condition - 0x3F
 
-         _stream.Read(_char.equippedWeaponChunk, 0, _char.equippedWeaponChunk.Length);   // Equipped Weapon - 0x40
-         _stream.Read(_char.equippedGearChunk, 0, _char.equippedGearChunk.Length);       // Other equipment - 0x41 - 0x45
-         _stream.Read(_char.inventoryChunk, 0, _char.inventoryChunk.Length);             // Inventory - 0x46 - 0x4B
+         _stream.Read(_char.equipmentChunk, 0, _char.equipmentChunk.Length);               // equipment - 0x40 - 0x45
+         _stream.Read(_char.backpackChunk, 0, _char.backpackChunk.Length);                 // Inventory - 0x46 - 0x4B
+
          _stream.Read(_char.equipmentChargesChunk, 0, _char.equipmentChargesChunk.Length); // Equipment Charges - 0x4C - 0x57
+         _stream.Read(_char.backpackChargesChunk, 0, _char.backpackChargesChunk.Length);   // Backpack Charges - 0x51 - 0x57
 
          _stream.Read(_char.resistancesChunk, 0, _char.resistancesChunk.Length);         // Resistances 0x58 - 0x67
 
@@ -732,6 +754,24 @@ namespace MM1SaveEditor
          return townName;
       }
 
+      static string GetItemName(int _slot)
+      {
+         if (Dumper.isInitialized)
+         {
+            if (_slot == 0)
+            {
+               return "".PadRight(14);
+            }
+
+            return itemlookup[_slot];
+         }
+
+         var s = $"Item ID: ({_slot.ToString()})";
+
+         return s.PadRight(14);
+
+      }
+
       static void PrintCharacterHeader()
       {
          Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
@@ -751,31 +791,21 @@ namespace MM1SaveEditor
          PrintCharacterShort(_char);
          Console.WriteLine();
 
-         // HP Current (Modified) / Max
-         Console.WriteLine($"Health: {BitConverter.ToUInt16(_char.healthCurrentChunk, 0)} ({BitConverter.ToUInt16(_char.healthModifiedChunk, 0)}) / {BitConverter.ToUInt16(_char.healthMaxChunk, 0)}");
-
-         // MP Current / Max (Spell Level)
-         Console.WriteLine($"Magic Points: {BitConverter.ToUInt16(_char.magicPointsCurrentChunk, 0)}/{BitConverter.ToUInt16(_char.magicPointsMaxChunk, 0)} (Spell Level: {_char.spellLvlNum})");
+         // HP Current (Modified) / Max & MP Current / Max (Spell Level)
+         Console.WriteLine($"Health: {BitConverter.ToUInt16(_char.healthCurrentChunk, 0)} ({BitConverter.ToUInt16(_char.healthModifiedChunk, 0)}) / {BitConverter.ToUInt16(_char.healthMaxChunk, 0)}     Magic Points: {BitConverter.ToUInt16(_char.magicPointsCurrentChunk, 0)}/{BitConverter.ToUInt16(_char.magicPointsMaxChunk, 0)} (Spell Level: {_char.spellLvlNum})");
 
          // Stats 
          Console.WriteLine($"Stats: INT {_char.statIntellect}/{_char.statIntellectTemp}  MGT {_char.statMight}/{_char.statMightTemp}  PER {_char.statPersonality}/{_char.statPersonalityTemp}\n       END {_char.statEndurance}/{_char.statEnduranceTemp}  SPD {_char.statSpeed}/{_char.statSpeedTemp}  ACC {_char.statAccuracy}/{_char.statAccuracyTemp}  LCK {_char.statLuck}/{_char.statLuckTemp}");
          Console.WriteLine();
 
-         // Gold Gems Food
-         Console.WriteLine($"Gold: {_char.goldNum} / Gems: {BitConverter.ToUInt16(_char.gemsChunk, 0)} / Food: {_char.foodNum}");
-         Console.WriteLine();
-
-         // Equipped Weapon
-         Console.WriteLine($"Equipped Weapon: {BitConverter.ToString(_char.equippedWeaponChunk)}");
-
-         // Other equipment
-         Console.WriteLine($"Equipment: {BitConverter.ToString(_char.equippedGearChunk)} / AC: {_char.acTotalNum} ({_char.acFromItemsNum})");
-
-         // Backpack
-         Console.WriteLine($"Backpack: {BitConverter.ToString(_char.inventoryChunk)}");
-
-         // Equipment Charges 
-         Console.WriteLine($"Equipment Charges: {BitConverter.ToString(_char.equipmentChargesChunk)}");
+         // Equipment & Backpack
+         Console.WriteLine($"Equipment".PadRight(26) + "Backpack".PadRight(26) + "Other");
+         Console.WriteLine($"1. {GetItemName(_char.equipSlot1)} ({_char.equipChargesSlot1.ToString().PadLeft(3)}) | 1. {GetItemName(_char.backpackSlot1)} ({_char.backpackChargesSlot1.ToString().PadLeft(3)}) | Gold: {_char.goldNum} ");
+         Console.WriteLine($"2. {GetItemName(_char.equipSlot2)} ({_char.equipChargesSlot2.ToString().PadLeft(3)}) | 2. {GetItemName(_char.backpackSlot2)} ({_char.backpackChargesSlot2.ToString().PadLeft(3)}) | Gems: {BitConverter.ToUInt16(_char.gemsChunk, 0)}");
+         Console.WriteLine($"3. {GetItemName(_char.equipSlot3)} ({_char.equipChargesSlot3.ToString().PadLeft(3)}) | 3. {GetItemName(_char.backpackSlot3)} ({_char.backpackChargesSlot3.ToString().PadLeft(3)}) | Food: {_char.foodNum}");
+         Console.WriteLine($"4. {GetItemName(_char.equipSlot4)} ({_char.equipChargesSlot4.ToString().PadLeft(3)}) | 4. {GetItemName(_char.backpackSlot4)} ({_char.backpackChargesSlot4.ToString().PadLeft(3)}) |");
+         Console.WriteLine($"5. {GetItemName(_char.equipSlot5)} ({_char.equipChargesSlot5.ToString().PadLeft(3)}) | 5. {GetItemName(_char.backpackSlot5)} ({_char.backpackChargesSlot5.ToString().PadLeft(3)}) |");
+         Console.WriteLine($"6. {GetItemName(_char.equipSlot6)} ({_char.equipChargesSlot6.ToString().PadLeft(3)}) | 6. {GetItemName(_char.backpackSlot6)} ({_char.backpackChargesSlot6.ToString().PadLeft(3)}) |");
          Console.WriteLine();
 
          // Resistances 0x58 - 0x67
@@ -861,14 +891,11 @@ namespace MM1SaveEditor
          // Condition - 0x3F
          Console.WriteLine($"Condition: {GetConditionFromChunk(_char)}");
 
-         // Equipped Weapon - 0x40
-         Console.WriteLine($"Equipped Weapon: {BitConverter.ToString(_char.equippedWeaponChunk)}");
-
          // Other equipment - 0x41 - 0x45
-         Console.WriteLine($"Equipment: {BitConverter.ToString(_char.equippedGearChunk)}");
+         Console.WriteLine($"Equipment: {BitConverter.ToString(_char.equipmentChunk)}");
 
          // Inventory - 0x46 - 0x4B
-         Console.WriteLine($"Inventory: {BitConverter.ToString(_char.inventoryChunk)}");
+         Console.WriteLine($"Inventory: {BitConverter.ToString(_char.backpackChunk)}");
 
          // Equipment Charges - 0x4C - 0x57
          Console.WriteLine($"Equipment Charges: {BitConverter.ToString(_char.equipmentChargesChunk)}");

@@ -9,13 +9,15 @@ namespace MM1SaveEditor
       public static string EXE_FILE_NAME = "MM.EXE";
       static string ITEM_DUMP_FILE_NAME = "itemdump.txt";
       static string MONSTER_DUMP_FILE_NAME = "monsterdump.txt";
-      static string VERSION_NUMBER = "v0.3";
+      static string VERSION_NUMBER = "v0.4";
 
       public static Item[] items = new Item[255];
       static int[] itemOffsets = new int[items.Length];
 
       static Monster[] monsters = new Monster[195];
       static int[] monsterOffsets = new int[monsters.Length];
+
+      public static bool isInitialized = false;
 
       public void Init()
       {
@@ -33,6 +35,8 @@ namespace MM1SaveEditor
 
                InitializeMonsters();
                ParseAllMonsters(stream);
+
+               isInitialized = true;
             }
          }
          else
@@ -127,6 +131,7 @@ namespace MM1SaveEditor
          string header =    $"ID|Item Name     |Category    |Used by  |EquipBonus|Amount|Magic     |Effect     |Charges|Cost  |Dmg|Bonus|";
          string separator = $"--+--------------+------------+---------+----------+------+----------+-----------+-------+------+---+-----+";
 
+         Console.Clear();
          Console.WriteLine($"Dumping all items to file {ITEM_DUMP_FILE_NAME}...");
 
          File.WriteAllText(ITEM_DUMP_FILE_NAME, string.Empty); // Clear file
@@ -139,7 +144,7 @@ namespace MM1SaveEditor
          }
 
          File.AppendAllText(ITEM_DUMP_FILE_NAME, separator + Environment.NewLine);
-         Console.WriteLine($"Done! data dumped to file {ITEM_DUMP_FILE_NAME}.");
+         Console.WriteLine($"Done! All data dumped. Press any key to continue");
 
       }
 
