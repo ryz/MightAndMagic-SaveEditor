@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MM1DataDumper
+namespace MM1SaveEditor
 {
    class Item
    {

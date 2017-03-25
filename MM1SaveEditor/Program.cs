@@ -8,21 +8,25 @@ namespace MM1SaveEditor
 {
    class Program
    {
-      static string FILE_NAME = "ROSTER.DTA";
+      static string ROSTER_FILE_NAME = "ROSTER.DTA";
       static string VERSION_NUMBER = "v0.5";
 
       static Character[] characters = new Character[18];
       static int[] characterOffsets = new int[18];
 
+      static Dumper dumper = new Dumper();
+
       static void Main(string[] args)
       {
-         if (File.Exists(FILE_NAME))
+         if (File.Exists(ROSTER_FILE_NAME))
          {
-            Console.Write($"Opening {FILE_NAME}... ");
+            Console.Write($"Opening {ROSTER_FILE_NAME}... ");
 
-            using (var stream = File.Open(FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
+            using (var stream = File.Open(ROSTER_FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
             {
                Console.WriteLine("Success!\n");
+
+               dumper.Init();
 
                InitializeCharacters();
                MainMenu(stream);
@@ -30,7 +34,7 @@ namespace MM1SaveEditor
          }
          else
          {
-            Console.WriteLine($"File {FILE_NAME} not found! Make sure it's in the same folder as this program.\nAborting.");
+            Console.WriteLine($"File {ROSTER_FILE_NAME} not found! Make sure it's in the same folder as this program.\nAborting.");
             Console.ReadLine();
          }
       }
@@ -89,6 +93,10 @@ namespace MM1SaveEditor
                case "2":
                   QuickStartPackage(_stream, characters[0]);
                   break;
+               case "9":
+                  dumper.DumpAllItemsToFile();
+                  break;
+                  
                default:
                   break;
             }
@@ -103,6 +111,8 @@ namespace MM1SaveEditor
          Console.WriteLine();
          Console.WriteLine("1. List (and edit) characters");
          Console.WriteLine("2. Quick Start Package - Give each character XP, Gold and Gems");
+         Console.WriteLine();
+         Console.WriteLine("9. Dump Items to file");
          Console.WriteLine();
          Console.WriteLine("Press ESC to exit.");
       }
@@ -253,7 +263,7 @@ namespace MM1SaveEditor
                ModifyChunkUInt16(characters[i].gemsChunk, "Gems", 200);
                ModifyChunkUInt24(characters[i].goldChunk, "Gold", 5000);
 
-               Console.WriteLine($"Writing new values back to {FILE_NAME}. Are you sure?");
+               Console.WriteLine($"Writing new values back to {ROSTER_FILE_NAME}. Are you sure?");
                Console.ReadLine();
 
                WriteChunk(_stream, characters[i].xpChunk, characters[i].xpOffset);
@@ -340,7 +350,7 @@ namespace MM1SaveEditor
                if (isValueChanged)
                {
                   // Write chunks back to the file
-                  Console.WriteLine($"Writing new value(s) back to {FILE_NAME}. Are you sure? Press ESC to abort.");
+                  Console.WriteLine($"Writing new value(s) back to {ROSTER_FILE_NAME}. Are you sure? Press ESC to abort.");
                   input = Console.ReadKey(true);
 
                   if (input.Key != ConsoleKey.Escape)
