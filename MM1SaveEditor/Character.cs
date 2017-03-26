@@ -91,6 +91,7 @@ namespace MM1SaveEditor
 
       public byte[] equipmentChunk           { get; set; } = new byte[6]; // Offset 64=0x40
       public byte[] backpackChunk            { get; set; } = new byte[6]; // Offset 70=0x46
+      public int backpackOffet               { get { return offset + 0x46; } }
 
       public int equipSlot1 { get { return equipmentChunk[0]; } }
       public int equipSlot2 { get { return equipmentChunk[1]; } }

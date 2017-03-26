@@ -14,8 +14,22 @@ namespace MM1SaveEditor
       public byte[] specialAmountChunk { get; set; } = new byte[1];
       public int specialAmount { get { return specialAmountChunk[0]; } }
 
-      public byte[] magicStateChunk { get; set; } = new byte[1]; //
-      public byte[] magicEffectChunk { get; set; } = new byte[1]; // ???
+      public byte[] magicStateChunk { get; set; } = new byte[1]; // indicates if an item is magic and what type it is
+      public bool isMagic
+      { get
+         {
+            if (magicStateChunk[0] == 0)
+            {
+               return false;
+            }
+            else
+            {
+               return true;
+            }
+         }
+      }
+
+      public byte[] magicEffectChunk { get; set; } = new byte[1]; // 
       public byte[] chargesChunk { get; set; } = new byte[1]; // Charges if it's magic.
       public int charges { get { return chargesChunk[0]; } }
 

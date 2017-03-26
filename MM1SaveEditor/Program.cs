@@ -364,7 +364,9 @@ namespace MM1SaveEditor
                      ModifyChunkUInt16(_char.gemsChunk, "Gems");
                      ModifyChunkUInt24(_char.goldChunk, "Gold");
                      isValueChanged = true;
-
+                     break;
+                  case ConsoleKey.I:
+                     EditBackpack(_stream, _char);
                      break;
                }
 
@@ -421,6 +423,57 @@ namespace MM1SaveEditor
 
          Console.WriteLine("\nAll done!");
          Console.ReadLine();
+      }
+
+      static void EditBackpack(FileStream _stream, Character _char)
+      {
+         ConsoleKeyInfo input;
+
+         _stream.Position = _char.offset;
+         ParseCharacter(_stream, _char);
+         PrintCharacter(_char);
+         Console.WriteLine("Select slot to edit (1-6)");
+
+         input = Console.ReadKey();
+         byte newitem;
+
+         switch (input.Key)
+         {
+            case ConsoleKey.D1:
+               Console.WriteLine($"Slot #1 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               newitem = Convert.ToByte(Console.ReadLine());
+               _char.backpackChunk[0] = newitem;
+               break;
+            case ConsoleKey.D2:
+               Console.WriteLine($"Slot #2 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               newitem = Convert.ToByte(Console.ReadLine());
+               _char.backpackChunk[1] = newitem;
+               break;
+            case ConsoleKey.D3:
+               Console.WriteLine($"Slot #3 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               newitem = Convert.ToByte(Console.ReadLine());
+               _char.backpackChunk[2] = newitem;
+               break;
+            case ConsoleKey.D4:
+               Console.WriteLine($"Slot #4 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               newitem = Convert.ToByte(Console.ReadLine());
+               _char.backpackChunk[3] = newitem;
+               break;
+            case ConsoleKey.D5:
+               Console.WriteLine($"Slot #5 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               newitem = Convert.ToByte(Console.ReadLine());
+               _char.backpackChunk[4] = newitem;
+               break;
+            case ConsoleKey.D6:
+               Console.WriteLine($"Slot #6 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               newitem = Convert.ToByte(Console.ReadLine());
+               _char.backpackChunk[5] = newitem;
+               break;
+            default:
+               break;
+         }
+         WriteChunk(_stream, _char.backpackChunk, _char.backpackOffet);
+
       }
 
       static void ModifyChunkUInt8(byte[] _chunk, string _chunkName, uint _min, uint _max)
