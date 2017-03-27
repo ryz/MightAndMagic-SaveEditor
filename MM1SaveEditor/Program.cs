@@ -801,7 +801,7 @@ namespace MM1SaveEditor
                return "".PadRight(14);
             }
 
-            return Encoding.Default.GetString(Dumper.items[_slot - 1].nameChunk);
+            return Dumper.items[_slot - 1].name;
          }
 
          var s = $"Item ID: ({_slot.ToString()})";

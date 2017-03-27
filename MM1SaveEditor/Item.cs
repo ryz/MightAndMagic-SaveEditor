@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace MM1SaveEditor
 {
@@ -8,6 +9,8 @@ namespace MM1SaveEditor
       public int id { get; set; }
 
       public byte[] nameChunk { get; set; } = new byte[14];
+      public string name { get { return Encoding.Default.GetString(nameChunk); } }
+
       public byte[] classChunk { get; set; } = new byte[1]; // Mask which determines who can equip this item
 
       public byte[] specialChunk { get; set; } = new byte[1];
