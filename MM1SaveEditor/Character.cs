@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace MM1SaveEditor
 {
@@ -10,6 +11,7 @@ namespace MM1SaveEditor
 
       public byte[] nameChunk                { get; set; } = new byte[15]; // Offset 0=0x0
       public int nameOffset                  { get { return offset; } }
+      public string name                     { get { return Encoding.Default.GetString(nameChunk); } }
 
       public byte[] unknownChunk1            { get; set; } = new byte[1]; // Offset 15=0xF
 

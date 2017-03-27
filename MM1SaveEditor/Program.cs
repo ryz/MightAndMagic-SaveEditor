@@ -818,7 +818,7 @@ namespace MM1SaveEditor
 
       static void PrintCharacterShort(Character _char)
       {
-         Console.WriteLine($"{_char.indexNum + 1}  {Encoding.Default.GetString(_char.nameChunk)} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
+         Console.WriteLine($"{_char.indexNum + 1}  {_char.name} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
       }
 
       static void PrintCharacter(Character _char)
@@ -858,7 +858,7 @@ namespace MM1SaveEditor
       {
          
          // Character Name 0x0 - 0xE
-         Console.WriteLine($"Name: {Encoding.Default.GetString(_char.nameChunk)}");
+         Console.WriteLine($"Name: {_char.name}");
 
          // Sex 0x10
          Console.WriteLine($"\nSex: {GetSexFromChunk(_char)}");
