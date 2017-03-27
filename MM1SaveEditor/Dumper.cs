@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.IO;
 
 namespace MM1SaveEditor
@@ -70,7 +69,7 @@ namespace MM1SaveEditor
          {
             ParseItem(_stream, items[i]);
 
-            Console.WriteLine($"Item #{i} at Offset {items[i].offset} is: {Encoding.Default.GetString(items[i].nameChunk)}");
+            Console.WriteLine($"Item #{i} at Offset {items[i].offset} is: {items[i].name}");
          }
       }
 
@@ -150,7 +149,7 @@ namespace MM1SaveEditor
 
       static void DumpItem(Item _item)
       {
-         string s = $"{_item.id.ToString("X2")}|{Encoding.Default.GetString(_item.nameChunk)}|{_item.category.PadRight(12)}|{GetRestriction(_item).PadRight(9)}|{GetSpecialName(_item).PadRight(9)} |{_item.specialAmount.ToString().PadRight(5)} |{GetMagicState(_item).PadRight(10)}|{GetMagicEffect(_item).PadRight(11)}|{_item.charges.ToString().PadRight(6)} |{_item.value.ToString().PadRight(6)}|{_item.damage.ToString().PadRight(2)} |{_item.bonus.ToString().PadRight(2)}   |";
+         string s = $"{_item.id.ToString("X2")}|{_item.name}|{_item.category.PadRight(12)}|{GetRestriction(_item).PadRight(9)}|{GetSpecialName(_item).PadRight(9)} |{_item.specialAmount.ToString().PadRight(5)} |{GetMagicState(_item).PadRight(10)}|{GetMagicEffect(_item).PadRight(11)}|{_item.charges.ToString().PadRight(6)} |{_item.value.ToString().PadRight(6)}|{_item.damage.ToString().PadRight(2)} |{_item.bonus.ToString().PadRight(2)}   |";
          File.AppendAllText(ITEM_DUMP_FILE_NAME, s + Environment.NewLine);
       }
 
@@ -375,7 +374,7 @@ namespace MM1SaveEditor
          {
             ParseMonster(_stream, monsters[i]);
 
-            Console.WriteLine($"Monster #{i} at Offset {monsters[i].offset} is: {Encoding.Default.GetString(monsters[i].nameChunk)}");
+            Console.WriteLine($"Monster #{i} at Offset {monsters[i].offset} is: {monsters[i].name}");
          }
       }
 
@@ -418,7 +417,7 @@ namespace MM1SaveEditor
 
       static void DumpMonster(Monster _monster)
       {
-         string s = $"{_monster.id.ToString("X2")}|{Encoding.Default.GetString(_monster.nameChunk)}|{BitConverter.ToString(_monster.dataChunk, 0)}|{_monster.healthMin.ToString().PadLeft(3)}-{_monster.healthMax.ToString().PadRight(3)}|{_monster.ac.ToString().PadRight(5)}|{_monster.damage.ToString().PadRight(6)}|{_monster.attacks.ToString().PadRight(7)}|{_monster.speed.ToString().PadRight(5)}|{_monster.xp.ToString().PadRight(5)}|{BitConverter.ToString(_monster.dataChunk2, 0)}";
+         string s = $"{_monster.id.ToString("X2")}|{_monster.name}|{BitConverter.ToString(_monster.dataChunk, 0)}|{_monster.healthMin.ToString().PadLeft(3)}-{_monster.healthMax.ToString().PadRight(3)}|{_monster.ac.ToString().PadRight(5)}|{_monster.damage.ToString().PadRight(6)}|{_monster.attacks.ToString().PadRight(7)}|{_monster.speed.ToString().PadRight(5)}|{_monster.xp.ToString().PadRight(5)}|{BitConverter.ToString(_monster.dataChunk2, 0)}";
          File.AppendAllText(MONSTER_DUMP_FILE_NAME, s + Environment.NewLine);
       }
 

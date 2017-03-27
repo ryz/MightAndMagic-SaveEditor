@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace MM1SaveEditor
 {
@@ -17,6 +18,8 @@ namespace MM1SaveEditor
       public int id { get; set; }
 
       public byte[] nameChunk { get; set; } = new byte[15];
+      public string name { get { return Encoding.Default.GetString(nameChunk); } }
+
       public byte[] dataChunk { get; set; } = new byte[2]; // 3
 
       public byte[] healthChunk { get; set; } = new byte[1];
