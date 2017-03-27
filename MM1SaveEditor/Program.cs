@@ -440,32 +440,32 @@ namespace MM1SaveEditor
          switch (input.Key)
          {
             case ConsoleKey.D1:
-               Console.WriteLine($"Slot #1 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               Console.WriteLine($"Slot #1 contains: {GetItemName(_char.backpackSlot1)} ({_char.backpackSlot1}). Enter new item ID (0-255): ");
                newitem = Convert.ToByte(Console.ReadLine());
                _char.backpackChunk[0] = newitem;
                break;
             case ConsoleKey.D2:
-               Console.WriteLine($"Slot #2 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               Console.WriteLine($"Slot #2 contains: {GetItemName(_char.backpackSlot2)} ({_char.backpackSlot2}). Enter new item ID (0-255): ");
                newitem = Convert.ToByte(Console.ReadLine());
                _char.backpackChunk[1] = newitem;
                break;
             case ConsoleKey.D3:
-               Console.WriteLine($"Slot #3 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               Console.WriteLine($"Slot #3 contains: {GetItemName(_char.backpackSlot3)} ({_char.backpackSlot3}). Enter new item ID (0-255): ");
                newitem = Convert.ToByte(Console.ReadLine());
                _char.backpackChunk[2] = newitem;
                break;
             case ConsoleKey.D4:
-               Console.WriteLine($"Slot #4 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               Console.WriteLine($"Slot #4 contains: {GetItemName(_char.backpackSlot4)} ({_char.backpackSlot4}). Enter new item ID (0-255): ");
                newitem = Convert.ToByte(Console.ReadLine());
                _char.backpackChunk[3] = newitem;
                break;
             case ConsoleKey.D5:
-               Console.WriteLine($"Slot #5 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               Console.WriteLine($"Slot #5 contains: {GetItemName(_char.backpackSlot5)} ({_char.backpackSlot5}). Enter new item ID (0-255): ");
                newitem = Convert.ToByte(Console.ReadLine());
                _char.backpackChunk[4] = newitem;
                break;
             case ConsoleKey.D6:
-               Console.WriteLine($"Slot #6 contains: {_char.backpackSlot1}. Enter new item ID (0-255): ");
+               Console.WriteLine($"Slot #6 contains: {GetItemName(_char.backpackSlot6)} ({_char.backpackSlot6}). Enter new item ID (0-255): ");
                newitem = Convert.ToByte(Console.ReadLine());
                _char.backpackChunk[5] = newitem;
                break;
