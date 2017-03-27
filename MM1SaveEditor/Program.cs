@@ -14,6 +14,9 @@ namespace MM1SaveEditor
       static Character[] characters = new Character[18];
       static int[] characterOffsets = new int[18];
 
+      static byte[] characterSlotsChunk = new byte[18]; // See ReadCharacterSlots()
+      static int characterSlotsOffset = 2286;
+
       static Dumper dumper = new Dumper();
 
       static void Main(string[] args)
@@ -60,9 +63,6 @@ namespace MM1SaveEditor
          // We read this chunk to see if a character exists (value is not 0) and it's location/town (value is 1-5).
          // This prevents nasty errors for characters which have been wiped in-game, as the game literally sets every byte of that character to zero in this case.
 
-         byte[] characterSlotsChunk = new byte[18];
-         int characterSlotsOffset = 2286;
-
          _stream.Position = characterSlotsOffset;
          _stream.Read(characterSlotsChunk, 0, characterSlotsChunk.Length);
 
@@ -96,7 +96,7 @@ namespace MM1SaveEditor
                case "9":
                   if (Dumper.isInitialized)
                   {
-                     dumper.DumpAllItemsToFile();
+                     dumper.DumpAllItemsToFile(_stream);
                      Console.ReadLine();
                   }
                   else
@@ -132,6 +132,8 @@ namespace MM1SaveEditor
          Console.Clear();
          Console.WriteLine("Character List");
          Console.WriteLine();
+
+         ReadCharacterSlots(_stream);
          PrintCharacterHeader();
 
          int characterCounter = 0;
@@ -169,8 +171,8 @@ namespace MM1SaveEditor
       static void CharacterListMenu(FileStream _stream)
       {
 
-         ConsoleKeyInfo input;
          ReadCharacterSlots(_stream);
+         ConsoleKeyInfo input;
 
          do
          {
@@ -288,6 +290,8 @@ namespace MM1SaveEditor
 
       static void EditCharacter(FileStream _stream, Character _char)
       {
+         ReadCharacterSlots(_stream); // We read this here to see if a character changed town
+
          if (_char.exists)
          {
 
@@ -301,7 +305,7 @@ namespace MM1SaveEditor
             {
                bool isValueChanged = false;
                PrintCharacter(_char);
-               Console.WriteLine("\nEdit (N)ame, (S)ex, (A)lignment, (R)ace, (C)lass, E(X)perience, (G)old, G(E)ms\n(F)ood or (B)ackpack. Press ESC to go back.");
+               Console.WriteLine("\nEdit (N)ame, (S)ex, (A)lignment, (R)ace, (C)lass, E(X)perience, (G)old, G(E)ms\n(F)ood, (B)ackpack or (W)arp to town. Press ESC to go back.");
 
                input = Console.ReadKey(true);
 
@@ -348,8 +352,11 @@ namespace MM1SaveEditor
                      isValueChanged = true;
                      break;
                   case ConsoleKey.B:
-                     EditBackpack(_stream, _char);
+                     EditBackpackOfCharacter(_stream, _char);
                      isValueChanged = true;
+                     break;
+                  case ConsoleKey.W:
+                     WarpCharacterToTown(_stream, _char);
                      break;
                }
 
@@ -378,6 +385,22 @@ namespace MM1SaveEditor
             } while (input.Key != ConsoleKey.Escape);
          }
 
+      }
+
+      static void WarpCharacterToTown(FileStream _stream, Character _char)
+      {
+         _stream.Position = _char.offset;
+         ParseCharacter(_stream, _char);
+         PrintCharacter(_char);
+
+         Console.WriteLine("Select new town (1. Sorpigal, 2. Portsmith, 3. Algary, 4. Dusk, 5. Erliquin) ");
+         byte input = Convert.ToByte(Console.ReadLine());
+
+         characterSlotsChunk[_char.indexNum] = input;
+
+         WriteChunk(_stream, characterSlotsChunk, characterSlotsOffset);
+
+         ReadCharacterSlots(_stream); // Read the slots here again to reflect the changes
       }
 
       static void EditAllCharacters(FileStream _stream)
@@ -427,7 +450,7 @@ namespace MM1SaveEditor
 
       }
 
-      static void EditBackpack(FileStream _stream, Character _char)
+      static void EditBackpackOfCharacter(FileStream _stream, Character _char)
       {
          ConsoleKeyInfo input;
 

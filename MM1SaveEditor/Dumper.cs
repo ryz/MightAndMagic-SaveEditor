@@ -124,7 +124,7 @@ namespace MM1SaveEditor
          }
       }
 
-      public void DumpAllItemsToFile()
+      public void DumpAllItemsToFile(FileStream _stream)
       {
 
          string header =    $"ID|Item Name     |Category    |Used by  |EquipBonus|Amount|Magic     |Effect     |Charges|Cost  |Dmg|Bonus|";
@@ -136,6 +136,8 @@ namespace MM1SaveEditor
          File.WriteAllText(ITEM_DUMP_FILE_NAME, string.Empty); // Clear file
          File.AppendAllText(ITEM_DUMP_FILE_NAME, header + Environment.NewLine);
          File.AppendAllText(ITEM_DUMP_FILE_NAME, separator + Environment.NewLine);
+
+         ParseAllItems(_stream);
 
          for (int i = 0; i < items.Length; i++)
          {
