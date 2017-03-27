@@ -105,7 +105,7 @@ namespace MM1SaveEditor
                      Console.ReadLine();
                   }
                   break;
-                  
+
                default:
                   break;
             }
@@ -154,7 +154,7 @@ namespace MM1SaveEditor
          }
 
          Console.WriteLine();
-         if(characterCounter <= 10)
+         if (characterCounter <= 10)
          {
             Console.WriteLine($"Select a character (1-{characterCounter}). Press A to edit ALL characters.\nPress ESC to exit.");
          }
@@ -535,7 +535,7 @@ namespace MM1SaveEditor
 
       // Set directly
       static void ModifyChunkUInt24(byte[] _chunk, string _chunkName, uint _amount)
-      {;
+      {
          // Should be a UInt24, but there's none in C# by default.
          // Read this as a UInt32 and later just copy three bytes.
          uint newVal = _amount;
@@ -547,7 +547,7 @@ namespace MM1SaveEditor
          byte[] newArray = BitConverter.GetBytes(newVal);
 
          Array.Clear(_chunk, 0, _chunk.Length);
-         
+
          Array.Copy(newArray, _chunk, 3); // Remember to copy just three bytes > UInt24
       }
 
@@ -588,7 +588,7 @@ namespace MM1SaveEditor
          // Check if the name contains only uppercase latin characters and numerals from 0-9
          Regex rx = new Regex("^[A-Z0-9]*$");
 
-         while(!isNameValid)
+         while (!isNameValid)
          {
             //ask for and get new name from input and save it into a byte array
             Console.Write("\nEnter new Name (Max 15 characters, A-Z, 0-9): ");
@@ -877,99 +877,6 @@ namespace MM1SaveEditor
          Console.WriteLine($"\nQuest #1 Progress: {GetQuestProgress(_char)} (0x{BitConverter.ToString(_char.questChunk1)})");
 
          Console.WriteLine("----------------------------------------------------------------------------");
-      }
-
-      static void PrintCharacterDebug(Character _char)
-      {
-         
-         // Character Name 0x0 - 0xE
-         Console.WriteLine($"Name: {_char.name}");
-
-         // Sex 0x10
-         Console.WriteLine($"\nSex: {GetSexFromChunk(_char)}");
-
-         // UNKNOWN 0x11
-
-         // Alignment 0x12
-         Console.WriteLine($"Alignment: {GetAlignmentFromChunk(_char)}");
-
-         // Race 0x13
-         Console.WriteLine($"Race: {GetRaceFromChunk(_char)}");
-
-         // Character Class - 0x14
-         Console.WriteLine($"Class: {GetClassFromChunk(_char)}");
-
-         // Stats - 0x15 - 0x22
-         Console.WriteLine($"Stats\n INT: {_char.statIntellect}/{_char.statIntellectTemp}  MGT: {_char.statMight}/{_char.statMightTemp}  PER: {_char.statPersonality}/{_char.statPersonalityTemp}\n END: {_char.statEndurance}/{_char.statEnduranceTemp}  SPD: {_char.statSpeed}/{_char.statSpeedTemp}  ACC: {_char.statAccuracy}/{_char.statAccuracyTemp}  LCK: {_char.statLuck}/{_char.statLuckTemp}");
-
-         // Level - 0x23 - 0x24
-         Console.WriteLine($"Level: {_char.levelNum} [{BitConverter.ToString(_char.levelChunk1)}]");
-
-         // Age Offset 37=0x25
-         Console.WriteLine($"Age: {_char.ageNum} [{BitConverter.ToString(_char.ageChunk)}]");
-
-         // UNKNOWN - 0x26
-
-         // Experience - Stored as a little-endian UInt24 0x27 - 0x29
-         Console.WriteLine($"Experience: {_char.xpNum} [{BitConverter.ToString(_char.xpChunk).Replace("-", " ")}] (UInt24, Length: {_char.xpChunk.Length})");
-
-         // UNKNOWN - 0x2A
-
-         // ---- MAGIC ----------------------------------- //
-         // Magic Points - 0x2B - 0x2C
-         Console.WriteLine($"Magic Points: {BitConverter.ToUInt16(_char.magicPointsCurrentChunk, 0)} [{BitConverter.ToString(_char.magicPointsCurrentChunk).Replace("-", " ")}]");
-
-         // Magic Points Max - 0x2D - 0x2E
-         Console.WriteLine($"Magic Points Max: {BitConverter.ToUInt16(_char.magicPointsMaxChunk, 0)} [{BitConverter.ToString(_char.magicPointsMaxChunk).Replace("-", " ")}]");
-
-         // Spell Level - 0x2F - 0x30
-         Console.WriteLine($"Spell Level: {_char.spellLvlNum} [{BitConverter.ToString(_char.spellLevelChunk).Replace("-", " ")}]");
-         // ---------------------------------------------- //
-
-         // Gems - Stored as a little-endian ushort  0x31 - 0x32
-         Console.WriteLine($"Gems: {BitConverter.ToInt16(_char.gemsChunk, 0)} [{BitConverter.ToString(_char.gemsChunk)}] (ushort, Length: {_char.gemsChunk.Length})");
-
-         // ---- HEALTH ----------------------------------- //
-         // Health Points Current - 0x33 - 0x34
-         Console.WriteLine($"Health: " + BitConverter.ToUInt16(_char.healthCurrentChunk, 0) + " [" + BitConverter.ToString(_char.healthCurrentChunk) + "]" + " (ushort, Length: " + _char.healthCurrentChunk.Length + ")");
-
-         // Health Points Modified 0x35 - 0x36
-         Console.WriteLine($"Health Mod: " + BitConverter.ToUInt16(_char.healthModifiedChunk, 0) + " [" + BitConverter.ToString(_char.healthModifiedChunk) + "]" + " (ushort, Length: " + _char.healthModifiedChunk.Length + ")");
-
-         // Health Points Max - 0x37 - 0x38
-         Console.WriteLine($"Max Health: {BitConverter.ToUInt16(_char.healthMaxChunk, 0)} [{BitConverter.ToString(_char.healthMaxChunk)}] (ushort, Length: {_char.healthMaxChunk.Length})");
-         // ----------------------------------------------- //
-
-         // Gold - 0x39 - 0x3B
-         Console.WriteLine($"Gold: {_char.goldNum} [{BitConverter.ToString(_char.goldChunk).Replace("-", " ")}] (UInt24, Length: {_char.goldChunk.Length})");
-
-         // UNKNOWN 0x3C
-
-         // Armor Class - 0x3D
-         Console.WriteLine($"AC: {_char.acTotalNum} [{BitConverter.ToString(_char.armorClassTotalChunk)}]");
-
-         // Food - 0x3E
-         Console.WriteLine($"Food: {_char.foodNum} [{BitConverter.ToString(_char.foodChunk)}]");
-
-         // Condition - 0x3F
-         Console.WriteLine($"Condition: {GetConditionFromChunk(_char)}");
-
-         // Other equipment - 0x41 - 0x45
-         Console.WriteLine($"Equipment: {BitConverter.ToString(_char.equipmentChunk)}");
-
-         // Inventory - 0x46 - 0x4B
-         Console.WriteLine($"Inventory: {BitConverter.ToString(_char.backpackChunk)}");
-
-         // Equipment Charges - 0x4C - 0x57
-         Console.WriteLine($"Equipment Charges: {BitConverter.ToString(_char.equipmentChargesChunk)}");
-
-         // Resistances 0x58 - 0x67
-         Console.WriteLine($"Resistances\n Magic  {_char.resMagic1}%/{_char.resMagic2}%  Fire   {_char.resFire1}%/{_char.resFire2}%  Cold   {_char.resCold1}%/{_char.resCold2}%  Elec   {_char.resElec1}%/{_char.resElec2}%\n Acid   {_char.resAcid1}%/{_char.resAcid2}% Fear   {_char.resFear1}%/{_char.resFear2}% Poison {_char.resPoison1}%/{_char.resPoison2}% Sleep  {_char.resSleep1}%/{_char.resSleep2}%");
-
-         // UNKNOWN 0x68 - 0x7D
-
-         // Character Index number - 0x7E
-         Console.WriteLine($"\nCharacter Index: {BitConverter.ToString(_char.indexChunk)}");
       }
    }
 }
