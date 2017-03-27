@@ -901,7 +901,7 @@ namespace MM1SaveEditor
          Console.WriteLine();
 
          // Equipment & Backpack
-         Console.WriteLine($"Equipment".PadRight(26) + "Backpack".PadRight(26) + "Other");
+         Console.WriteLine($"Equipment".PadRight(14) + "(Charges)".PadRight(12) + "Backpack".PadRight(14) + "(Charges)".PadRight(12) + "Other");
          Console.WriteLine($"1. {GetItemName(_char.equipSlot1)} {PrintChargesIfItemIsMagic(_char.equipSlot1, _char.equipChargesSlot1).PadRight(5)} | 1. {GetItemName(_char.backpackSlot1)} {PrintChargesIfItemIsMagic(_char.backpackSlot1, _char.backpackChargesSlot1).PadRight(5)} | Gold: {_char.goldNum} ");
          Console.WriteLine($"2. {GetItemName(_char.equipSlot2)} {PrintChargesIfItemIsMagic(_char.equipSlot2, _char.equipChargesSlot2).PadRight(5)} | 2. {GetItemName(_char.backpackSlot2)} {PrintChargesIfItemIsMagic(_char.backpackSlot2, _char.backpackChargesSlot2).PadRight(5)} | Gems: {BitConverter.ToUInt16(_char.gemsChunk, 0)}");
          Console.WriteLine($"3. {GetItemName(_char.equipSlot3)} {PrintChargesIfItemIsMagic(_char.equipSlot3, _char.equipChargesSlot3).PadRight(5)} | 3. {GetItemName(_char.backpackSlot3)} {PrintChargesIfItemIsMagic(_char.backpackSlot3, _char.backpackChargesSlot3).PadRight(5)} | Food: {_char.foodNum}");
