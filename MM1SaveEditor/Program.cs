@@ -810,6 +810,31 @@ namespace MM1SaveEditor
 
       }
 
+      static string PrintChargesIfItemIsMagic(int _slot, int _chargesslot)
+      {
+         if (Dumper.isInitialized)
+         {
+            if (_slot == 0)
+            {
+               return "".PadLeft(3);
+            }
+
+            if (Dumper.items[_slot - 1].isMagic)
+            {
+               string s = $"({_chargesslot.ToString().PadLeft(3)})";
+
+               return s;
+            }
+
+            else
+            {
+               return "( N )".PadLeft(3);
+            }
+         }
+
+         return "";
+      }
+
       static void PrintCharacterHeader()
       {
          Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
@@ -838,12 +863,12 @@ namespace MM1SaveEditor
 
          // Equipment & Backpack
          Console.WriteLine($"Equipment".PadRight(26) + "Backpack".PadRight(26) + "Other");
-         Console.WriteLine($"1. {GetItemName(_char.equipSlot1)} ({_char.equipChargesSlot1.ToString().PadLeft(3)}) | 1. {GetItemName(_char.backpackSlot1)} ({_char.backpackChargesSlot1.ToString().PadLeft(3)}) | Gold: {_char.goldNum} ");
-         Console.WriteLine($"2. {GetItemName(_char.equipSlot2)} ({_char.equipChargesSlot2.ToString().PadLeft(3)}) | 2. {GetItemName(_char.backpackSlot2)} ({_char.backpackChargesSlot2.ToString().PadLeft(3)}) | Gems: {BitConverter.ToUInt16(_char.gemsChunk, 0)}");
-         Console.WriteLine($"3. {GetItemName(_char.equipSlot3)} ({_char.equipChargesSlot3.ToString().PadLeft(3)}) | 3. {GetItemName(_char.backpackSlot3)} ({_char.backpackChargesSlot3.ToString().PadLeft(3)}) | Food: {_char.foodNum}");
-         Console.WriteLine($"4. {GetItemName(_char.equipSlot4)} ({_char.equipChargesSlot4.ToString().PadLeft(3)}) | 4. {GetItemName(_char.backpackSlot4)} ({_char.backpackChargesSlot4.ToString().PadLeft(3)}) |");
-         Console.WriteLine($"5. {GetItemName(_char.equipSlot5)} ({_char.equipChargesSlot5.ToString().PadLeft(3)}) | 5. {GetItemName(_char.backpackSlot5)} ({_char.backpackChargesSlot5.ToString().PadLeft(3)}) |");
-         Console.WriteLine($"6. {GetItemName(_char.equipSlot6)} ({_char.equipChargesSlot6.ToString().PadLeft(3)}) | 6. {GetItemName(_char.backpackSlot6)} ({_char.backpackChargesSlot6.ToString().PadLeft(3)}) |");
+         Console.WriteLine($"1. {GetItemName(_char.equipSlot1)} {PrintChargesIfItemIsMagic(_char.equipSlot1, _char.equipChargesSlot1).PadRight(5)} | 1. {GetItemName(_char.backpackSlot1)} {PrintChargesIfItemIsMagic(_char.backpackSlot1, _char.backpackChargesSlot1).PadRight(5)} | Gold: {_char.goldNum} ");
+         Console.WriteLine($"2. {GetItemName(_char.equipSlot2)} {PrintChargesIfItemIsMagic(_char.equipSlot2, _char.equipChargesSlot2).PadRight(5)} | 2. {GetItemName(_char.backpackSlot2)} {PrintChargesIfItemIsMagic(_char.backpackSlot2, _char.backpackChargesSlot2).PadRight(5)} | Gems: {BitConverter.ToUInt16(_char.gemsChunk, 0)}");
+         Console.WriteLine($"3. {GetItemName(_char.equipSlot3)} {PrintChargesIfItemIsMagic(_char.equipSlot3, _char.equipChargesSlot3).PadRight(5)} | 3. {GetItemName(_char.backpackSlot3)} {PrintChargesIfItemIsMagic(_char.backpackSlot3, _char.backpackChargesSlot3).PadRight(5)} | Food: {_char.foodNum}");
+         Console.WriteLine($"4. {GetItemName(_char.equipSlot4)} {PrintChargesIfItemIsMagic(_char.equipSlot4, _char.equipChargesSlot4).PadRight(5)} | 4. {GetItemName(_char.backpackSlot4)} {PrintChargesIfItemIsMagic(_char.backpackSlot4, _char.backpackChargesSlot4).PadRight(5)} |");
+         Console.WriteLine($"5. {GetItemName(_char.equipSlot5)} {PrintChargesIfItemIsMagic(_char.equipSlot5, _char.equipChargesSlot5).PadRight(5)} | 5. {GetItemName(_char.backpackSlot5)} {PrintChargesIfItemIsMagic(_char.backpackSlot5, _char.backpackChargesSlot5).PadRight(5)} |");
+         Console.WriteLine($"6. {GetItemName(_char.equipSlot6)} {PrintChargesIfItemIsMagic(_char.equipSlot6, _char.equipChargesSlot6).PadRight(5)} | 6. {GetItemName(_char.backpackSlot6)} {PrintChargesIfItemIsMagic(_char.backpackSlot6, _char.backpackChargesSlot6).PadRight(5)} |");
          Console.WriteLine();
 
          // Resistances 0x58 - 0x67
