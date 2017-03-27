@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace MM1SaveEditor
@@ -17,8 +16,6 @@ namespace MM1SaveEditor
 
       static Dumper dumper = new Dumper();
 
-      static Dictionary<int, string> itemlookup = new Dictionary<int, string>();
-
       static void Main(string[] args)
       {
          if (File.Exists(ROSTER_FILE_NAME))
@@ -30,14 +27,6 @@ namespace MM1SaveEditor
                Console.WriteLine("Success!\n");
 
                dumper.Init(); // If MM.exe is found, initialize and parse item & monster data
-
-               if (Dumper.isInitialized)
-               {
-                  for (int i = 0; i < Dumper.items.Length; i++)
-                  {
-                     itemlookup.Add(Dumper.items[i].id, Encoding.Default.GetString(Dumper.items[i].nameChunk)); // Get all the item names from the dumper
-                  }
-               }
 
                InitializeCharacters();
                MainMenu(stream);
@@ -312,7 +301,7 @@ namespace MM1SaveEditor
             {
                bool isValueChanged = false;
                PrintCharacter(_char);
-               Console.WriteLine("\nEdit (N)ame, (S)ex, A(l)ingment, (R)ace, (C)lass, E(X)perience, (G)old, G(E)ms\nor (A)LL values. Press ESC to go back.");
+               Console.WriteLine("\nEdit (N)ame, (S)ex, (A)lignment, (R)ace, (C)lass, E(X)perience, (G)old, G(E)ms\n(F)ood or (B)ackpack. Press ESC to go back.");
 
                input = Console.ReadKey(true);
 
@@ -326,7 +315,7 @@ namespace MM1SaveEditor
                      ModifyChunkUInt8(_char.sexChunk, "Sex", 1, 2);
                      isValueChanged = true;
                      break;
-                  case ConsoleKey.L:
+                  case ConsoleKey.A:
                      ModifyChunkUInt8(_char.alignmentCurrentChunk, "Alignment", 1, 3);
                      isValueChanged = true;
                      break;
@@ -350,23 +339,17 @@ namespace MM1SaveEditor
                      ModifyChunkUInt24(_char.goldChunk, "Gold");
                      isValueChanged = true;
                      break;
+                  case ConsoleKey.F:
+                     ModifyChunkUInt8(_char.foodChunk, "Food", 0, 255);
+                     isValueChanged = true;
+                     break;
                   case ConsoleKey.Q:
                      ModifyChunkUInt8(_char.questChunk1, "Quest", 0, 255);
                      isValueChanged = true;
                      break;
-                  case ConsoleKey.A:
-                     ModifyNameChunk(_char.nameChunk);
-                     ModifyChunkUInt8(_char.sexChunk, "Sex", 1, 2);
-                     ModifyChunkUInt8(_char.alignmentCurrentChunk, "Alignment", 1, 3);
-                     ModifyChunkUInt8(_char.raceChunk, "Race", 1, 5);
-                     ModifyChunkUInt8(_char.classChunk, "Class", 1, 5);
-                     ModifyChunkUInt32(_char.xpChunk, "XP");
-                     ModifyChunkUInt16(_char.gemsChunk, "Gems");
-                     ModifyChunkUInt24(_char.goldChunk, "Gold");
-                     isValueChanged = true;
-                     break;
-                  case ConsoleKey.I:
+                  case ConsoleKey.B:
                      EditBackpack(_stream, _char);
+                     isValueChanged = true;
                      break;
                }
 
@@ -386,6 +369,7 @@ namespace MM1SaveEditor
                      WriteChunk(_stream, _char.xpChunk, _char.xpOffset);
                      WriteChunk(_stream, _char.gemsChunk, _char.gemsOffset);
                      WriteChunk(_stream, _char.goldChunk, _char.goldOffset);
+                     WriteChunk(_stream, _char.foodChunk, _char.foodOffset);
                      WriteChunk(_stream, _char.questChunk1, _char.questOffset);
                   }
 
@@ -432,6 +416,7 @@ namespace MM1SaveEditor
          _stream.Position = _char.offset;
          ParseCharacter(_stream, _char);
          PrintCharacter(_char);
+
          Console.WriteLine("Select slot to edit (1-6)");
 
          input = Console.ReadKey();
@@ -816,7 +801,7 @@ namespace MM1SaveEditor
                return "".PadRight(14);
             }
 
-            return itemlookup[_slot];
+            return Encoding.Default.GetString(Dumper.items[_slot - 1].nameChunk);
          }
 
          var s = $"Item ID: ({_slot.ToString()})";
