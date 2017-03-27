@@ -101,7 +101,7 @@ namespace MM1SaveEditor
       public int equipSlot6                  { get { return equipmentChunk[5]; } }
 
       public byte[] backpackChunk            { get; set; } = new byte[6]; // Offset 70=0x46
-      public int backpackOffet               { get { return offset + 0x46; } }
+      public int backpackOffset               { get { return offset + 0x46; } }
 
       public int backpackSlot1               { get { return backpackChunk[0]; } }
       public int backpackSlot2               { get { return backpackChunk[1]; } }
@@ -120,6 +120,7 @@ namespace MM1SaveEditor
       public int equipChargesSlot6           { get { return equipmentChargesChunk[5]; } }
 
       public byte[] backpackChargesChunk     { get; set; } = new byte[6];// Offset 82=0x51 
+      public int backpackChargesOffset       { get { return offset + 0x51; } }
 
       public int backpackChargesSlot1        { get { return backpackChargesChunk[0]; } }
       public int backpackChargesSlot2        { get { return backpackChargesChunk[1]; } }

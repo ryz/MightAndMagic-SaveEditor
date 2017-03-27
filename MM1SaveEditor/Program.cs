@@ -409,6 +409,24 @@ namespace MM1SaveEditor
          Console.ReadLine();
       }
 
+      static void SetItemInBackpackSlot(FileStream _stream, Character _char, byte _itemId, uint _slotNum)
+      {
+         // "Gives" a character a certain item, defined by it's ID and then 
+         // sets the charges corresponding to the charge value parsed from the game (exe).
+
+         _char.backpackChunk[_slotNum] = _itemId;
+
+         if (_itemId > 0)
+         {
+            _char.backpackChargesChunk[_slotNum] = (byte)Dumper.items[_itemId - 1].charges; // -1 because the item array starts at 0
+         }
+         else
+         {
+            _char.backpackChargesChunk[_slotNum] = 0;
+         }
+
+      }
+
       static void EditBackpack(FileStream _stream, Character _char)
       {
          ConsoleKeyInfo input;
@@ -420,44 +438,45 @@ namespace MM1SaveEditor
          Console.WriteLine("Select slot to edit (1-6)");
 
          input = Console.ReadKey();
-         byte newitem;
+         byte itemId;
 
          switch (input.Key)
          {
             case ConsoleKey.D1:
                Console.WriteLine($"Slot #1 contains: {GetItemName(_char.backpackSlot1)} ({_char.backpackSlot1}). Enter new item ID (0-255): ");
-               newitem = Convert.ToByte(Console.ReadLine());
-               _char.backpackChunk[0] = newitem;
+               itemId = Convert.ToByte(Console.ReadLine());
+               SetItemInBackpackSlot(_stream, _char, itemId, 0);
                break;
             case ConsoleKey.D2:
                Console.WriteLine($"Slot #2 contains: {GetItemName(_char.backpackSlot2)} ({_char.backpackSlot2}). Enter new item ID (0-255): ");
-               newitem = Convert.ToByte(Console.ReadLine());
-               _char.backpackChunk[1] = newitem;
+               itemId = Convert.ToByte(Console.ReadLine());
+               SetItemInBackpackSlot(_stream, _char, itemId, 1);
                break;
             case ConsoleKey.D3:
                Console.WriteLine($"Slot #3 contains: {GetItemName(_char.backpackSlot3)} ({_char.backpackSlot3}). Enter new item ID (0-255): ");
-               newitem = Convert.ToByte(Console.ReadLine());
-               _char.backpackChunk[2] = newitem;
+               itemId = Convert.ToByte(Console.ReadLine());
+               SetItemInBackpackSlot(_stream, _char, itemId, 2);
                break;
             case ConsoleKey.D4:
                Console.WriteLine($"Slot #4 contains: {GetItemName(_char.backpackSlot4)} ({_char.backpackSlot4}). Enter new item ID (0-255): ");
-               newitem = Convert.ToByte(Console.ReadLine());
-               _char.backpackChunk[3] = newitem;
+               itemId = Convert.ToByte(Console.ReadLine());
+               SetItemInBackpackSlot(_stream, _char, itemId, 3);
                break;
             case ConsoleKey.D5:
                Console.WriteLine($"Slot #5 contains: {GetItemName(_char.backpackSlot5)} ({_char.backpackSlot5}). Enter new item ID (0-255): ");
-               newitem = Convert.ToByte(Console.ReadLine());
-               _char.backpackChunk[4] = newitem;
+               itemId = Convert.ToByte(Console.ReadLine());
+               SetItemInBackpackSlot(_stream, _char, itemId, 4);
                break;
             case ConsoleKey.D6:
                Console.WriteLine($"Slot #6 contains: {GetItemName(_char.backpackSlot6)} ({_char.backpackSlot6}). Enter new item ID (0-255): ");
-               newitem = Convert.ToByte(Console.ReadLine());
-               _char.backpackChunk[5] = newitem;
+               itemId = Convert.ToByte(Console.ReadLine());
+               SetItemInBackpackSlot(_stream, _char, itemId, 5);
                break;
             default:
                break;
          }
-         WriteChunk(_stream, _char.backpackChunk, _char.backpackOffet);
+         WriteChunk(_stream, _char.backpackChunk, _char.backpackOffset);
+         WriteChunk(_stream, _char.backpackChargesChunk, _char.backpackChargesOffset);
 
       }
 
@@ -818,21 +837,18 @@ namespace MM1SaveEditor
             {
                return "".PadLeft(3);
             }
-
-            if (Dumper.items[_slot - 1].isMagic)
+            else if (Dumper.items[_slot - 1].isMagic)
             {
                string s = $"({_chargesslot.ToString().PadLeft(3)})";
-
                return s;
             }
-
             else
             {
                return "( N )".PadLeft(3);
             }
          }
 
-         return "";
+         return "".PadLeft(3);
       }
 
       static void PrintCharacterHeader()
