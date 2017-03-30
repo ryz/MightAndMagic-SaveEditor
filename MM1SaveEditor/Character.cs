@@ -31,6 +31,7 @@ namespace MM1SaveEditor
       // Stats, there are seven statistics for each character, two bytes each.
       // Temp stats are always the "active" ones and are reset to the given normal stat after resting.
       public byte[] statsChunk               { get; set; } = new byte[14]; // Offset 21=0x15
+      public int statsOffset                 { get { return offset + 0x15; } }
 
       public int statIntellect               { get { return statsChunk[0]; } }
       public int statIntellectTemp           { get { return statsChunk[1]; } }
@@ -54,7 +55,11 @@ namespace MM1SaveEditor
       public byte[] ageChunk                 { get; set; } = new byte[1]; // Offset 37=0x25
       public int ageNum                      { get { return ageChunk[0]; } }
 
-      public byte[] unknownChunk2            { get; set; } = new byte[1];  // Offset 38=0x26
+      // This byte counts the number of times this character has rested; resting increases the value by one
+      // Resting while this is 0xFF resets it to 0x0 and increments the character's age by one
+      // This aims to roughly simulate aging in the form "resting for the night",
+      // as 255 is "close" to one year (365 days) and thus the character slowly ages over time
+      public byte[] timesRestedChunk         { get; set; } = new byte[1];  // Offset 38=0x26
 
       // XP, stored as UInt32
       public byte[] xpChunk                  { get; set; } = new byte[4]; // Offset 39=0x27
@@ -148,14 +153,45 @@ namespace MM1SaveEditor
       public int resSleep1                   { get { return resistancesChunk[14]; } }
       public int resSleep2                   { get { return resistancesChunk[15]; } }
 
-      public byte[] unknownChunk3            { get; set; } = new byte[8]; // Offset 104=0x68 - probably contains various progress/quest-related data
+      public byte[] unknownChunk2            { get; set; } = new byte[5]; // Offset 104=0x68 - probably contains various progress/quest-related data
+
+      // This is _probably_ the sidequest byte. Can't have multiple quests active
+      // Quest steps:
+      // 00 (no quest active)
+      //
+      // Lord Inspectron, Castle Blackridge North
+      // 08 - Q#1 active (Find the Ancient Ruins in the Quivering Forest) 
+      // 09 - Q#2 active (Visit Blithes Peak and Report)
+      // 0A - Q#3 active (Visit Desert, Get Cactus Nectar) 
+      //
+      // Lord Hacker, Castle Blackridge South
+      // 0F - Q#1 active (
+      public byte[] questSideChunk           { get; set; } = new byte[1]; // Offset 0x6D  
+
+      public byte[] unknownChunk3            { get; set; } = new byte[2]; // Offset 0x6E - probably contains various progress/quest-related data
 
       public byte[] questChunk1              { get; set; } = new byte[1]; // Offset 0x70
       public int questOffset                 { get { return offset + 0x70; } }
 
-      public byte[] unknownChunk4            { get; set; } = new byte[13]; // Offset 0x71 - probably contains various progress/quest-related data
+      public byte[] unknownChunk4            { get; set; } = new byte[4]; // Offset 0x71 - probably contains various progress/quest-related data
 
-      public byte[] indexChunk               { get; set; } = new byte[1]; // Offset 126=0x7E
+      // This is _probably_ the "(quest) locations visited" byte. Set if...
+      // 00 (none)
+      // 01 (Wizard’s Lair, B-1, at 13,5. Just enter and leave. Inspectron Q#1 (adds one)
+      // 02 (Blithe's Peak, B-3 at 9,6. (adds two)
+      public byte[] questLocationVisitChunk  { get; set; } = new byte[1]; // Offset 0x75
+
+      public byte[] unknownChunk5            { get; set; } = new byte[2]; // Offset 0x76 - probably contains various progress/quest-related data
+
+      // This is _probably_ the "quest completed" byte
+      // 00 (none)
+      // 01 (Inspectron Q#1 complete) adds 1
+      // 03 (Inspectron Q#2 complete) adds 2 
+      public byte[] questCompletedChunk { get; set; } = new byte[1]; // Offset 0x78
+
+      public byte[] unknownChunk6            { get; set; } = new byte[5]; // Offset 0x79 - probably contains various progress/quest-related data
+
+      public byte[] indexChunk               { get; set; } = new byte[1]; // Offset 0x7E
       public int indexNum                    { get { return indexChunk[0]; } }
 
       public int locationNum                 { get; set; } = 0;

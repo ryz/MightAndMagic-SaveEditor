@@ -271,16 +271,25 @@ namespace MM1SaveEditor
                ParseCharacter(_stream, characters[i]);
                PrintCharacter(characters[i]);
 
-               ModifyChunkUInt32(characters[i].xpChunk, "XP", 5000);
+               ModifyChunkUInt32(characters[i].xpChunk, "XP", 32001);
                ModifyChunkUInt16(characters[i].gemsChunk, "Gems", 200);
                ModifyChunkUInt24(characters[i].goldChunk, "Gold", 5000);
 
-               Console.WriteLine($"Writing new values back to {ROSTER_FILE_NAME}. Are you sure?");
-               Console.ReadLine();
+               characters[i].sexChunk[0] = 2; // Set to female
+
+               for (int j = 0; j < characters[i].statsChunk.Length; j++)
+               {
+                  characters[i].statsChunk[j] = 18; // give perfect rollable stats
+               }
+
+               //Console.WriteLine($"Writing new values back to {ROSTER_FILE_NAME}. Are you sure?");
+               //Console.ReadLine();
 
                WriteChunk(_stream, characters[i].xpChunk, characters[i].xpOffset);
                WriteChunk(_stream, characters[i].gemsChunk, characters[i].gemsOffset);
                WriteChunk(_stream, characters[i].goldChunk, characters[i].goldOffset);
+               WriteChunk(_stream, characters[i].statsChunk, characters[i].statsOffset);
+               WriteChunk(_stream, characters[i].sexChunk, characters[i].sexOffset);
             }
          }
 
@@ -363,11 +372,12 @@ namespace MM1SaveEditor
                if (isValueChanged)
                {
                   // Write chunks back to the file
-                  Console.WriteLine($"Writing new value(s) back to {ROSTER_FILE_NAME}. Are you sure? Press ESC to abort.");
-                  input = Console.ReadKey(true);
+                  
+                  //Console.WriteLine($"Writing new value(s) back to {ROSTER_FILE_NAME}. Are you sure? Press ESC to abort.");
+                  //input = Console.ReadKey(true);
 
-                  if (input.Key != ConsoleKey.Escape)
-                  {
+                  //if (input.Key != ConsoleKey.Escape)
+                  //{
                      WriteChunk(_stream, _char.nameChunk, _char.nameOffset);
                      WriteChunk(_stream, _char.sexChunk, _char.sexOffset);
                      WriteChunk(_stream, _char.alignmentCurrentChunk, _char.alignmentCurrentOffset);
@@ -378,7 +388,7 @@ namespace MM1SaveEditor
                      WriteChunk(_stream, _char.goldChunk, _char.goldOffset);
                      WriteChunk(_stream, _char.foodChunk, _char.foodOffset);
                      WriteChunk(_stream, _char.questChunk1, _char.questOffset);
-                  }
+                  //}
 
                }
 
@@ -689,7 +699,7 @@ namespace MM1SaveEditor
          _stream.Read(_char.levelChunk2, 0, _char.levelChunk2.Length);                   // Level - 0x24
          _stream.Read(_char.ageChunk, 0, _char.ageChunk.Length);                         // Age Offset 37=0x25
 
-         _stream.Read(_char.unknownChunk2, 0, _char.unknownChunk2.Length);               // UNKNOWN #2 - 0x26
+         _stream.Read(_char.timesRestedChunk, 0, _char.timesRestedChunk.Length);         // Counts how often this character has rested - 0x26
 
          _stream.Read(_char.xpChunk, 0, _char.xpChunk.Length);                           // Experience - UInt32 0x27 - 0x2A
 
@@ -719,11 +729,23 @@ namespace MM1SaveEditor
 
          _stream.Read(_char.resistancesChunk, 0, _char.resistancesChunk.Length);         // Resistances 0x58 - 0x67
 
-         _stream.Read(_char.unknownChunk3, 0, _char.unknownChunk3.Length);               // UNKNOWN #3 0x68 - 0x6F
+         _stream.Read(_char.unknownChunk2, 0, _char.unknownChunk2.Length);               // UNKNOWN #2 0x68 - 0x6C
+
+         _stream.Read(_char.questSideChunk, 0, _char.questSideChunk.Length);             // Currently active sidequest - 0x6D
+
+         _stream.Read(_char.unknownChunk3, 0, _char.unknownChunk3.Length);               // UNKNOWN #3 0x6E - 0x6F
 
          _stream.Read(_char.questChunk1, 0, _char.questChunk1.Length);                   // Quest #1 Progress? 0x70
 
-         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x71 - 0x7D
+         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x71 - 0x74
+
+         _stream.Read(_char.questLocationVisitChunk, 0, _char.questLocationVisitChunk.Length); // (Quest?) locations visited - 0x75
+
+         _stream.Read(_char.unknownChunk5, 0, _char.unknownChunk5.Length);               // UNKNOWN #5 0x76 - 0x77
+
+         _stream.Read(_char.questCompletedChunk, 0, _char.questCompletedChunk.Length);   // Quests completed - 0x78
+
+         _stream.Read(_char.unknownChunk6, 0, _char.unknownChunk6.Length);               // UNKNOWN #6 0x79 - 0x7D
 
          _stream.Read(_char.indexChunk, 0, _char.indexChunk.Length);                     // Character Index number - 0x7E
       }
@@ -814,9 +836,9 @@ namespace MM1SaveEditor
          switch (s)
          {
             case "00": return "Quest not begun"; // 0
-            case "01": return "Talked to old Man in Sorpigal Dungeon"; // 1, gives quest item "Vellum Scroll" (0xE7)
-            case "02": return "Talked to Wizard Agar behin Erliquin Inn"; // 2, needs "Vellum Scroll" (0xE7) in backpack
-            case "04": return "Talked to Telgoran (Robed Elf) in Dusk"; // 4, needs "Vellum Scroll" (0xE7) in backpack, removes it
+            case "01": return "Talked to Old Man in Sorpigal Dungeon / Got Vellum Scroll"; // 1, gives quest item "Vellum Scroll" (0xE7), only if it's not in the backpack already
+            case "02": return "Talked to Wizard Agar behind Erliquin Inn"; // 2, needs "Vellum Scroll" (0xE7) in backpack, +1000 XP
+            case "04": return "Talked to Telgoran (Robed Elf) in Dusk"; // 4, needs "Vellum Scroll" (0xE7) in backpack, removes it, +2500 XP and +1500 Gold
             case "0C": return "Talked to Zom in Algary"; // 12, gives clue #1: "1-15"
             case "14": return "Talked to Zam in Portsmith"; // 20, gives clue #2: "C-15"
             case "1C": return "Talked to both Zom and Zam"; // 28, both clues: "C1; 15-15"
