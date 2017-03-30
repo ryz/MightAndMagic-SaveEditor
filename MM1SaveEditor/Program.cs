@@ -819,7 +819,7 @@ namespace MM1SaveEditor
             // Conditions are: Eradicated, Dead, Stone, Unconscious
             // Paralyzed, Poisoned, Diseased, Silenced, Blinded, Asleep
             case "00": return "Good";
-            case "01": return "01";
+            case "01": return "Sleep";
             case "02": return "02";
             case "03": return "03";
             case "04": return "04";
