@@ -816,16 +816,51 @@ namespace MM1SaveEditor
 
          switch (s)
          {
-            // Conditions are: Eradicated, Dead, Stone, Unconscious
-            // Paralyzed, Poisoned, Diseased, Silenced, Blinded, Asleep
+            // Characters can have (some) multiple conditions at the same time
+            // The maximum is 7 conditions at the same time (0x7F)
             case "00": return "Good";
-            case "01": return "Sleep";
-            case "02": return "02";
-            case "03": return "03";
-            case "04": return "04";
-            case "05": return "05";
-            case "10": return "Pois.";
-            default: return $"{s}?";
+            case "01": return "Asleep";
+            case "02": return "Blinded";
+            case "03": return "Blinded, Asleep";
+            case "04": return "Silenced";
+            case "05": return "Silenced, Asleep";
+            case "06": return "Silenced, Blinded";
+            case "07": return "Silenced, Blinded, Asleep";
+            case "08": return "Diseased";
+            case "09": return "Diseased, Asleep";
+            case "0A": return "Diseased, Blinded";
+            case "0B": return "Diseased, Blinded, Asleep";
+            case "0C": return "Diseased, Silenced";
+            case "0D": return "Diseased, Silenced, Asleep";
+            case "0E": return "Diseased, Silenced, Blinded";
+            case "0F": return "Diseased, Silenced, Blinded, Asleep";
+            case "10": return "Poisoned";
+            case "11": return "Poisoned, Asleep";
+            case "12": return "Poisoned, Blinded";
+            case "13": return "Poisoned, Blinded, Asleep";
+            case "14": return "Poisoned, Silenced";
+            case "18": return "Poisoned, Diseased";
+            case "20": return "Paralyzed";
+            case "21": return "Paralyzed, Asleep";
+            case "22": return "Paralyzed, Blinded";
+            case "23": return "Paralyzed, Blinded, Asleep";
+            case "28": return "Paralyzed, Diseased";
+            case "29": return "Paralyzed, Diseased, Asleep";
+            case "2B": return "Paralyzed, Diseased, Blinded, Asleep";
+            case "30": return "Paralyzed, Poisoned";
+            case "38": return "Paralyzed, Poisoned, Diseased";
+            case "3A": return "Paralyzed, Poisoned, Diseased, Blinded";
+            case "3B": return "Paralyzed, Poisoned, Diseased, Blinded, Asleep";
+            case "3F": return "Paralyzed, Poisoned, Diseased, Silenced, Blinded, Asleep";
+            case "40": return "Unconscious";
+            case "50": return "Unconscious, Poisoned";
+            case "60": return "Unconscious, Paralyzed";
+            case "7F": return "Unconscious, Paralyzed, Poisoned, Diseased, Silenced, Blinded, Asleep";
+            case "A0": return "Stone";
+            case "C0": return "Dead";
+            case "F0": return "Dead, Stone";
+            case "FF": return "Eradicated";
+            default: return $"Unknown ({s})";
          }
       }
 
@@ -843,6 +878,8 @@ namespace MM1SaveEditor
             case "14": return "Talked to Zam in Portsmith"; // 20, gives clue #2: "C-15"
             case "1C": return "Talked to both Zom and Zam"; // 28, both clues: "C1; 15-15"
             case "24": return "Found Ruby Whistle"; // 36, gives quest item "Ruby Whistle" (0xE8), 2k gold and note: "Stronghold at B-3 14,2 - blow 2x"
+            case "64": return "Entered Minotaur Stronghold in the Enchanted Forest (B-3 14,2)"; // 100 (+64)
+            case "80": return "Found Dog Statue in Minotaur Stronghold"; // 128 (+28) also gives 10k XP (Search statue to get the Gold Key (0xEF))
             default: return $"Unknown ({s})";
          }
       }

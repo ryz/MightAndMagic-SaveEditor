@@ -127,8 +127,8 @@ namespace MM1SaveEditor
       public void DumpAllItemsToFile(FileStream _stream)
       {
 
-         string header =    $"ID|Item Name     |Category    |Used by  |EquipBonus|Amount|Magic     |Effect     |Charges|Cost  |Dmg|Bonus|";
-         string separator = $"--+--------------+------------+---------+----------+------+----------+-----------+-------+------+---+-----+";
+         string header =    $" # |ID|Item Name     |Category    |Used by  |EquipBonus|Amount|Magic     |Effect     |Charges|Cost  |Dmg|Bonus|";
+         string separator = $"---+--+--------------+------------+---------+----------+------+----------+-----------+-------+------+---+-----+";
 
          Console.Clear();
          Console.WriteLine($"Dumping all items to file {ITEM_DUMP_FILE_NAME}...");
@@ -141,7 +141,7 @@ namespace MM1SaveEditor
 
          for (int i = 0; i < items.Length; i++)
          {
-            DumpItem(items[i]);
+            DumpItem(items[i], i + 1);
          }
 
          File.AppendAllText(ITEM_DUMP_FILE_NAME, separator + Environment.NewLine);
@@ -149,9 +149,9 @@ namespace MM1SaveEditor
 
       }
 
-      static void DumpItem(Item _item)
+      static void DumpItem(Item _item, int _itemNumber)
       {
-         string s = $"{_item.id.ToString("X2")}|{_item.name}|{_item.category.PadRight(12)}|{GetRestriction(_item).PadRight(9)}|{GetSpecialName(_item).PadRight(9)} |{_item.specialAmount.ToString().PadRight(5)} |{GetMagicState(_item).PadRight(10)}|{GetMagicEffect(_item).PadRight(11)}|{_item.charges.ToString().PadRight(6)} |{_item.value.ToString().PadRight(6)}|{_item.damage.ToString().PadRight(2)} |{_item.bonus.ToString().PadRight(2)}   |";
+         string s = $"{_itemNumber.ToString().PadRight(3)}|{_item.id.ToString("X2")}|{_item.name}|{_item.category.PadRight(12)}|{GetRestriction(_item).PadRight(9)}|{GetSpecialName(_item).PadRight(9)} |{_item.specialAmount.ToString().PadRight(5)} |{GetMagicState(_item).PadRight(10)}|{GetMagicEffect(_item).PadRight(11)}|{_item.charges.ToString().PadRight(6)} |{_item.value.ToString().PadRight(6)}|{_item.damage.ToString().PadRight(2)} |{_item.bonus.ToString().PadRight(2)}   |";
          File.AppendAllText(ITEM_DUMP_FILE_NAME, s + Environment.NewLine);
       }
 

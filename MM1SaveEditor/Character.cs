@@ -57,7 +57,7 @@ namespace MM1SaveEditor
 
       // This byte counts the number of times this character has rested; resting increases the value by one
       // Resting while this is 0xFF resets it to 0x0 and increments the character's age by one
-      // This aims to roughly simulate aging in the form "resting for the night",
+      // This aims to roughly simulate aging in the form of "passing time"
       // as 255 is "close" to one year (365 days) and thus the character slowly ages over time
       public byte[] timesRestedChunk         { get; set; } = new byte[1];  // Offset 38=0x26
 
@@ -160,12 +160,16 @@ namespace MM1SaveEditor
       // 00 (no quest active)
       //
       // Lord Inspectron, Castle Blackridge North
-      // 08 - Q#1 active (Find the Ancient Ruins in the Quivering Forest) 
-      // 09 - Q#2 active (Visit Blithes Peak and Report)
-      // 0A - Q#3 active (Visit Desert, Get Cactus Nectar) 
+      // 08 - Q1 active (Find the Ancient Ruins in the Quivering Forest) 
+      // 09 - Q2 active (Visit Blithes Peak and Report)
+      // 0A - Q3 active (Get Cactus Nectar by trading with Nomads in Desert)
+      // 0B - Q4 active (Find Shrine of Okzar in Dusk Dungeon)
       //
       // Lord Hacker, Castle Blackridge South
-      // 0F - Q#1 active (
+      // 0F - Q1 active (
+      //
+      // False King Alamar
+      // FF - Q1 active (false quest which can't be completed, has to be removed via spell: C3/7)
       public byte[] questSideChunk           { get; set; } = new byte[1]; // Offset 0x6D  
 
       public byte[] unknownChunk3            { get; set; } = new byte[2]; // Offset 0x6E - probably contains various progress/quest-related data
@@ -173,23 +177,31 @@ namespace MM1SaveEditor
       public byte[] questChunk1              { get; set; } = new byte[1]; // Offset 0x70
       public int questOffset                 { get { return offset + 0x70; } }
 
-      public byte[] unknownChunk4            { get; set; } = new byte[4]; // Offset 0x71 - probably contains various progress/quest-related data
+      public byte[] unknownChunk4            { get; set; } = new byte[3]; // Offset 0x71 - probably contains various progress/quest-related data
+
+      // Answering the signs (given by the Gypsy) correctly at A-4,4-6 adds 0x80 (128) to this (each character individually)
+      // Also observed values 0x0B, 0x0E, 0x0F
+      public byte[] progress1Chunk           { get; set; } = new byte[1]; // Offset 0x74
 
       // This is _probably_ the "(quest) locations visited" byte. Set if...
       // 00 (none)
-      // 01 (Wizard’s Lair, B-1, at 13,5. Just enter and leave. Inspectron Q#1 (adds one)
-      // 02 (Blithe's Peak, B-3 at 9,6. (adds two)
+      // 01 (Wizard’s Lair, B-1, at 13,5. Just enter and leave. Inspectron Q1, adds 1
+      // 03 (Blithe's Peak, B-3 at 9,6.) Inspectron Q2, adds 2 
+      // 07 (Cactus Nectar given to Inspectron) Inspectron Q3, adds 4 (only to character who carries it)
       public byte[] questLocationVisitChunk  { get; set; } = new byte[1]; // Offset 0x75
 
       public byte[] unknownChunk5            { get; set; } = new byte[2]; // Offset 0x76 - probably contains various progress/quest-related data
 
-      // This is _probably_ the "quest completed" byte
+      // This is _probably_ the "side quest completed" byte
       // 00 (none)
-      // 01 (Inspectron Q#1 complete) adds 1
-      // 03 (Inspectron Q#2 complete) adds 2 
+      // 01 (Inspectron Q1 complete) adds 1
+      // 03 (Inspectron Q2 complete) adds 2
+      // 07 (Inspectron Q2 complete) adds 4 (all characters)
       public byte[] questCompletedChunk { get; set; } = new byte[1]; // Offset 0x78
 
-      public byte[] unknownChunk6            { get; set; } = new byte[5]; // Offset 0x79 - probably contains various progress/quest-related data
+      public byte[] unknownChunk6            { get; set; } = new byte[4]; // Offset 0x79 - probably contains various progress/quest-related data
+
+      public byte[] questChunk2              { get; set; } = new byte[1]; // Offset 0x7D - starts at 0x0, set to 0x40 (64) once the Soul Maze has been completed (Sheltem answered)
 
       public byte[] indexChunk               { get; set; } = new byte[1]; // Offset 0x7E
       public int indexNum                    { get { return indexChunk[0]; } }
