@@ -737,7 +737,9 @@ namespace MM1SaveEditor
 
          _stream.Read(_char.questMainAct1Chunk, 0, _char.questMainAct1Chunk.Length);     // Main Quest Act 1 0x70
 
-         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x71 - 0x74
+         _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x71 - 0x73
+
+         _stream.Read(_char.progress1Chunk, 0, _char.progress1Chunk.Length);             // Misc Progress Tracker #1 0x74
 
          _stream.Read(_char.questLocationVisitChunk, 0, _char.questLocationVisitChunk.Length); // (Quest?) locations visited - 0x75
 
