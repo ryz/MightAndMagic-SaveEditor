@@ -142,7 +142,7 @@ namespace MM1SaveEditor
          {
             if (!characters[i].exists)
             {
-               Console.WriteLine($"-- ---EMPTY-SLOT-- --- ------- -------- -------- --- ----- -------- --------");
+               Console.WriteLine($"-- ---EMPTY-SLOT-- --- ------- -------- -------- --- ----- -- ------- --------");
             }
             else
             {
@@ -357,7 +357,7 @@ namespace MM1SaveEditor
                      isValueChanged = true;
                      break;
                   case ConsoleKey.Q:
-                     ModifyChunkUInt8(_char.questChunk1, "Quest", 0, 255);
+                     ModifyChunkUInt8(_char.questMainAct1Chunk, "Quest", 0, 255);
                      isValueChanged = true;
                      break;
                   case ConsoleKey.B:
@@ -387,7 +387,7 @@ namespace MM1SaveEditor
                      WriteChunk(_stream, _char.gemsChunk, _char.gemsOffset);
                      WriteChunk(_stream, _char.goldChunk, _char.goldOffset);
                      WriteChunk(_stream, _char.foodChunk, _char.foodOffset);
-                     WriteChunk(_stream, _char.questChunk1, _char.questOffset);
+                     WriteChunk(_stream, _char.questMainAct1Chunk, _char.questOffset);
                   //}
 
                }
@@ -735,7 +735,7 @@ namespace MM1SaveEditor
 
          _stream.Read(_char.unknownChunk3, 0, _char.unknownChunk3.Length);               // UNKNOWN #3 0x6E - 0x6F
 
-         _stream.Read(_char.questChunk1, 0, _char.questChunk1.Length);                   // Quest #1 Progress? 0x70
+         _stream.Read(_char.questMainAct1Chunk, 0, _char.questMainAct1Chunk.Length);     // Main Quest Act 1 0x70
 
          _stream.Read(_char.unknownChunk4, 0, _char.unknownChunk4.Length);               // UNKNOWN #4 0x71 - 0x74
 
@@ -745,7 +745,9 @@ namespace MM1SaveEditor
 
          _stream.Read(_char.questCompletedChunk, 0, _char.questCompletedChunk.Length);   // Quests completed - 0x78
 
-         _stream.Read(_char.unknownChunk6, 0, _char.unknownChunk6.Length);               // UNKNOWN #6 0x79 - 0x7D
+         _stream.Read(_char.unknownChunk6, 0, _char.unknownChunk6.Length);               // UNKNOWN #6 0x79 - 0x7C
+
+         _stream.Read(_char.questMainAct2Chunk, 0, _char.questMainAct2Chunk.Length);     // Main Quest Act 2 0x7D
 
          _stream.Read(_char.indexChunk, 0, _char.indexChunk.Length);                     // Character Index number - 0x7E
       }
@@ -864,22 +866,55 @@ namespace MM1SaveEditor
          }
       }
 
-      static string GetQuestProgress(Character _char)
+      static string GetMainQuestAct1Progress(Character _char)
       {
-         var s = BitConverter.ToString(_char.questChunk1);
+         var s = BitConverter.ToString(_char.questMainAct1Chunk);
 
          switch (s)
          {
-            case "00": return "Quest not begun"; // 0
+            case "00": return "Not begun"; // 0
             case "01": return "Talked to Old Man in Sorpigal Dungeon / Got Vellum Scroll"; // 1, gives quest item "Vellum Scroll" (0xE7), only if it's not in the backpack already
             case "02": return "Talked to Wizard Agar behind Erliquin Inn"; // 2, needs "Vellum Scroll" (0xE7) in backpack, +1000 XP
             case "04": return "Talked to Telgoran (Robed Elf) in Dusk"; // 4, needs "Vellum Scroll" (0xE7) in backpack, removes it, +2500 XP and +1500 Gold
+
             case "0C": return "Talked to Zom in Algary"; // 12, gives clue #1: "1-15"
             case "14": return "Talked to Zam in Portsmith"; // 20, gives clue #2: "C-15"
             case "1C": return "Talked to both Zom and Zam"; // 28, both clues: "C1; 15-15"
+
             case "24": return "Found Ruby Whistle"; // 36, gives quest item "Ruby Whistle" (0xE8), 2k gold and note: "Stronghold at B-3 14,2 - blow 2x"
             case "64": return "Entered Minotaur Stronghold in the Enchanted Forest (B-3 14,2)"; // 100 (+64)
-            case "80": return "Found Dog Statue in Minotaur Stronghold"; // 128 (+28) also gives 10k XP (Search statue to get the Gold Key (0xEF))
+            case "80": return "Found Dog Statue in Minotaur Stronghold"; // 128 (+28) This is the last step of Act 1; also gives 10k XP (Search statue to get the Gold Key (0xEF))
+            default: return $"Unknown ({s})";
+         }
+      }
+
+      static string GetMainQuestAct2Progress(Character _char)
+      {
+         var s = BitConverter.ToString(_char.questMainAct2Chunk);
+
+         switch (s)
+         {
+            case "00": return "Not begun"; // 0x0  (default, act 2 not started)
+            case "40": return "Soul Maze completed (False King Sheltem exposed)"; // 0x40 (64) Soul Maze has been completed (Sheltem answered)
+            
+            case "41": return "Soul Maze done & Astral Projector #1 activated";                   // 1 (1) // Astral Maze - Projectors, five in total, can be activated in any order
+            case "42": return "Soul Maze done & Astral Projector #2 activated";                   // 2 (2)
+            case "43": return "Soul Maze done & Astral Projector #1 and #2 activated";            // 3 (1+2)
+            case "44": return "Soul Maze done & Astral Projector #3 activated";                 // 4 (4)
+            case "45": return "Soul Maze done & Astral Projector #1 and #3 activated";          // 5 (1+4)
+            case "46": return "Soul Maze done & Astral Projector #2 and #3 activated";          // 6 (2+4)
+            case "47": return "Soul Maze done & Astral Projector #1, #2 and #3 activated";      // 7 (1+2+4)
+            case "48": return "Soul Maze done & Astral Projector #4 activated";                 // 8 (8)
+            case "49": return "Soul Maze done & Astral Projector #1 and #4 activated";          // 9 (1+8)
+            case "4A": return "Soul Maze done & Astral Projector #2 and #4 activated";          // 10 (2+8)
+            case "4B": return "Soul Maze done & Astral Projector #1, #2 and #4 activated";      // 11 (1+2+8)
+            case "4C": return "Soul Maze done & Astral Projector #3 and #4 activated";          // 12 (4+8)
+            case "4D": return "Soul Maze done & Astral Projector #1, #3 and #4 activated";      // 13 (1+4+8)
+            case "4E": return "Soul Maze done & Astral Projector #2, #3 and #4 activated";      // 14 (2+4+8)
+            case "4F": return "Soul Maze done & Astral Projector #1, #2, #3 and #4 activated";  // 15 (1+2+4+8)
+            case "5F": return "Soul Maze done & All five Astral Projectors activated";          // 16 (1+2+4+8+16)
+
+            case "0xFF": return "Game Completed! Inner Sanctum / Data Keeper reached";            // This triggers a different dialogue at B-1 4-15 hinting at M&M2 (also gives 500k XP) 
             default: return $"Unknown ({s})";
          }
       }
@@ -935,13 +970,13 @@ namespace MM1SaveEditor
 
       static void PrintCharacterHeader()
       {
-         Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lvl (XP) Town    ");
-         Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -------- --------");
+         Console.WriteLine("#  Name            Sex Alignm. Race     Class    Age Cond. Lv XP      Town    ");
+         Console.WriteLine("-- --------------- --- ------- -------- -------- --- ----- -- ------- --------");
       }
 
       static void PrintCharacterShort(Character _char)
       {
-         Console.WriteLine($"{_char.indexNum + 1}  {_char.name} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum} ({_char.xpNum}) {GetTownName(_char)}");
+         Console.WriteLine($"{_char.indexNum + 1}  {_char.name} {GetSexFromChunk(_char).PadRight(3)} {GetAlignmentFromChunk(_char).PadRight(7)} {GetRaceFromChunk(_char).PadRight(8)} {GetClassFromChunk(_char).PadRight(8)} {_char.ageNum}  {GetConditionFromChunk(_char).PadRight(5)} {_char.levelNum.ToString().PadLeft(2)} {_char.xpNum.ToString().PadLeft(7)} {GetTownName(_char)}");
       }
 
       static void PrintCharacter(Character _char)
@@ -972,7 +1007,9 @@ namespace MM1SaveEditor
          // Resistances 0x58 - 0x67
          Console.WriteLine($"Resistances: Magic  {_char.resMagic1}%/{_char.resMagic2}%  Fire   {_char.resFire1}%/{_char.resFire2}%  Cold   {_char.resCold1}%/{_char.resCold2}%  Elec   {_char.resElec1}%/{_char.resElec2}%\n             Acid   {_char.resAcid1}%/{_char.resAcid2}% Fear   {_char.resFear1}%/{_char.resFear2}% Poison {_char.resPoison1}%/{_char.resPoison2}% Sleep  {_char.resSleep1}%/{_char.resSleep2}%");
 
-         Console.WriteLine($"\nQuest #1 Progress: {GetQuestProgress(_char)} (0x{BitConverter.ToString(_char.questChunk1)})");
+         Console.WriteLine($"Main Quest Progress");
+         Console.WriteLine($"Act 1: {GetMainQuestAct1Progress(_char)} (0x{BitConverter.ToString(_char.questMainAct1Chunk)})");
+         Console.WriteLine($"Act 2: {GetMainQuestAct2Progress(_char)} (0x{BitConverter.ToString(_char.questMainAct2Chunk)})");
 
          Console.WriteLine("----------------------------------------------------------------------------");
       }

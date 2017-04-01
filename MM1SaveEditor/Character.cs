@@ -174,7 +174,8 @@ namespace MM1SaveEditor
 
       public byte[] unknownChunk3            { get; set; } = new byte[2]; // Offset 0x6E - probably contains various progress/quest-related data
 
-      public byte[] questChunk1              { get; set; } = new byte[1]; // Offset 0x70
+      // This tracks the progress of main quest, act 1
+      public byte[] questMainAct1Chunk              { get; set; } = new byte[1]; // Offset 0x70
       public int questOffset                 { get { return offset + 0x70; } }
 
       public byte[] unknownChunk4            { get; set; } = new byte[3]; // Offset 0x71 - probably contains various progress/quest-related data
@@ -184,24 +185,25 @@ namespace MM1SaveEditor
       public byte[] progress1Chunk           { get; set; } = new byte[1]; // Offset 0x74
 
       // This is _probably_ the "(quest) locations visited" byte. Set if...
-      // 00 (none)
-      // 01 (Wizard’s Lair, B-1, at 13,5. Just enter and leave. Inspectron Q1, adds 1
-      // 03 (Blithe's Peak, B-3 at 9,6.) Inspectron Q2, adds 2 
-      // 07 (Cactus Nectar given to Inspectron) Inspectron Q3, adds 4 (only to character who carries it)
+      // 0x00 (none)
+      // 0x01 (Wizard’s Lair, B-1, at 13,5. Just enter and leave. Inspectron Q1, adds 0x1
+      // 0x03 (Blithe's Peak, B-3 at 9,6.) Inspectron Q2, adds 0x2 
+      // 0x07 (Cactus Nectar given to Inspectron) Inspectron Q3, adds 0x4 (only to character who carries it)
       public byte[] questLocationVisitChunk  { get; set; } = new byte[1]; // Offset 0x75
 
       public byte[] unknownChunk5            { get; set; } = new byte[2]; // Offset 0x76 - probably contains various progress/quest-related data
 
       // This is _probably_ the "side quest completed" byte
-      // 00 (none)
-      // 01 (Inspectron Q1 complete) adds 1
-      // 03 (Inspectron Q2 complete) adds 2
-      // 07 (Inspectron Q2 complete) adds 4 (all characters)
+      // 0x00 (none)
+      // 0x01 (Inspectron Q1 complete) adds 0x1
+      // 0x03 (Inspectron Q2 complete) adds 0x2
+      // 0x07 (Inspectron Q2 complete) adds 0x4 (all characters)
       public byte[] questCompletedChunk { get; set; } = new byte[1]; // Offset 0x78
 
       public byte[] unknownChunk6            { get; set; } = new byte[4]; // Offset 0x79 - probably contains various progress/quest-related data
 
-      public byte[] questChunk2              { get; set; } = new byte[1]; // Offset 0x7D - starts at 0x0, set to 0x40 (64) once the Soul Maze has been completed (Sheltem answered)
+      // This tracks the progress of the Main Quest, Act 2
+      public byte[] questMainAct2Chunk              { get; set; } = new byte[1]; // Offset 0x7D
 
       public byte[] indexChunk               { get; set; } = new byte[1]; // Offset 0x7E
       public int indexNum                    { get { return indexChunk[0]; } }
