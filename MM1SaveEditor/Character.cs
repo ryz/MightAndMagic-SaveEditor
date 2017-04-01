@@ -13,7 +13,7 @@ namespace MM1SaveEditor
       public int nameOffset                  { get { return offset; } }
       public string name                     { get { return Encoding.Default.GetString(nameChunk); } }
 
-      public byte[] unknownChunk1            { get; set; } = new byte[1]; // Offset 15=0xF
+      public byte[] unknownChunk1            { get; set; } = new byte[1]; // Offset 15=0xF, quite sure this is a null terminator for the name string, is always 0x0
 
       public byte[] sexChunk                 { get; set; } = new byte[1]; // Offset 16=0x10
       public int sexOffset                   { get { return offset + 0x10; } }

@@ -820,7 +820,7 @@ namespace MM1SaveEditor
 
          switch (s)
          {
-            // Characters can have (some) multiple conditions at the same time
+            // Characters can have multiple conditions at the same time (not all)
             // The maximum is 7 conditions at the same time (0x7F)
             case "00": return "Good";
             case "01": return "Asleep";
@@ -875,17 +875,19 @@ namespace MM1SaveEditor
          switch (s)
          {
             case "00": return "Not begun"; // 0
-            case "01": return "Talked to Old Man in Sorpigal Dungeon / Got Vellum Scroll"; // 1, gives quest item "Vellum Scroll" (0xE7), only if it's not in the backpack already
-            case "02": return "Talked to Wizard Agar behind Erliquin Inn"; // 2, needs "Vellum Scroll" (0xE7) in backpack, +1000 XP
-            case "04": return "Talked to Telgoran (Robed Elf) in Dusk"; // 4, needs "Vellum Scroll" (0xE7) in backpack, removes it, +2500 XP and +1500 Gold
 
-            case "0C": return "Talked to Zom in Algary"; // 12, gives clue #1: "1-15"
-            case "14": return "Talked to Zam in Portsmith"; // 20, gives clue #2: "C-15"
-            case "1C": return "Talked to both Zom and Zam"; // 28, both clues: "C1; 15-15"
+            case "01": return "Talked to Old Man in Sorpigal Dungeon / Got Vellum Scroll";      // 1, gives quest item "Vellum Scroll" (0xE7), only if it's not in the backpack already
+            case "02": return "Talked to Wizard Agar behind Erliquin Inn";                      // 2, needs "Vellum Scroll" (0xE7) in backpack, +1000 XP
+            case "04": return "Talked to Telgoran (Robed Elf) in Dusk";                         // 4, needs "Vellum Scroll" (0xE7) in backpack, removes it, +2500 XP and +1500 Gold
 
-            case "24": return "Found Ruby Whistle"; // 36, gives quest item "Ruby Whistle" (0xE8), 2k gold and note: "Stronghold at B-3 14,2 - blow 2x"
+            case "0C": return "Talked to Zom in Algary";                                        // 12, gives clue #1: "1-15"
+            case "14": return "Talked to Zam in Portsmith";                                     // 20, gives clue #2: "C-15"
+            case "1C": return "Talked to both Zom and Zam";                                     // 28, both clues: "C1; 15-15"
+
+            case "24": return "Found Ruby Whistle";                                             // 36, gives quest item "Ruby Whistle" (0xE8), 2k gold and note: "Stronghold at B-3 14,2 - blow 2x"
             case "64": return "Entered Minotaur Stronghold in the Enchanted Forest (B-3 14,2)"; // 100 (+64)
-            case "80": return "Found Dog Statue in Minotaur Stronghold"; // 128 (+28) This is the last step of Act 1; also gives 10k XP (Search statue to get the Gold Key (0xEF))
+            case "80": return "Found Dog Statue in Minotaur Stronghold";                        // 128 (+28) This is the last step of Act 1; also gives 10k XP (Search statue to get the Gold Key (0xEF))
+
             default: return $"Unknown ({s})";
          }
       }
@@ -897,11 +899,29 @@ namespace MM1SaveEditor
          switch (s)
          {
             case "00": return "Not begun"; // 0x0  (default, act 2 not started)
-            case "40": return "Soul Maze completed (False King Sheltem exposed)"; // 0x40 (64) Soul Maze has been completed (Sheltem answered)
+
+            case "01": return "Astral Projector #1 activated";                                  // 1 (1) // Astral Maze - Projectors, five in total, can be activated in any order
+            case "02": return "Astral Projector #2 activated";                                  // 2 (2)
+            case "03": return "Astral Projector #1 and #2 activated";                           // 3 (1+2)
+            case "04": return "Astral Projector #3 activated";                                  // 4 (4)
+            case "05": return "Astral Projector #1 and #3 activated";                           // 5 (1+4)
+            case "06": return "Astral Projector #2 and #3 activated";                           // 6 (2+4)
+            case "07": return "Astral Projector #1, #2 and #3 activated";                       // 7 (1+2+4)
+            case "08": return "Astral Projector #4 activated";                                  // 8 (8)
+            case "09": return "Astral Projector #1 and #4 activated";                           // 9 (1+8)
+            case "0A": return "Astral Projector #2 and #4 activated";                           // 10 (2+8)
+            case "0B": return "Astral Projector #1, #2 and #4 activated";                       // 11 (1+2+8)
+            case "0C": return "Astral Projector #3 and #4 activated";                           // 12 (4+8)
+            case "0D": return "Astral Projector #1, #3 and #4 activated";                       // 13 (1+4+8)
+            case "0E": return "Astral Projector #2, #3 and #4 activated";                       // 14 (2+4+8)
+            case "0F": return "Astral Projector #1, #2, #3 and #4 activated";                   // 15 (1+2+4+8)
+            case "1F": return "All five Astral Projectors activated";                           // 16 (1+2+4+8+16)
+
+            case "40": return "Soul Maze completed (False King Sheltem exposed)";               // 0x40 (64) Soul Maze has been completed (Sheltem answered)
             
-            case "41": return "Soul Maze done & Astral Projector #1 activated";                   // 1 (1) // Astral Maze - Projectors, five in total, can be activated in any order
-            case "42": return "Soul Maze done & Astral Projector #2 activated";                   // 2 (2)
-            case "43": return "Soul Maze done & Astral Projector #1 and #2 activated";            // 3 (1+2)
+            case "41": return "Soul Maze done & Astral Projector #1 activated";                 // 1 (1) // Astral Maze - Projectors, five in total, can be activated in any order
+            case "42": return "Soul Maze done & Astral Projector #2 activated";                 // 2 (2)
+            case "43": return "Soul Maze done & Astral Projector #1 and #2 activated";          // 3 (1+2)
             case "44": return "Soul Maze done & Astral Projector #3 activated";                 // 4 (4)
             case "45": return "Soul Maze done & Astral Projector #1 and #3 activated";          // 5 (1+4)
             case "46": return "Soul Maze done & Astral Projector #2 and #3 activated";          // 6 (2+4)
@@ -916,7 +936,8 @@ namespace MM1SaveEditor
             case "4F": return "Soul Maze done & Astral Projector #1, #2, #3 and #4 activated";  // 15 (1+2+4+8)
             case "5F": return "Soul Maze done & All five Astral Projectors activated";          // 16 (1+2+4+8+16)
 
-            case "0xFF": return "Game Completed! Inner Sanctum / Data Keeper reached";            // This triggers a different dialogue at B-1 4-15 hinting at M&M2 (also gives 500k XP) 
+            case "FF": return "Game Completed! Inner Sanctum / Data Keeper reached";            // This triggers a different dialogue at B-1 4-15 hinting at M&M2 (also gives 500k XP) 
+
             default: return $"Unknown ({s})";
          }
       }
@@ -1012,6 +1033,8 @@ namespace MM1SaveEditor
          Console.WriteLine($"Main Quest Progress");
          Console.WriteLine($"Act 1: {GetMainQuestAct1Progress(_char)} (0x{BitConverter.ToString(_char.questMainAct1Chunk)})");
          Console.WriteLine($"Act 2: {GetMainQuestAct2Progress(_char)} (0x{BitConverter.ToString(_char.questMainAct2Chunk)})");
+
+         Console.WriteLine($"DEBUG - Unknown Chunks: [{BitConverter.ToString(_char.unknownChunk1)}] [{BitConverter.ToString(_char.unknownChunk2)}] [{BitConverter.ToString(_char.unknownChunk3)}] [{BitConverter.ToString(_char.unknownChunk4)}] [{BitConverter.ToString(_char.unknownChunk5)}] [{BitConverter.ToString(_char.unknownChunk6)}]");
 
          Console.WriteLine("----------------------------------------------------------------------------");
       }
