@@ -110,25 +110,25 @@ namespace MM1SaveEditor
 
          Console.WriteLine();
          Console.WriteLine($"Maze:");
-         Console.WriteLine("+" + "-".PadRight(47).Replace(" ", "-") + "+");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine1))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine2))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine3))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine4))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine5))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine6))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine7))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine8))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine9))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine10))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine11))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine12))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine13))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine14))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine15))}|");
-         Console.WriteLine($"|{MazeGfx(BitConverter.ToString(_maze.dataLine16))}|");
-         Console.WriteLine("+" + "-".PadRight(47).Replace(" ", "-") + "+");
-
+         Console.WriteLine("   +" + "-".PadRight(MazeGfx(BitConverter.ToString(_maze.dataLine1)).Length).Replace(" ", "-") + "+");
+         Console.WriteLine($"15 |{MazeGfx(BitConverter.ToString(_maze.dataLine1))}|");
+         Console.WriteLine($"14 |{MazeGfx(BitConverter.ToString(_maze.dataLine2))}|");
+         Console.WriteLine($"13 |{MazeGfx(BitConverter.ToString(_maze.dataLine3))}|");
+         Console.WriteLine($"12 |{MazeGfx(BitConverter.ToString(_maze.dataLine4))}|");
+         Console.WriteLine($"11 |{MazeGfx(BitConverter.ToString(_maze.dataLine5))}|");
+         Console.WriteLine($"10 |{MazeGfx(BitConverter.ToString(_maze.dataLine6))}|");
+         Console.WriteLine($" 9 |{MazeGfx(BitConverter.ToString(_maze.dataLine7))}|");
+         Console.WriteLine($" 8 |{MazeGfx(BitConverter.ToString(_maze.dataLine8))}|");
+         Console.WriteLine($" 7 |{MazeGfx(BitConverter.ToString(_maze.dataLine9))}|");
+         Console.WriteLine($" 6 |{MazeGfx(BitConverter.ToString(_maze.dataLine10))}|");
+         Console.WriteLine($" 5 |{MazeGfx(BitConverter.ToString(_maze.dataLine11))}|");
+         Console.WriteLine($" 4 |{MazeGfx(BitConverter.ToString(_maze.dataLine12))}|");
+         Console.WriteLine($" 3 |{MazeGfx(BitConverter.ToString(_maze.dataLine13))}|");
+         Console.WriteLine($" 2 |{MazeGfx(BitConverter.ToString(_maze.dataLine14))}|");
+         Console.WriteLine($" 1 |{MazeGfx(BitConverter.ToString(_maze.dataLine15))}|");
+         Console.WriteLine($" 0 |{MazeGfx(BitConverter.ToString(_maze.dataLine16))}|");
+         Console.WriteLine("   +" + "-".PadRight(MazeGfx(BitConverter.ToString(_maze.dataLine1)).Length).Replace(" ", "-") + "+");
+         Console.WriteLine("    ABCDEFGHIJKLMNOP");
       }
 
       static string MazeGfx(string _s)
