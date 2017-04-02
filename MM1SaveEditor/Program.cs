@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
 
+
 namespace MM1SaveEditor
 {
    class Program
@@ -18,6 +19,7 @@ namespace MM1SaveEditor
       static int characterSlotsOffset = 2286;
 
       static Dumper dumper = new Dumper();
+      static MazeViewer mazeViewer = new MazeViewer();
 
       static void Main(string[] args)
       {
@@ -29,8 +31,10 @@ namespace MM1SaveEditor
             {
                Console.WriteLine("Success!\n");
 
-               dumper.Init(); // If MM.exe is found, initialize and parse item & monster data
+               mazeViewer.Init();
 
+               dumper.Init(); // If MM.exe is found, initialize and parse item & monster data
+               
                InitializeCharacters();
                MainMenu(stream);
             }
@@ -96,7 +100,8 @@ namespace MM1SaveEditor
                case "9":
                   if (Dumper.isInitialized)
                   {
-                     dumper.DumpAllItemsToFile(_stream);
+                     dumper.DumpAllItemsToTxtFile(_stream);
+                     dumper.DumpAllItemsToJsonFile();
                      Console.ReadLine();
                   }
                   else
@@ -122,7 +127,7 @@ namespace MM1SaveEditor
          Console.WriteLine("1. List (and edit) characters");
          Console.WriteLine("2. Quick Start Package - Give each character XP, Gold and Gems");
          Console.WriteLine();
-         Console.WriteLine("9. Dump Items to file");
+         Console.WriteLine("9. Dump Items to JSON/TXT file");
          Console.WriteLine();
          Console.WriteLine("Press ESC to exit.");
       }

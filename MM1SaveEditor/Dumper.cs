@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace MM1SaveEditor
 {
    class Dumper
    {
       public static string EXE_FILE_NAME = "MM.EXE";
-      static string ITEM_DUMP_FILE_NAME = "itemdump.txt";
+      static string ITEM_DUMP_FILE_NAME = "items.txt";
+      static string ITEM_DUMP_FILE_NAME_JSON = "items.json";
       static string MONSTER_DUMP_FILE_NAME = "monsterdump.txt";
       static string VERSION_NUMBER = "v0.4";
 
@@ -124,7 +126,16 @@ namespace MM1SaveEditor
          }
       }
 
-      public void DumpAllItemsToFile(FileStream _stream)
+      public void DumpAllItemsToJsonFile()
+      {
+         string jsonItem = JsonConvert.SerializeObject(items, Formatting.Indented);
+         File.WriteAllText(ITEM_DUMP_FILE_NAME_JSON, jsonItem);
+
+         //Console.WriteLine(jsonItem);
+         Console.WriteLine($"Done! All data dumped. Press any key to continue");
+      }
+
+      public void DumpAllItemsToTxtFile(FileStream _stream)
       {
 
          string header =    $" # |ID|Item Name     |Category    |Used by  |EquipBonus|Amount|Magic     |Effect     |Charges|Cost  |Dmg|Bonus|";
