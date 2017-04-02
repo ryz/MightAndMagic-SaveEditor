@@ -7,7 +7,7 @@ namespace MM1SaveEditor
    class MazeViewer
    {
       static string MAZEDATA_FILE_NAME = "MAZEDATA.DTA";
-      static string VERSION_NUMBER = "v0.01";
+      static string VERSION_NUMBER = "v0.1";
 
       static int mazeAmount = 28160 / 256;
 
@@ -25,14 +25,14 @@ namespace MM1SaveEditor
                Console.WriteLine("Success!\n");
                Console.WriteLine($"Might and Magic 1 Maze Viewer ({VERSION_NUMBER}) by ryz\n");
 
-               //InitializeMazeData();
+               InitializeMazeData();
 
-               //for (int i = 0; i < mazes.Length; i++)
-               //{
-               //   ParseMaze(stream, mazes[i]);
-               //}
+               for (int i = 0; i < mazes.Length; i++)
+               {
+                  ParseMaze(stream, mazes[i]);
+               }
 
-               //PrintMaze(mazes[2]);
+               PrintMaze(mazes[3]);
 
                Console.ReadLine();
             }
@@ -108,11 +108,6 @@ namespace MM1SaveEditor
          Array.Reverse(_maze.dataLine15);
          Array.Reverse(_maze.dataLine16);
 
-         foreach (byte item in _maze.dataLine1)
-         {
-
-         }
-
          Console.WriteLine();
          Console.WriteLine($"Maze:");
          Console.WriteLine("+" + "-".PadRight(47).Replace(" ", "-") + "+");
@@ -138,7 +133,7 @@ namespace MM1SaveEditor
 
       static string MazeGfx(string _s)
       {
-         return _s.Replace("-", " ").Replace("11", " │").Replace("80", " ╬").Replace("55", " ▓").Replace("44", " ━").Replace("95", " ╙").Replace("14", " ╝").Replace("81", " ╟");
+         return _s.Replace("-", " ").Replace("11", " ║").Replace("80", " ╬").Replace("00", " ╬").Replace("55", " #").Replace("44", " ═").Replace("C4", " ═").Replace("95", " U").Replace("15", " U").Replace("14", " ╝").Replace("C1", " ╔").Replace("41", " ╔").Replace("81", " ╟").Replace("01", " ╠").Replace("05", " ╚").Replace("85", " ╚").Replace("50", " ╗").Replace("40", " ╦").Replace("C0", " ╦").Replace("45", " [").Replace("C5", " [").Replace("54", " ]").Replace("D4", " ]").Replace("51", " П").Replace("D1", " П").Replace("91", " П").Replace("04", " ╩").Replace("84", " ╩").Replace("90", " ╣").Replace("10", " ╣").Replace(" ", "");
       }
    }
 }

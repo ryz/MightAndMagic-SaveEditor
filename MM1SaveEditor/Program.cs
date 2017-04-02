@@ -30,6 +30,7 @@ namespace MM1SaveEditor
             using (var stream = File.Open(ROSTER_FILE_NAME, FileMode.Open, FileAccess.ReadWrite))
             {
                Console.WriteLine("Success!\n");
+               Console.OutputEncoding = System.Text.Encoding.UTF8;
 
                mazeViewer.Init();
 
